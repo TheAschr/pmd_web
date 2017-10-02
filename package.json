@@ -1,0 +1,20 @@
+{
+  "name": "pmd_web",
+  "version": "1.0.0",
+  "description": "Plex Movie Downloader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^1.26.2",
+    "express": "^4.16.1",
+    "request": "^2.83.0",
+    "shelljs": "^0.7.8",
+    "socket.io": "^2.0.3",
+    "sqlite3": "^3.1.13",
+    "transmission": "^0.4.9"
+  }
+}

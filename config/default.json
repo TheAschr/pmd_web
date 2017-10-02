@@ -1,0 +1,15 @@
+{
+	"Transmission": {
+		"ip": "127.0.0.1",
+		"port": 9091,
+		"username": "username",
+		"password": "password"
+	},
+	"Local": {
+		//"FileDir": "",
+		"DownloadDir": "C:/Users/alex.THEASCHR/Desktop"
+	},
+	"Web": {
+		"IPTCookie": "__cfduid=d0a3cbe0ff771fc37b1705a9e444eee861500083982;uid=1415237;pass=54f3d0787bd50a81f60619f3f8ae53c4"
+	}
+}
