@@ -5,7 +5,7 @@
 ### Capture Cookie file and put data here
 #COOKIE asdfzpvcoixjvc
 
-DB_FILE ..\..\database\pmd.db 
+DB_FILE ..\data\pmd.db 
 
-PICTURES_DIR ..\..\pics
+PICTURES_DIR ..\..\public\pics
 
