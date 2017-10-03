@@ -14,10 +14,16 @@ var tv_show_types = config.allowed_types.tv_shows.split(',');
 
 //**************************************//
 
+function search_by_title(media,title){
+	for(index = 0; index < media.length;index++){
+		if(media[index].titel );
+	}
+}
 
 module.exports = {
 	send: function(socket,data){
 	  	if(data.type == "movies"){
+	  		search_media(movies,data.search_title);
 	  		socket.emit('media_data',{media: movies.slice(data.offset,data.offset+data.size)});
 	  	}
 	  	else if(data.type == "tv_shows"){
