@@ -8,14 +8,40 @@
     <title>Plex Movie Downloader - Login</title><!-- Bootstrap core CSS -->
     <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet"><!-- Custom styles for this template -->
     <link href="css/4-col-portfolio.css" rel="stylesheet">
+    <script>
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    var bad_login = getParameterByName("bad_login");
+
+    window.onload = function(){
+        if(bad_login == "true"){
+            var error_el = document.createElement("div");
+            error_el.classList.add("alert","alert-danger");
+            error_el.setAttribute("style","margin:10px");
+            error_el.innerHTML = "Bad username or password";
+            document.getElementById("login").append(error_el);
+        }        
+    }
+
+    </script>
 </head>
 <body style="min-height: 100%;">
+   
     <form action="/login" id="login" method="post" name="login">
-        <h4 style="margin-bottom:20px;">Plex Movie Downloader</h4><input class="form-control input-sm chat-input" name="user[name]" placeholder="username" type="text"><br>
-        <input class="form-control input-sm chat-input" name="user[password]" placeholder="password" type="text"><br>
+        <h4 style="margin-bottom:20px;text-align: center;">User Login</h4>
+        <input class="form-control input-sm chat-input" name="user[name]" placeholder="username" type="text"><br>
+        <input class="form-control input-sm chat-input" name="user[password]" placeholder="password" type="password"><br>
         <div class="wrapper" style="margin:auto">
-            <span class="group-btn"><input id="plex_button" type="submit" value="Login"></span> <input id="plex_button" type="submit" value="Register"> 
+            <span class="group-btn"><input id="plex_button" type="submit" name="action" value="Login"></span> <input id="plex_button" type="submit" name="action" value="Register"> 
         </div>
+
     </form><!-- Bootstrap core JavaScript -->
     <script src="vendor/jquery/jquery.min.js">
     </script> 

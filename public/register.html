@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta content="" name="description">
+    <meta content="" name="author">
+    <title>Plex Movie Downloader - Register</title><!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet"><!-- Custom styles for this template -->
+    <link href="css/4-col-portfolio.css" rel="stylesheet">
+
+    <script>
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+    var error = getParameterByName("error");
+
+    window.onload = function(){
+        if(error){
+            var error_el = document.createElement("div");
+            error_el.classList.add("alert","alert-danger");
+            error_el.setAttribute("style","margin:10px");
+            error_el.innerHTML = error;
+            document.getElementById("login").append(error_el);
+        }        
+    }
+    </script>
+</head>
+<body style="min-height: 100%;">
+    <form action="/register" id="login" method="post" name="register">
+        <h4 style="margin-bottom:20px;text-align: center;">User Registration</h4>
+        <input class="form-control input-sm chat-input" name="user[name]" placeholder="username" type="text"><br>
+        <input class="form-control input-sm chat-input" name="user[email]" placeholder="email" type="text"><br>
+        <input class="form-control input-sm chat-input" name="user[password]" placeholder="password" type="password"><br>
+        <input class="form-control input-sm chat-input" name="user[phone]" placeholder="phone-number (optional)" type="text"><br>
+        <input class="form-control input-sm chat-input" name="secret_code" placeholder="registration code" type="text"><br>
+        <div class="wrapper" style="margin:auto">
+            <span class="group-btn"><input id="plex_button" type="submit" name="action" value="Submit"></span> <input id="plex_button" type="submit" name="action" value="Cancel"> 
+        </div>
+    </form><!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js">
+    </script> 
+    <script src="vendor/popper/popper.min.js">
+    </script> 
+    <script src="vendor/bootstrap/js/bootstrap.min.js">
+    </script>
+</body>
+</html>

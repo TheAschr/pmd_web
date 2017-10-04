@@ -9,7 +9,7 @@ app.use(session({
   secret: 'secret',
   resave: true,
   saveUninitialized: true
-}))
+}));
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
@@ -21,19 +21,47 @@ var urlencodedParser = bodyParser.urlencoded({
 app.use(urlencodedParser);
 app.use(bodyParser.json());
 
+
+
 function check_auth(req, res, next) {
-  if (req.session.user_name != 'alex') {
-    res.redirect('/');
-  } else {
+  if (req.session.user_name) {
     next();
+  } else {
+    res.redirect('/');
   }
 };
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/login.html');
 });
 app.post('/login', function(req, res) {
-  req.session.user_name = req.body.user.name;
-  res.redirect('/home')
+  if(req.body.action == "Login"){
+     sql.validate_user(req.body.user.name,req.body.user.password,
+      function(){
+        req.session.user_name = req.body.user.name;
+        res.redirect('/home');    
+      },
+      function(){
+        res.redirect('/?bad_login=true')
+      }
+    );
+  }
+  else if (req.body.action == "Register"){
+    res.redirect('/registration_page');
+  }
+
+});
+app.get('/registration_page',function(req,res){
+  res.sendFile(__dirname + '/public/register.html');
+})
+app.post('/register',function(req,res){
+  if(req.body.action == "Submit"){
+    sql.register_user(req.body.secret_code,req.body.user.name,req.body.user.email,req.body.user.password,req.body.user.phone,
+      function(){res.redirect('/');},
+      function(error){res.redirect('/registration_page?error='+error)});
+  }
+  else if(req.body.action == "Cancel"){
+    res.redirect('/');
+  }
 });
 app.get('/logout', function(req, res) {
   delete req.session.user_name;
@@ -65,6 +93,11 @@ io.on('connection', function(socket) {
   });
   socket.on('disconnect', function() {});
 });
+
+app.use(function(req,res){
+  res.redirect('/home');
+});
+
 http.listen(8080, '0.0.0.0', function() {
   console.log('Server started');
 });
