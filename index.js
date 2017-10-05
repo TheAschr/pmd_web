@@ -20,9 +20,6 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 app.use(urlencodedParser);
 app.use(bodyParser.json());
-
-
-
 function check_auth(req, res, next) {
   if (req.session.user_name) {
     next();
@@ -93,11 +90,9 @@ io.on('connection', function(socket) {
   });
   socket.on('disconnect', function() {});
 });
-
 app.use(function(req,res){
   res.redirect('/home');
 });
-
 http.listen(8080, '0.0.0.0', function() {
   console.log('Server started');
 });
