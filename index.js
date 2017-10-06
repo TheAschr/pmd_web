@@ -95,6 +95,6 @@ app.use(function(req,res){
   res.redirect('/home');
 });
 
-http.listen(8080, '0.0.0.0', function() {
+http.listen(80, '0.0.0.0', function() {
   console.log('Server started');
 });
