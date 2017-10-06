@@ -36,14 +36,54 @@ var transmission = new Transmission({
 	username: TRANSMISSION_USERNAME,
 	password: TRANSMISSION_PASSWORD
 });
-var active_torrents = [];
+
+function Torrent(t_id,sql_data){
+	this.t_id = t_id;
+
+	this.title = sql_data.title;
+	this.size = sql_data.size;
+	this.uid = sql_data.uid;
+
+	this.progress = 0;
+	this.status = "";
+
+}
+
+function Torrents(){
+	this.torrents = [];
+	this.add = function(torrent){
+		if(!this.get_by_t_id(torrent.t_id)){
+			this.torrents.push(torrent);
+		}else{
+			console.log("Another torrent with the same uid already exists not adding to active");
+		}
+	}
+	this.get_all = function(){
+		return this.torrents;
+	}
+	this.get_by_t_id = function(t_id){
+		for(var i = 0; i < this.torrents.length;i++){
+			if(this.torrents[i].t_id == t_id){
+				return this.torrents[i];
+			}
+		}
+		console.log("Could not find active torrent with t_id == "+t_id);
+		return null;
+	}
+}
+
+
 module.exports = {
-	upload: function(row,data) {
+
+	active_torrents: new Torrents(),
+	finished_torrents: new Torrents(),
+
+	upload: function(row,type,callback) {
 		var down_dir;
-		if(data.type == "movies"){
+		if(type == "movies"){
 			down_dir = MOVIES_DIR;
 		}
-		else if(data.type == "tv_shows"){
+		else if(type == "tv_shows"){
 			down_dir = TV_SHOWS_DIR;
 		}
 
@@ -77,35 +117,27 @@ module.exports = {
 						if (err) {
 							return console.log(err);
 						}
-						var id = result.id;
-						console.log(': DOWLOADING TORRENT WITH ID \"' + id + '\" at \"' + torrent_file + '\" to \"' + down_dir + '\"');
-						active_torrents[id] = row.uid;
-						transmission.get(function(err, arg) {
-							if (err) {
-								console.error(err);
-							}
-						});
+						console.log(': DOWLOADING TORRENT WITH ID \"' + result.id + '\" at \"' + torrent_file + '\" to \"' + down_dir + '\"');
+						var torrent = new Torrent(result.id,row);
+						module.exports.active_torrents.add(torrent);
+						callback(torrent);
 					});
 				});
 			});
 		});
 	},
-	reload_progress: function(socket) {
-		transmission.active(function(err, result) {
+	set_progress_all: function() {
+		transmission.active(function(err, results) {
 			if (err) {
 				console.log(err);
 			} else {
-				media_progress = [];
-				for (var i = 0; i < result.torrents.length; i++) {
-					console.log("Progress " + (result.torrents[i].downloadedEver / result.torrents[i].sizeWhenDone * 100) + "%");
-					media_progress[i] = {
-						uid: active_torrents[result.torrents[i].id],
-						progress: (result.torrents[i].downloadedEver / result.torrents[i].sizeWhenDone * 100).toFixed(2)
-					};
+				for(var i = 0; i < results.torrents.length;i++){
+					var torrent = module.exports.active_torrents.get_by_t_id(results.torrents[i].id);
+					if(torrent){
+						torrent.progress = (results.torrents[i].downloadedEver / results.torrents[i].sizeWhenDone * 100).toFixed(2);
+						torrent.status = results.torrents[i].status;
+					}
 				}
-				socket.emit('media_progress', {
-					media_progress: media_progress
-				});
 			}
 		});
 	}

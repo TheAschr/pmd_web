@@ -1,0 +1,13 @@
+- make better config implementation in scraper
+
+- When clicking movie on non-zero page it resets page to zero.
+
+- Add currently downloading movies tab.
+
+- Add visual indication of file download complete
+
+- Add admin page
+
+- Add twilio functionality
+
+-fix media_data.js
