@@ -20,6 +20,7 @@ var urlencodedParser = bodyParser.urlencoded({
 });
 app.use(urlencodedParser);
 app.use(bodyParser.json());
+
 function check_auth(req, res, next) {
   if (req.session.user_name) {
     next();
@@ -85,7 +86,7 @@ io.on('connection', function(socket) {
     console.log(': RECEIVED REQUEST FOR \"' + data.uid + '\"');
     sql.set_status(data.uid, "working", io, data);
     sql.get_rows_from_uid(data.uid, function(arg) {
-      transmission.upload(arg)
+      transmission.upload(arg,data)
     });
   });
   socket.on('disconnect', function() {});
@@ -93,6 +94,7 @@ io.on('connection', function(socket) {
 app.use(function(req,res){
   res.redirect('/home');
 });
+
 http.listen(8080, '0.0.0.0', function() {
   console.log('Server started');
 });

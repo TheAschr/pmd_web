@@ -12,12 +12,20 @@ if (config.Local.FileDir) {
 } else {
 	TORRENT_DIR = sh.pwd() + "\\torrent_files";
 }
-var MEDIA_DIR;
-if (config.Local.MediaDir) {
-	MEDIA_DIR = config.Local.MediaDir;
+var MOVIES_DIR;
+if (config.Local.Movies_dir) {
+	MOVIES_DIR = config.Local.Movies_dir;
 } else {
-	MEDIA_DIR = sh.pwd() + "\\media_files";
+	MOVIES_DIR = sh.pwd() + "\\media_files";
 }
+
+var TV_SHOWS_DIR;
+if (config.Local.TV_shows_dir) {
+	TV_SHOWS_DIR = config.Local.TV_shows_dir;
+} else {
+	TV_SHOWS_DIR = sh.pwd() + "\\media_files";
+}
+
 //**************************************//
 var Transmission = require('transmission');
 var request = require('request');
@@ -30,7 +38,15 @@ var transmission = new Transmission({
 });
 var active_torrents = [];
 module.exports = {
-	upload: function(row) {
+	upload: function(row,data) {
+		var down_dir;
+		if(data.type == "movies"){
+			down_dir = MOVIES_DIR;
+		}
+		else if(data.type == "tv_shows"){
+			down_dir = TV_SHOWS_DIR;
+		}
+
 		row.link = row.link.toString();
 		var url_split = row.link.split('/');
 		var f_name = url_split[url_split.length - 1];
@@ -52,17 +68,17 @@ module.exports = {
 			response_stream.pipe(write_stream);
 			response_stream.on('end', function() {
 				write_stream.on('close', function() {
-					if (!fs.existsSync(MEDIA_DIR)) {
-						fs.mkdirSync(MEDIA_DIR);
+					if (!fs.existsSync(down_dir)) {
+						fs.mkdirSync(down_dir);
 					}
 					transmission.addFile(torrent_file, {
-						"download-dir": MEDIA_DIR
+						"download-dir": down_dir
 					}, function(err, result) {
 						if (err) {
 							return console.log(err);
 						}
 						var id = result.id;
-						console.log(': DOWLOADING TORRENT WITH ID \"' + id + '\" at \"' + torrent_file + '\" to \"' + MEDIA_DIR + '\"');
+						console.log(': DOWLOADING TORRENT WITH ID \"' + id + '\" at \"' + torrent_file + '\" to \"' + down_dir + '\"');
 						active_torrents[id] = row.uid;
 						transmission.get(function(err, arg) {
 							if (err) {

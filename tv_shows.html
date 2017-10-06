@@ -12,13 +12,13 @@
  <script src='/socket.io/socket.io.js'></script>
   <script src='/scripts/media_data.js'></script>
   <script>
-    var socket = io('http://localhost:8080');
+    var socket = io();
     var media = new Media('tv_shows',socket);
     var search_media = media.search_media;
   </script>
 
   <script>
-    window.onload = function(){
+    window.addEventListener("load",function(){
       document.getElementById("search_bar")
           .addEventListener("keyup", function(event) {
           event.preventDefault();
@@ -26,7 +26,7 @@
               document.getElementById("plex_button").click();
           }
       });
-    }
+    } , true);
   </script>
 </head>
 <body>

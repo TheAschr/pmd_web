@@ -1,7 +1,7 @@
 function Media(media_type,socket){
-
+   var media_self = this;
    socket.on('connect',function(){
-     media.load();
+      window.addEventListener("load", media_self.load(media), true);
    });
 
    socket.on('media_data', function(data){
@@ -14,6 +14,8 @@ function Media(media_type,socket){
   this.page = 0;
   this.offset = 0;
   this.size = 20;
+
+  this.search_title = "";
 
   this.set_page = function(index){
     this.page = index;
@@ -77,8 +79,8 @@ function Media(media_type,socket){
           main_div.classList.add("col-lg-3", "col-md-4", "col-sm-6", "portfolio-item");
 
           var card_div = document.createElement("a");
-          card_div.addEventListener("click", function() {
-              download_media(this.id);
+            card_div.addEventListener("click", function() {
+              media_self.download(this.id);
           });
           card_div.id = data.media[index].uid;
           card_div.style = "color:white;text-decoration:none";
@@ -140,32 +142,35 @@ function Media(media_type,socket){
   this.build_progress = function(data) {
       for (var i in data.media_progress) {
           var card_div = document.getElementById(data.media_progress[i].uid);
-          var card_body = card_div.children[1];
-          for (child = 0; child < card_body.children.length; child++) {
-              if (card_body.children[child].className == "progress") {
-                  card_body.removeChild(card_body.children[child]);
-              }
+          if(card_div){
+            var card_body = card_div.children[1];
+            for (child = 0; child < card_body.children.length; child++) {
+                if (card_body.children[child].className == "progress") {
+                    card_body.removeChild(card_body.children[child]);
+                }
+            }
+
+            var progress_bar_container = document.createElement("div");
+            progress_bar_container.className = "progress";
+            progress_bar_container.setAttribute("style", "margin-bottom:30px;")
+            card_body.insertBefore(progress_bar_container, card_body.children[0]);
+
+            var progress_bar = document.createElement("div");
+            progress_bar.className = "progress-bar"
+            progress_bar.setAttribute("role", "progressbar");
+            progress_bar.setAttribute("aria-valuenow", data.media_progress[i].progress);
+            progress_bar.setAttribute("aria-valuemin", "0");
+            progress_bar.setAttribute("aria-valuemax", "100");
+            progress_bar.setAttribute("style", "height:10px;width:" + data.media_progress[i].progress + "%;background-color:#cc7b19");
+            progress_bar_container.appendChild(progress_bar);
+
+            var progress_bar_inner = document.createElement("span");
+            progress_bar_inner.className = "sr-only";
+            progress_bar_inner.innerHTML = data.media_progress[i].progress + "%";
+            progress_bar.appendChild(progress_bar_inner);
+
+
           }
-
-          var progress_bar_container = document.createElement("div");
-          progress_bar_container.className = "progress";
-          progress_bar_container.setAttribute("style", "margin-bottom:30px;")
-          card_body.insertBefore(progress_bar_container, card_body.children[0]);
-
-          var progress_bar = document.createElement("div");
-          progress_bar.className = "progress-bar"
-          progress_bar.setAttribute("role", "progressbar");
-          progress_bar.setAttribute("aria-valuenow", data.media_progress[i].progress);
-          progress_bar.setAttribute("aria-valuemin", "0");
-          progress_bar.setAttribute("aria-valuemax", "100");
-          progress_bar.setAttribute("style", "height:10px;width:" + data.media_progress[i].progress + "%;background-color:#cc7b19");
-          progress_bar_container.appendChild(progress_bar);
-
-          var progress_bar_inner = document.createElement("span");
-          progress_bar_inner.className = "sr-only";
-          progress_bar_inner.innerHTML = data.media_progress[i].progress + "%";
-          progress_bar.appendChild(progress_bar_inner);
-
       }
   }
 
