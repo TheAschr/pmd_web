@@ -1,17 +1,17 @@
 
 //***************CONFIG*****************//
-var config = require('./config/sql_connector_config.json');
+var config = require('./config/config.json');
 var sh = require('shelljs');
 
-var DB_LOCATION = config.db_location;
+var DB_LOCATION = config.Local.DB_File;
 
 var movies = [];
-var movie_types = config.allowed_types.movies.split(',');
+var movie_types = config.Web.allowed_types.movies.split(',');
 
 var tv_shows = [];
-var tv_show_types = config.allowed_types.tv_shows.split(',');
+var tv_show_types = config.Web.allowed_types.tv_shows.split(',');
 
-var registration_code = config.registration_code;
+var registration_code = config.Web.registration_code;
 
 //**************************************//
 

@@ -1,7 +1,0 @@
-{
-	"Cookie": "asdfapsdoifj", 
-	"Local": {
-		"DB_File": "../../data/pmd.db",
-		"Pictures_dir": "../../public/pics"
-	}
-}

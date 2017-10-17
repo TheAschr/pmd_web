@@ -4,18 +4,37 @@
 #include "scraper.h"
 #include "fio.h"
 
+char *ROOT_DIR = "../../";
 
 JSON_Tree *CONFIG = NULL;
 
 int main(int argc,char *argv[]){
-	CONFIG = init_json("../../config/scraper_config.json");
 
-	char *db_file = get_json_value(get_json_child(get_json_child(CONFIG->head,"Local"),"DB_File"));
+	char json_config_file[] = "config/config.json";
+
+	char json_config[strlen(ROOT_DIR)+strlen(json_config_file)];
+	sprintf(json_config,"%s%s",ROOT_DIR,json_config_file);
+
+	CONFIG = init_json(json_config);
+
+	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
+	
+	JSON_Element *db_file_el = get_json_child(local_el,"DB_File");
+
+	char *db_file_rel = get_json_value(db_file_el);
+	char db_file[strlen(ROOT_DIR)+strlen(db_file_rel)];
+	sprintf(db_file,"%s%s",ROOT_DIR,db_file_rel);
+
 	if(!file_exists(db_file)){
 		return 1;
 	}
 	
-	char *pics_dir = get_json_value(get_json_child(get_json_child(CONFIG->head,"Local"),"Pictures_dir"));
+	JSON_Element *pics_dir_el = get_json_child(local_el,"Pictures_dir");
+
+	char *pics_file_rel = get_json_value(pics_dir_el);
+	char pics_dir[strlen(ROOT_DIR)+strlen(pics_file_rel)];
+	sprintf(pics_dir,"%s%s",ROOT_DIR,pics_file_rel);
+
 	if(!dir_exists(pics_dir)){
 		if(!make_dir(pics_dir))
 			return 1;

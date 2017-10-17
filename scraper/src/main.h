@@ -20,6 +20,8 @@
 
 #include "json_tree.h"
 
+extern char *ROOT_DIR;
+
 extern JSON_Tree *CONFIG;
 
 #endif

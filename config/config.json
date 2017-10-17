@@ -1,0 +1,20 @@
+{
+	"Transmission": {
+		"ip": "127.0.0.1",
+		"port": 9091,
+		"username": "username",
+		"password": "password"
+	},
+	"Local": {
+		"DB_File": "data/pmd.db",
+		"Pictures_dir": "public/pics"
+	},
+	"Web": {
+		"IPTCookie": "",
+		"allowed_types": {
+			"movies": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
+			"tv_shows": "tvWEBDL,TVX264,SDX264,TV480p,TVX265,sport,tvDocumentaries,tvpackenglish,tvxvid"
+		},
+		"registration_code": "reg_code"
+	}
+}

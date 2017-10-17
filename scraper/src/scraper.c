@@ -14,6 +14,14 @@ int movies_scraped = 0;
 
 unsigned __stdcall scrape_index_page(void *data){
 	MainPageThreadData *m_page_thread_data = (MainPageThreadData *)data;
+	
+	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
+
+	JSON_Element *pics_dir_el = get_json_child(local_el,"Pictures_dir");
+
+	char *pics_file_rel = get_json_value(pics_dir_el);
+	char pics_dir[strlen(ROOT_DIR)+strlen(pics_file_rel)];
+	sprintf(pics_dir,"%s%s",ROOT_DIR,pics_file_rel);
 
 	int main_page_retry = 0;
 	do{
@@ -130,7 +138,7 @@ unsigned __stdcall scrape_index_page(void *data){
 										char *pic_file_url = html_get_string_between_pos(&pic_page_html,img_link_positions[0][PRE_END],img_link_positions[0][POST_BEGIN]);
 										char pic_file_ext[] = ".jpeg";								
 										char pic_file[strlen(mv_id->string)+strlen(pic_file_ext)];
-										snprintf(pic_file,strlen(get_json_value(get_json_child(get_json_child(CONFIG->head,"Local"),"Pictures_dir")))+1+strlen(mv_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",get_json_value(get_json_child(get_json_child(CONFIG->head,"Local"),"Pictures_dir")),mv_id->string);
+										snprintf(pic_file,strlen(pics_dir)+1+strlen(mv_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",pics_dir,mv_id->string);
 
 										//SCRAPE MOVIE PICTURE FILE//////////////////////////
 

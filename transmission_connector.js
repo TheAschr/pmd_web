@@ -1,5 +1,5 @@
 //***************CONFIG*****************//
-var config = require('./config/transmission_config.json');
+var config = require('./config/config.json');
 var sh = require("shelljs");
 var IPT_COOKIE = config.Web.IPTCookie;
 var TRANSMISSION_IP = config.Transmission.ip;
@@ -7,21 +7,21 @@ var TRANSMISSION_PORT = config.Transmission.port;
 var TRANSMISSION_USERNAME = config.Transmission.username;
 var TRANSMISSION_PASSWORD = config.Transmission.password;
 var TORRENT_DIR;
-if (config.Local.FileDir) {
-	TORRENT_DIR = config.Local.FileDir;
+if (config.Transmission.File_dir) {
+	TORRENT_DIR = config.Transmission.File_dir;
 } else {
 	TORRENT_DIR = sh.pwd() + "\\torrent_files";
 }
 var MOVIES_DIR;
-if (config.Local.Movies_dir) {
-	MOVIES_DIR = config.Local.Movies_dir;
+if (config.Transmission.Movies_dir) {
+	MOVIES_DIR = config.Transmission.Movies_dir;
 } else {
 	MOVIES_DIR = sh.pwd() + "\\media_files";
 }
 
 var TV_SHOWS_DIR;
-if (config.Local.TV_shows_dir) {
-	TV_SHOWS_DIR = config.Local.TV_shows_dir;
+if (config.Transmission.TV_shows_dir) {
+	TV_SHOWS_DIR = config.Transmission.TV_shows_dir;
 } else {
 	TV_SHOWS_DIR = sh.pwd() + "\\media_files";
 }

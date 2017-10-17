@@ -1,2 +1,1 @@
-copy transmission_config_back.json transmission_config.json
-copy scraper_config_back.json scraper_config.json
+copy config_back.json config.json

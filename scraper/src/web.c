@@ -1,6 +1,8 @@
 #include "web.h"
 #include "main.h"
 
+
+
 static size_t get_buffer_cb(void *ptr, size_t size, size_t nmemb,Vector **vector) 
 { 
 	char *data = (char *)ptr;
@@ -19,12 +21,19 @@ int curl_get_buffer(Vector *vector,char *url){
 	CURL *curl = curl_easy_init();
 	
 	if(curl) {
+		JSON_Element *web_el = get_json_child(CONFIG->head,"Web");
+		JSON_Element *cookie_el = get_json_child(web_el,"IPTCookie");
+		char *cookie = get_json_value(cookie_el);
+		if(!cookie){
+			printf("COULD NOT FIND VALID COOKIE STRING IN CONFIG MAY NOT BE ABLE TO GET FILE\n");
+		}
+
 		curl_easy_setopt(curl, CURLOPT_SHARE, share);
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); 
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
-		curl_easy_setopt(curl, CURLOPT_COOKIE,get_json_value(get_json_child(CONFIG->head,"Cookie")));
+		curl_easy_setopt(curl, CURLOPT_COOKIE,cookie);
 
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
@@ -56,12 +65,18 @@ int curl_get_file(FILE *f,char *url){
 	CURL *curl = curl_easy_init();
 
 	if(curl) {
+		JSON_Element *web_el = get_json_child(CONFIG->head,"Web");
+		JSON_Element *cookie_el = get_json_child(web_el,"IPTCookie");
+		char *cookie = get_json_value(cookie_el);
+		if(!cookie){
+			printf("COULD NOT FIND VALID COOKIE STRING IN CONFIG MAY NOT BE ABLE TO GET FILE\n");
+		}
 
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); 
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
-		curl_easy_setopt(curl, CURLOPT_COOKIE,get_json_value(get_json_child(CONFIG->head,"Cookie")));
+		curl_easy_setopt(curl, CURLOPT_COOKIE,cookie);
 
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
