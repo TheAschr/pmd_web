@@ -1,6 +1,5 @@
 #include "scraper.h"
 #include "main.h"
-#include "config.h"
 #include "string_time.h"
 #include <process.h> 
 
@@ -131,7 +130,7 @@ unsigned __stdcall scrape_index_page(void *data){
 										char *pic_file_url = html_get_string_between_pos(&pic_page_html,img_link_positions[0][PRE_END],img_link_positions[0][POST_BEGIN]);
 										char pic_file_ext[] = ".jpeg";								
 										char pic_file[strlen(mv_id->string)+strlen(pic_file_ext)];
-										snprintf(pic_file,strlen(CONFIG->pics_dir)+1+strlen(mv_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",CONFIG->pics_dir,mv_id->string);
+										snprintf(pic_file,strlen(get_json_value(get_json_child(get_json_child(CONFIG->head,"Local"),"Pictures_dir")))+1+strlen(mv_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",get_json_value(get_json_child(get_json_child(CONFIG->head,"Local"),"Pictures_dir")),mv_id->string);
 
 										//SCRAPE MOVIE PICTURE FILE//////////////////////////
 

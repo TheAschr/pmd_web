@@ -18,6 +18,8 @@
 #define LINE_BREAK "\n======================================================\n"
 #define LINE_BREAK_THIN "\n------------------------------------------------------\n"
 
-extern struct Config *CONFIG;
+#include "json_tree.h"
+
+extern JSON_Tree *CONFIG;
 
 #endif

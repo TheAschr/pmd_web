@@ -1,7 +1,5 @@
 #include "web.h"
 #include "main.h"
-#include "config.h"
-
 
 static size_t get_buffer_cb(void *ptr, size_t size, size_t nmemb,Vector **vector) 
 { 
@@ -26,7 +24,7 @@ int curl_get_buffer(Vector *vector,char *url){
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
-		curl_easy_setopt(curl, CURLOPT_COOKIE,CONFIG->cookie);
+		curl_easy_setopt(curl, CURLOPT_COOKIE,get_json_value(get_json_child(CONFIG->head,"Cookie")));
 
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
@@ -63,7 +61,7 @@ int curl_get_file(FILE *f,char *url){
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
-		curl_easy_setopt(curl, CURLOPT_COOKIE,CONFIG->cookie);
+		curl_easy_setopt(curl, CURLOPT_COOKIE,get_json_value(get_json_child(CONFIG->head,"Cookie")));
 
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
