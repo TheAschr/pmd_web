@@ -120,11 +120,11 @@ module.exports = {
 	send: function(socket,data){
 	  	if(data.type == "movies"){
 		 	var results = search_by_title(movies,data.title);
-	  		socket.emit('media_data',{media: results.slice(data.offset,data.offset+data.size)});
+	  		socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size)});
 	  	}
 	  	else if(data.type == "tv_shows"){
  		 	var results = search_by_title(tv_shows,data.title);
-			socket.emit('media_data',{media: results.slice(data.offset,data.offset+data.size)});
+			socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size)});
 	  	}
 	},
 	reload : function(socket,data){

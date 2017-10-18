@@ -2,12 +2,15 @@ function Media(media_type,socket){
    var media_self = this;
    socket.on('connect',function(){
       window.addEventListener("load", media_self.load(media), true);
+      setInterval(function() {
+        socket.emit('reload_progress_req',{})
+      }, 2000);
    });
-
-   socket.on('media_data', function(data){
+   socket.on('media_res', function(data){
      media.build(data);
    });
-   socket.on('media_progress',function(data){
+   socket.on('reload_progress_res',function(data){
+     console.log(data)
      media.build_progress(data);
    });
 
@@ -140,8 +143,9 @@ function Media(media_type,socket){
   }
 
   this.build_progress = function(data) {
-      for (var i in data.media_progress) {
-          var card_div = document.getElementById(data.media_progress[i].uid);
+      for (var i in data.active.torrents) {
+          var card_div = document.getElementById(data.active.torrents[i].uid);
+          console.log(data.active.torrents[i]);
           if(card_div){
             var card_body = card_div.children[1];
             for (child = 0; child < card_body.children.length; child++) {
@@ -158,15 +162,15 @@ function Media(media_type,socket){
             var progress_bar = document.createElement("div");
             progress_bar.className = "progress-bar"
             progress_bar.setAttribute("role", "progressbar");
-            progress_bar.setAttribute("aria-valuenow", data.media_progress[i].progress);
+            progress_bar.setAttribute("aria-valuenow", data.active.torrents[i].progress);
             progress_bar.setAttribute("aria-valuemin", "0");
             progress_bar.setAttribute("aria-valuemax", "100");
-            progress_bar.setAttribute("style", "height:10px;width:" + data.media_progress[i].progress + "%;background-color:#cc7b19");
+            progress_bar.setAttribute("style", "height:10px;width:"+data.active.torrents[i].progress+"%;background-color:#cc7b19");
             progress_bar_container.appendChild(progress_bar);
 
             var progress_bar_inner = document.createElement("span");
             progress_bar_inner.className = "sr-only";
-            progress_bar_inner.innerHTML = data.media_progress[i].progress + "%";
+            progress_bar_inner.innerHTML = data.active.torrents[i].progress + "%";
             progress_bar.appendChild(progress_bar_inner);
 
 
