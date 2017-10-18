@@ -16,7 +16,9 @@ int main(int argc,char *argv[]){
 	sprintf(json_config,"%s%s",ROOT_DIR,json_config_file);
 
 	CONFIG = init_json(json_config);
-
+	if(!CONFIG){
+		return 1;
+	}
 	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
 	
 	JSON_Element *db_file_el = get_json_child(local_el,"DB_File");

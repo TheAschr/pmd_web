@@ -60,12 +60,17 @@
 		}
 		else if(top_state_is(state_list,VALUE) && c=='"'){
 			del_top_state(state_list);
+			if(val_length == 0){
+				printf("\nWARNING EMPTY VALUE FOR KEY %s\n", current_element->key);
+				set_json_element_value(&current_element,"");
+			}else{
+				val[val_length] = '\0';
+				val_length = 0;
+				set_json_element_value(&current_element,val);
+				free(val);
+				val = NULL;	
+			}
 
-			val[val_length] = '\0';
-			set_json_element_value(&current_element,val);
-			val_length = 0;
-			free(val);
-			val = NULL;
 		}
 		else if(top_state_is(state_list,DEFINITION) && (c==',' || c=='\n')){
 			del_top_state(state_list);
@@ -129,8 +134,10 @@ JSON_Tree *init_json(char *file_name){
 	json_tree->head->children = NULL;
 	json_tree->head->num_children = 0;
 
-	if(!build_json(&json_tree,f))
+	if(!build_json(&json_tree,f)){
+		printf("JSON BUILD FAILED\n");
 		return 0;
+	}
 
 	return json_tree;
 }
@@ -169,7 +176,11 @@ JSON_Element *get_json_child(JSON_Element *parent,char *key){
 
 char *get_json_value(JSON_Element *json_element){
 	if(json_element){
-		return json_element->value;
+		if(json_element->value){
+			return json_element->value;
+		}else{
+			printf("\nCOULD NOT FIND VALUE FOR %s\n",json_element->key);\
+		}
 	}
 	return NULL;
 }
