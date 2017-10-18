@@ -53,7 +53,8 @@ app.get('/registration_page',function(req,res){
 })
 app.post('/register',function(req,res){
   if(req.body.action == "Submit"){
-    sql.register_user(req.body.secret_code,req.body.user.name,req.body.user.email,req.body.user.password,req.body.user.phone,
+    sql.register_user(req.body.secret_code,req.body.user.name,req.body.user.email,req.body.user.password,req.body.user.password_conf,req.body.user.phone,
+      
       function(){res.redirect('/');},
       function(error){res.redirect('/registration_page?error='+error)});
   }

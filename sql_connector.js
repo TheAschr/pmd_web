@@ -13,6 +13,10 @@ var tv_show_types = config.Web.allowed_types.tv_shows.split(',');
 
 var registration_code = config.Web.registration_code;
 
+var min_pass_len = 8;
+var min_pass_num = 1;
+var min_pass_spec = 1;
+
 //**************************************//
 
 var bcrypt = require('bcrypt');
@@ -34,29 +38,49 @@ function search_by_title(media,title){
 }
 
 module.exports = {
-	register_user: function(secret_code,username,email,password,phone,succ_cb,fail_cb){
+	register_user: function(secret_code,username,email,password,password_conf,phone,succ_cb,fail_cb){
 	module.exports.user_exists(username,function(){
 		fail_cb("Username already taken");
 	},function(){
-		if(secret_code == registration_code){
-			var db = new sqlite3.Database(DB_LOCATION,(err)=>{
-				if (err){
-					return console.error(err.message);
+		if(password == password_conf){
+			if(secret_code == registration_code){
+				if(password.length >= min_pass_len){
+					var nums_in_password = password.match(/[0-9]/g);
+					if(nums_in_password && nums_in_password.length >= min_pass_num){
+						var spec_in_password = password.match(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/g);
+						if(spec_in_password && spec_in_password.length >= min_pass_spec){
+							var db = new sqlite3.Database(DB_LOCATION,(err)=>{
+							if (err){
+								return console.error(err.message);
+								}
+							});
+							bcrypt.hash(password,saltRounds,function(err,hash){
+								if(err){
+									console.log(err);
+								}
+								var insert_user = db.prepare("INSERT INTO users (username,email,password,phone) VALUES (?,?,?,?)");
+								insert_user.run(username,email,hash,phone);	
+								insert_user.finalize();	
+								db.close();
+								succ_cb();
+							});			
+						}else{
+							fail_cb('Password must have at least '+min_pass_spec+' special characters');
+						}
+					}else{
+						fail_cb('Password must have at least '+min_pass_num+' numbers');
+					}
+				}else{
+					fail_cb('Password must be at least '+min_pass_len+' character long');
 				}
-			});
-			bcrypt.hash(password,saltRounds,function(err,hash){
-				if(err){
-					console.log(err);
-				}
-				var insert_user = db.prepare("INSERT INTO users (username,email,password,phone) VALUES (?,?,?,?)");
-				insert_user.run(username,email,hash,phone);	
-				insert_user.finalize();	
-				db.close();
-				succ_cb();
-			});
+
+			}else{
+				fail_cb('Invalid registration code');
+			}
 		}else{
-			fail_cb('Invalid registration code');
+			fail_cb('Passwords do not match');
 		}
+	
 	});
 
 
