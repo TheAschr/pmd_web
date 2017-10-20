@@ -1,4 +1,25 @@
 
+var data_sizes = ['KB','MB','GB','TB'];
+
+function parse_data_size(data_str){
+	if(!data_str || data_str == ""){
+		return null;
+	}
+	var size = data_str.replace(/[^0-9\.]+/g,"");
+	var found = false;
+	for(s = 0; s < data_sizes.length && !found; s++){
+		if(data_str.toUpperCase().search(data_sizes[s])!=-1){
+			found = true;
+			var multiplier = Math.pow(1000,s+1);
+			size*=multiplier;
+		}
+	}
+	if(!found){
+		return null;
+	}
+	return size;
+}
+
 //***************CONFIG*****************//
 var config = require('./config/config.json');
 var sh = require('shelljs');
@@ -13,6 +34,9 @@ var tv_show_types = config.Web.allowed_types.tv_shows.split(',');
 
 var registration_code = config.Web.registration_code;
 
+var max_media_size = parse_data_size(config.Web.max_media_size);
+var min_media_size = parse_data_size(config.Web.min_media_size);
+
 var min_pass_len = 8;
 var min_pass_num = 1;
 var min_pass_spec = 1;
@@ -24,6 +48,7 @@ const saltRounds = 10;
 
 var sqlite3 = require('sqlite3').verbose();
 
+
 function search_by_title(media,title){
 	var results = [];
 	if(!title){
@@ -31,7 +56,15 @@ function search_by_title(media,title){
 	}
 	for(index = 0; index < media.length;index++){
 		if(media[index].title.toUpperCase().includes(title.toUpperCase())){
-			results.push(media[index])
+			var data_size = parse_data_size(media[index].size);
+
+			if(min_media_size && max_media_size && data_size){
+				if(data_size >= min_media_size && data_size <= max_media_size){
+					results.push(media[index]);
+				}
+			}else{
+				results.push(media[index]);
+			}
 		}
 	}
 	return results;
