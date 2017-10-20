@@ -3,7 +3,9 @@
 		"ip": "127.0.0.1",
 		"port": 9091,
 		"username": "username",
-		"password": "password"
+		"password": "password",
+		"Movies_dir": "",
+		"TV_shows_dir": ""
 	},
 	"Local": {
 		"DB_File": "data/pmd.db",

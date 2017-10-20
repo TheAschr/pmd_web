@@ -38,8 +38,8 @@ var max_media_size = parse_data_size(config.Web.max_media_size);
 var min_media_size = parse_data_size(config.Web.min_media_size);
 
 var min_pass_len = 8;
-var min_pass_num = 1;
-var min_pass_spec = 1;
+var min_pass_num = 0;
+var min_pass_spec = 0;
 
 //**************************************//
 
@@ -79,9 +79,15 @@ module.exports = {
 			if(secret_code == registration_code){
 				if(password.length >= min_pass_len){
 					var nums_in_password = password.match(/[0-9]/g);
-					if(nums_in_password && nums_in_password.length >= min_pass_num){
+					if(!nums_in_password){
+						nums_in_password = [];
+					}
+					if(nums_in_password.length >= min_pass_num){
 						var spec_in_password = password.match(/[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/g);
-						if(spec_in_password && spec_in_password.length >= min_pass_spec){
+						if(!spec_in_password){
+							spec_in_password = [];
+						}
+						if(spec_in_password.length >= min_pass_spec){
 							var db = new sqlite3.Database(DB_LOCATION,(err)=>{
 							if (err){
 								return console.error(err.message);

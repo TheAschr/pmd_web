@@ -13,14 +13,14 @@ if (config.Transmission.File_dir) {
 	TORRENT_DIR = sh.pwd() + "\\torrent_files";
 }
 var MOVIES_DIR;
-if (config.Transmission.Movies_dir) {
+if (config.Transmission.Movies_dir && config.Transmission.Movies_dir!="") {
 	MOVIES_DIR = config.Transmission.Movies_dir;
 } else {
 	MOVIES_DIR = sh.pwd() + "\\media_files";
 }
 
 var TV_SHOWS_DIR;
-if (config.Transmission.TV_shows_dir) {
+if (config.Transmission.TV_shows_dir && config.Transmission.TV_shows_dir!="") {
 	TV_SHOWS_DIR = config.Transmission.TV_shows_dir;
 } else {
 	TV_SHOWS_DIR = sh.pwd() + "\\media_files";
