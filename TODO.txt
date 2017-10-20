@@ -1,4 +1,4 @@
-- Add visual indication of file download complete
+- Add config setting for password requirements
 
 - Add admin page
 
