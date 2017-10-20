@@ -15,6 +15,10 @@
 			"movies": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
 			"tv_shows": "tvWEBDL,TVX264,SDX264,TV480p,TVX265,sport,tvDocumentaries,tvpackenglish,tvxvid"
 		},
-		"registration_code": "reg_code"
+		"registration_code": "reg_code",
+		"ssl": {
+			"key_file": "",
+			"cert_file": ""
+		}
 	}
 }

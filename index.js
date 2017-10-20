@@ -1,3 +1,21 @@
+
+//***************CONFIG*****************//
+var config_file = './config/config.json';
+var config = require(config_file);
+var ssl_key_file = config.Web.ssl.key_file;
+var ssl_cert_file = config.Web.ssl.cert_file;
+
+if(!ssl_cert_file || ssl_cert_file == "" ){
+  console.log("Error: Could not find ssl_cert_file in config at " + config_file)
+  process.exit();
+}
+if(!ssl_key_file || ssl_key_file == ""){
+  console.log("Error: Could not find ssl_key_file in config at " + config_file)
+  process.exit(); 
+}
+
+//**************************************//
+
 var transmission = require("./transmission_connector");
 var sql = require("./sql_connector.js");
 sql.reset_status_all();
@@ -10,9 +28,22 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }));
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+
+var fs = require('fs');
+var https = require('https');
+
+var options = {
+  key: fs.readFileSync(ssl_key_file),
+  cert: fs.readFileSync(ssl_cert_file)
+}
+
+var server_port = 443;
+var server = https.createServer(options,app);
+
+var io = require('socket.io')(server);
+
 var path = require('path');
+
 app.use(express.static(path.join(__dirname, 'public')));
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({
@@ -28,6 +59,23 @@ function check_auth(req, res, next) {
     res.redirect('/');
   }
 };
+
+/////////http redirection/////////
+var http = require('http');
+function http_redirect(req, res, next){
+  if(req.secure){
+    return next();
+  };
+  res.redirect('https://' + req.hostname + req.url); 
+}
+
+app.all('*', http_redirect); 
+
+http.createServer(app).listen(80)
+
+//////////////////////////////////
+
+
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/login.html');
 });
@@ -111,6 +159,6 @@ app.use(function(req,res){
   res.redirect('/home');
 });
 
-http.listen(80, '0.0.0.0', function() {
-  console.log('Server started');
-});
+server.listen(server_port,function(){
+  console.log('Server started on port: '+server_port);
+})

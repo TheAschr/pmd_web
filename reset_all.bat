@@ -1,6 +1,6 @@
 set home=%CD%
 
-set reset_dirs=config data scraper
+set reset_dirs=config data scraper ssl
 
 set delete_dirs=media_files torrent_files public\pics
 
