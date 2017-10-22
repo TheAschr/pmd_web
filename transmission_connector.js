@@ -96,8 +96,6 @@ module.exports = {
 						console.log(': DOWLOADING TORRENT WITH ID \"' + result.id + '\" at \"' + torrent_file + '\" to \"' + down_dir + '\"');
 
 						module.exports.active.push(result);
-						console.log(result);
-						console.log(typeof(callback));
 						callback(result);
 					});
 				});
