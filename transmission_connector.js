@@ -30,6 +30,7 @@ if (config.Transmission.TV_shows_dir && config.Transmission.TV_shows_dir!="") {
 var Transmission = require('transmission');
 var request = require('request');
 var fs = require('fs');
+
 var transmission = new Transmission({
 	port: TRANSMISSION_PORT,
 	host: TRANSMISSION_IP,
@@ -37,47 +38,22 @@ var transmission = new Transmission({
 	password: TRANSMISSION_PASSWORD
 });
 
-function Torrent(t_id,sql_data){
-	this.t_id = t_id;
-
-	this.title = sql_data.title;
-	this.size = sql_data.size;
-	this.uid = sql_data.uid;
-
-	this.progress = 0;
-	this.status = "";
-
-}
-
-function Torrents(){
-	this.torrents = [];
-	this.add = function(torrent){
-		if(!this.get_by_t_id(torrent.t_id)){
-			this.torrents.push(torrent);
-		}else{
-			console.log("Another torrent with the same uid already exists not adding to active");
-		}
-	}
-	this.get_all = function(){
-		return this.torrents;
-	}
-	this.get_by_t_id = function(t_id){
-		for(var i = 0; i < this.torrents.length;i++){
-			if(this.torrents[i].t_id == t_id){
-				return this.torrents[i];
-			}
-		}
-		console.log("Could not find active torrent with t_id == "+t_id);
-		return null;
-	}
-}
-
 
 module.exports = {
 
-	active_torrents: new Torrents(),
-	finished_torrents: new Torrents(),
-
+	active: [],
+	status: function(){
+		var t_status = {};
+		t_status["STOPPED"] = 0;
+		t_status["CHECK_WAIT"] = 1;
+		t_status["CHECK"] = 2;
+		t_status["DOWNLOAD_WAIT"] = 3;
+		t_status["DOWNLOAD"] = 4;
+		t_status["SEED_WAIT"] = 5;
+		t_status["SEED"] = 6;
+		t_status["ISOLATED"] = 7;
+		return t_status;
+	},
 	upload: function(row,type,callback) {
 		var down_dir;
 		if(type == "movies"){
@@ -118,26 +94,26 @@ module.exports = {
 							return console.log(err);
 						}
 						console.log(': DOWLOADING TORRENT WITH ID \"' + result.id + '\" at \"' + torrent_file + '\" to \"' + down_dir + '\"');
-						var torrent = new Torrent(result.id,row);
-						module.exports.active_torrents.add(torrent);
-						callback(torrent);
+
+						module.exports.active.push(result);
+						console.log(result);
+						console.log(typeof(callback));
+						callback(result);
 					});
 				});
 			});
 		});
 	},
-	set_progress_all: function() {
+	get_active: function(callback) {
 		transmission.active(function(err, results) {
 			if (err) {
 				console.log(err);
 			} else {
+
 				for(var i = 0; i < results.torrents.length;i++){
-					var torrent = module.exports.active_torrents.get_by_t_id(results.torrents[i].id);
-					if(torrent){
-						torrent.progress = (results.torrents[i].downloadedEver / results.torrents[i].sizeWhenDone * 100).toFixed(2);
-						torrent.status = results.torrents[i].status;
-					}
-				}
+					callback(results.torrents[i]);
+				}	
+				
 			}
 		});
 	}

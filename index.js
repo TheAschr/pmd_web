@@ -2,6 +2,13 @@
 //***************CONFIG*****************//
 var config_file = './config/config.json';
 var config = require(config_file);
+
+var media_types = {};
+
+media_types["movies"] = config.Web.allowed_types.movies.split(',');
+
+media_types["tv_shows"] = config.Web.allowed_types.tv_shows.split(',');
+
 var ssl_key_file = config.Web.ssl.key_file;
 var ssl_cert_file = config.Web.ssl.cert_file;
 
@@ -16,145 +23,82 @@ if(!ssl_key_file || ssl_key_file == ""){
 
 //**************************************//
 
-var transmission = require("./transmission_connector");
-var sql = require("./sql_connector.js");
-sql.reset_status_all();
-sql.reload();
+var trans_conn = require("./transmission_connector");
+var sql_conn = require("./sql_connector.js");
+
 var express = require('express');
 var app = express();
 var session = require('express-session');
-app.use(session({
-  secret: 'secret',
-  resave: true,
-  saveUninitialized: true
-}));
-
 var fs = require('fs');
-var https = require('https');
 
+var server_port = 443;
+var https = require('https');
 var options = {
   key: fs.readFileSync(ssl_key_file),
   cert: fs.readFileSync(ssl_cert_file)
 }
-
-var server_port = 443;
 var server = https.createServer(options,app);
 
 var io = require('socket.io')(server);
 
 var path = require('path');
 
+// sql_conn.all_media("UPDATE movies SET status = \"none\";",[],null);
+// sql_conn.all_media("UPDATE movies SET t_id = ?;",[false],null);
+
+setInterval(function() {
+  trans_conn.get_active(function(torrent){
+    sql_conn.all_media("UPDATE movies SET status = (?) WHERE t_id = (?);",[torrent.status,torrent.id],null);
+    sql_conn.all_media("UPDATE movies SET progress = (?) WHERE t_id = (?);",[(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2),torrent.id],null);
+  });
+  sql_conn.all_media("SELECT * FROM movies where status != \'none\';",[],function(results){
+    trans_conn.active = results;
+  });
+}, 2000);
+
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({
   extended: true
 });
+
 app.use(urlencodedParser);
 app.use(bodyParser.json());
 
-function check_auth(req, res, next) {
-  if (req.session.user_name) {
-    next();
-  } else {
-    res.redirect('/');
-  }
-};
+require('./http_redirect.js')(app);
 
-/////////http redirection/////////
-var http = require('http');
-function http_redirect(req, res, next){
-  if(req.secure){
-    return next();
-  };
-  res.redirect('https://' + req.hostname + req.url); 
-}
-
-app.all('*', http_redirect); 
-
-http.createServer(app).listen(80)
-
-//////////////////////////////////
-
-
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/public/login.html');
-});
-app.post('/login', function(req, res) {
-  if(req.body.action == "Login"){
-     sql.validate_user(req.body.user.name,req.body.user.password,
-      function(){
-        req.session.user_name = req.body.user.name;
-        res.redirect('/home');    
-      },
-      function(){
-        res.redirect('/?bad_login=true')
-      }
-    );
-  }
-  else if (req.body.action == "Register"){
-    res.redirect('/registration_page');
-  }
-
-});
-app.get('/registration_page',function(req,res){
-  res.sendFile(__dirname + '/public/register.html');
-})
-app.post('/register',function(req,res){
-  if(req.body.action == "Submit"){
-    sql.register_user(req.body.secret_code,req.body.user.name,req.body.user.email,req.body.user.password,req.body.user.password_conf,req.body.user.phone,
-      
-      function(){res.redirect('/');},
-      function(error){res.redirect('/registration_page?error='+error)});
-  }
-  else if(req.body.action == "Cancel"){
-    res.redirect('/');
-  }
-});
-
-app.get('/logout', function(req, res) {
-  delete req.session.user_name;
-  res.redirect('/')
-});
-app.get('/home', check_auth, function(req, res) {
-  res.sendFile(__dirname + '/home.html');
-});
-app.get('/movies', check_auth, function(req, res) {
-  res.sendFile(__dirname + '/movies.html');
-});
-app.get('/tv_shows', check_auth, function(req, res) {
-  res.sendFile(__dirname + '/tv_shows.html');
-});
-
-setInterval(function() {
-  transmission.set_progress_all();
-  var active = transmission.active_torrents;
-}, 2000);
+require('./routes.js')(sql_conn,app);
 
 io.on('connection', function(socket) {
   socket.on('media_req', function(data) {
-    sql.send(socket, data);
-    var active = transmission.active_torrents;
-    socket.emit('all_progress_res',{active: active});  
+    sql_conn.all_media("SELECT * FROM movies WHERE title LIKE ? AND (type = \""+media_types[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
+      socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size)});
+    });
   });
   socket.on('download_req', function(data) {
-    console.log(': RECEIVED REQUEST FOR \"' + data.uid + '\"');
-    sql.set_status(data.uid, "working", io, data);
-    sql.get_rows_from_uid(data.uid, function(row) {
-      transmission.upload(row,data.type,function(torrent){
-        socket.emit('new_progress_res',{new_torrent: torrent});
-      })
+    sql_conn.all_media("SELECT * FROM movies WHERE uid = (?) ",[data.uid], function(results) {
+      if(results.length==1){
+        trans_conn.upload(results[0],data.type,function(torrent){
+          sql_conn.all_media("UPDATE movies SET t_id = (?) WHERE uid = (?);",[torrent.id,data.uid],null);
+        });
+      }else{
+        console.log("Error: multiple media entries with uid of "+data.uid);
+      }
+
     });
   });
   socket.on('all_progress_req',function(){
-    var active = transmission.active_torrents;
-    socket.emit('all_progress_res',{active: active});  
-  });
-  socket.on('reload_progress_req',function(){
-    var active = transmission.active_torrents;
-    socket.emit('reload_progress_res',{active: active});  
+    socket.emit('all_progress_res',{active: trans_conn.active});  
   });
   socket.on('disconnect', function() {});
 });
+
 app.use(function(req,res){
   res.redirect('/home');
 });

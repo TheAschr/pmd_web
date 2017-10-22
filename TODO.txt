@@ -1,3 +1,5 @@
+- build media modifier middlewares
+
 - Add config setting for password requirements
 
 - Add admin page
