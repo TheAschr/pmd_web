@@ -225,7 +225,7 @@ int scrape(int num_pages,sqlite3 *db){
 	while(running_threads){
 		printf("               ");
 		char *curr_time = get_time_string((float)(clock()-start_time)/CLOCKS_PER_SEC);
-		printf("\rPAGES REMAINING %d | TIME ELAPSED %s | MEDIAS SCRAPED %d", running_threads,curr_time,media_scraped);
+		printf("\rPAGES REMAINING %d | TIME ELAPSED %s | MEDIA SCRAPED %d", running_threads,curr_time,media_scraped);
 		free(curr_time);
 		Sleep(100);
 	}

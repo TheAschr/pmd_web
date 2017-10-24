@@ -78,7 +78,7 @@ require('./routes.js')(sql_conn,app);
 io.on('connection', function(socket) {
   socket.on('media_req', function(data) {
     sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \""+media_types[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
-      socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size)});
+      socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size),active: trans_conn.active});
     });
   });
   socket.on('download_req', function(data) {

@@ -16,7 +16,7 @@ module.exports = function(sql_conn,app){
        sql_conn.validate_user(req.body.user.name,req.body.user.password,
         function(){
           req.session.user_name = req.body.user.name;
-          res.redirect('/home');    
+          res.redirect('/home'+'?user_name='+req.session.user_name);    
         },
         function(){
           res.redirect('/?bad_login=true')

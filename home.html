@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%">
+<html lang="en" style="min-height: 100%">
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
@@ -10,169 +10,30 @@
   <link href="css/4-col-portfolio.css" rel="stylesheet">
 
   <script src='/socket.io/socket.io.js'></script>
+  <script src='/scripts/media_data.js'></script>
+  <script src='/scripts/cookies.js'></script>
   <script>
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
 
     var socket = io();
-    socket.on('connect',function(){
-      window.addEventListener("load", get_all_status(), true);
-      setInterval(function(){socket.emit('reload_progress_req')},3000);
-    });
- 
-    socket.on('new_progress_res',function(new_torrent){
-      add_progress(data.new_torrent);
-    });
-
-    socket.on('all_progress_res',function(data){
-      build_progress(data.active.torrents);
-    });
-    socket.on('reload_progress_res',function(data){
-      reload_progress(data.active.torrents);
-    });
-
-    function get_all_status(){
-       socket.emit('all_progress_req',{});    
-    }
-
-    function add_progress(data){
-      console.log(data);
-      var list_group = document.getElementById("progress_list");
-      var list_item = document.createElement("div");
-      list_item.className = "list-group-item";
-      list_item.id = data.uid;
-      list_item.innerHTML = data.title;
-
-      var progress_bar_container = document.createElement("div");
-      progress_bar_container.className = "progress";
-      progress_bar_container.setAttribute("style", "margin-bottom:30px;")
-      list_item.appendChild(progress_bar_container);
-
-      var progress_bar = document.createElement("div");
-      progress_bar.className = "progress-bar"
-      progress_bar.setAttribute("role", "progressbar");
-      progress_bar.setAttribute("aria-valuenow", "0");
-      progress_bar.setAttribute("aria-valuemin", "0");
-      progress_bar.setAttribute("aria-valuemax", "100");
-      progress_bar.setAttribute("style", "height:10px;width:0%;background-color:#cc7b19");
-      progress_bar_container.appendChild(progress_bar);
-
-      var progress_bar_inner = document.createElement("span");
-      progress_bar_inner.className = "sr-only";
-      progress_bar_inner.innerHTML = "0%";
-      progress_bar.appendChild(progress_bar_inner);
-
-      list_group.appendChild(list_item);     
-
-    }
-
-    var status_succ = [5,6];
-    var status_working = [3,4];
-    var status_failed = [0,7];
-    
-    function get_status_color(list_item){
-      if(list_item.classList.contains("list-group-item-success")){
-        return status_succ;
-      }
-      else if(list_item.classList.contains("list-group-item-warning")){
-        return status_working;
-      }
-      else if(list_item.classList.contains("list-group-item-error")){
-        return status_failed;
-      }
-      else return null;
-    }
-
-    function remove_status_color(list_item){
-      if(list_item.classList.contains("list-group-item-success")){
-        list_item.classList.remove("list-group-item-success");
-      }
-      if(list_item.classList.contains("list-group-item-warning")){
-         list_item.classList.remove("list-group-item-warning");       
-      }
-      if(list_item.classList.contains("list-group-item-error")){
-         list_item.classList.remove("list-group-item-error");       
-      } 
-    }
-
-    function add_status_color(torrent_status,list_item){
-      if(status_succ.includes(torrent_status)){
-        list_item.classList.add("list-group-item-success");
-      }
-      else if(status_working.includes(torrent_status)){
-         list_item.classList.add("list-group-item-warning");       
-      }
-      else if(status_failed.includes(torrent_status)){
-         list_item.classList.add("list-group-item-error");       
-      }    
-    }
-
-    function set_status_color(torrent_status,list_item){
-      var current_status = get_status_color(list_item);
-      if(!current_status){
-        add_status_color(torrent_status,list_item);
-      }
-      else if(!(current_status.includes(torrent_status))){
-        console.log("updating");
-        remove_status_color(list_item);
-        add_status_color(torrent_status,list_item);
-       } 
-    }
-
-    function build_progress(torrents){
-       console.log(torrents);
-        var list_group = document.getElementById("progress_list");
-        for(i = 0; i < torrents.length;i++){
-          console.log(torrents[i]);
-          var list_item = document.createElement("div");
-          list_item.className = "list-group-item";
-          list_item.id = torrents[i].uid;
-          list_item.innerHTML = torrents[i].title + torrents[i].status;
-          set_status_color(torrents[i].status,list_item);
-
-          var progress_bar_container = document.createElement("div");
-          progress_bar_container.className = "progress";
-          progress_bar_container.setAttribute("style", "margin-bottom:30px;")
-          list_item.appendChild(progress_bar_container);
-
-          var progress_bar = document.createElement("div");
-          progress_bar.className = "progress-bar"
-          progress_bar.setAttribute("role", "progressbar");
-          progress_bar.setAttribute("aria-valuenow", torrents[i].progress);
-          progress_bar.setAttribute("aria-valuemin", "0");
-          progress_bar.setAttribute("aria-valuemax", "100");
-          progress_bar.setAttribute("style", "height:10px;width:"+torrents[i].progress+"%;background-color:#cc7b19");
-          progress_bar_container.appendChild(progress_bar);
-
-          var progress_bar_inner = document.createElement("span");
-          progress_bar_inner.className = "sr-only";
-          progress_bar_inner.innerHTML = torrents[i].progress+"%";
-          progress_bar.appendChild(progress_bar_inner);
-
-        list_group.appendChild(list_item);     
-      }
-    }
-
-    function reload_progress(torrents){
-       console.log(torrents);
-        for(i = 0; i < torrents.length;i++){
-          var list_group = document.getElementById("progress_list");
-          list_item = document.getElementById(torrents[i].uid);
-
-          set_status_color(torrents[i].status,list_item);
-
-          var progress_bar_container = list_item.children[0];
-
-          var progress_bar = progress_bar_container.children[0];
-          progress_bar.setAttribute("aria-valuenow", torrents[i].progress);
-          progress_bar.setAttribute("style", "height:10px;width:"+torrents[i].progress+"%;background-color:#cc7b19");
-
-          var progress_bar_inner = document.createElement("span");
-          progress_bar_inner.innerHTML = torrents[i].progress+"%";
-      }      
+    var media = new MediaList(socket);
+    var user_name = getParameterByName("user_name");
+    if(user_name){
+      createCookie("user_name",user_name);
+      console.log(document.cookie)
     }
   </script>
 
 </head>
-<body style="min-height: 100%">
+<body>
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container">
@@ -191,23 +52,24 @@
           <li class="nav-item">
             <a class="nav-link" href="logout">Logout</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" id="user_name" href="#"></a>
+          </li>
+          <script>
+            document.getElementById("user_name").innerHTML = readCookie("user_name")+'\'s Profile';
+          </script>       
         </ul>
       </div>
     </div>
   </nav><!-- Page Content -->
   <div class="container">
     <!-- Page Heading -->
-    <h1 class="my-4">Home <small>Secondary Text</small></h1>
+    <h1 class="my-4">Home <small>My Downloads</small></h1>
 
     <div class="list-group" id="progress_list">
     </div>
   </div><!-- /.container -->
   <!-- Footer -->
-  <footer class="py-5 bg-dark" style="bottom: 0;position: absolute;width:100%">
-    <div class="container" >
-      <p class="m-0 text-center text-white" >Copyright &copy; Your Website 2017</p>
-    </div><!-- /.container -->
-  </footer><!-- Bootstrap core JavaScript -->
   <script src="vendor/jquery/jquery.min.js">
   </script> 
   <script src="vendor/popper/popper.min.js">

@@ -8,8 +8,88 @@ t_status["SEED_WAIT"] = 5;
 t_status["SEED"] = 6;
 t_status["ISOLATED"] = 7;
 
+function MediaList(socket){
+    var media_self = this;
+    socket.on('connect',function(){
+      window.addEventListener("load", function(){socket.emit('all_progress_req')}, true);
+      setInterval(function(){socket.emit('all_progress_req')},3000);
+    });
 
-function Media(media_type,socket){
+    socket.on('all_progress_res',function(data){
+      media_self.reload_list(data);
+    });
+
+    this.set_status_class = function(list_item,torrent){
+        if(torrent.status == t_status["DOWNLOAD"] || torrent.status == t_status["DOWNLOAD_WAIT"]){
+          list_item.classList.add("media-download");
+          list_item.classList.remove("media-seed")
+        }
+        else if(torrent.status == t_status["SEED"] || torrent.status == t_status["SEED_WAIT"]){
+          list_item.classList.add('media-seed');
+          list_item.classList.remove("media-download")
+        }
+    }
+
+    this.add_list_item = function(list_group,torrent){
+        var list_item = document.createElement("div");
+        list_item.classList.add("list-group-item");
+        list_item.id = torrent.uid;
+        list_item.innerHTML = torrent.title + torrent.status;
+
+        media_self.set_status_class(list_item,torrent);
+
+        var progress_bar_container = document.createElement("div");
+        progress_bar_container.className = "progress";
+        progress_bar_container.setAttribute("style", "margin-bottom:30px;")
+        list_item.appendChild(progress_bar_container);
+
+        var progress_bar = document.createElement("div");
+        progress_bar.className = "progress-bar"
+        progress_bar.setAttribute("role", "progressbar");
+        progress_bar.setAttribute("aria-valuenow", torrent.progress);
+        progress_bar.setAttribute("aria-valuemin", "0");
+        progress_bar.setAttribute("aria-valuemax", "100");
+
+        progress_bar.setAttribute("style", "height:10px;width:"+torrent.progress+"%;background-color:#cc7b19");
+        progress_bar_container.appendChild(progress_bar);
+
+        var progress_bar_inner = document.createElement("span");
+        progress_bar_inner.className = "sr-only";
+        progress_bar_inner.innerHTML = torrent.progress+"%";
+        progress_bar.appendChild(progress_bar_inner);
+
+        list_group.appendChild(list_item);    
+    }
+    this.update_list_item = function(list_item,torrent){
+      media_self.set_status_class(list_item,torrent);
+
+      var progress_bar_container = list_item.children[0];
+
+      var progress_bar = progress_bar_container.children[0];
+      progress_bar.setAttribute("aria-valuenow", torrent.progress);
+      progress_bar.setAttribute("style", "height:10px;width:"+torrent.progress+"%;background-color:#cc7b19");
+
+      var progress_bar_inner = document.createElement("span");
+      progress_bar_inner.innerHTML = torrent.progress+"%";
+    }
+
+    this.reload_list = function(data){
+      if(data.active){
+        for(i = 0; i < data.active.length;i++){
+          var list_item = document.getElementById(data.active[i].uid);
+          if(!list_item){
+            media_self.add_list_item(document.getElementById("progress_list"),data.active[i]);
+          }
+          else{
+            media_self.update_list_item(list_item,data.active[i]);
+          }
+        }        
+      }
+
+    }
+}
+
+function MediaGrid(media_type,socket){
    var media_self = this;
    socket.on('connect',function(){
       window.addEventListener("load", media_self.load(media), true);
@@ -19,6 +99,7 @@ function Media(media_type,socket){
    });
    socket.on('media_res', function(data){
      media.build(data);
+     media.build_progress(data);
   });
    socket.on('all_progress_res',function(data){
      media.build_progress(data);
@@ -94,6 +175,7 @@ function Media(media_type,socket){
           var card_div = document.createElement("a");
             card_div.addEventListener("click", function() {
               media_self.download(this.id);
+              media_self.load(media);
           });
           card_div.id = data.media[index].uid;
           card_div.style = "color:white;text-decoration:none";
@@ -110,12 +192,17 @@ function Media(media_type,socket){
           card_body.className = "card-body";
           if (data.media[index].status == "none") {
               card_body.setAttribute("style", "background-color: #353b41;");
-              card_div.classList.add("card-active");
+              card_div.classList.add("card-hover");
+          }
           else if (data.media[index].status == t_status["SEED"] || data.media[index].status == t_status["SEED_WAIT"]) {
+              card_div.classList.remove("card-hover");
+              card_body.classList.add("media-seed");
+              card_body.classList.remove("media-download");              
               card_body.setAttribute("style", "background-color: #505a62;");
           } else if (data.media[index].status == t_status["DOWNLOAD"] || data.media[index].status == t_status["DOWNLOAD_WAIT"]) {
-              card_body.setAttribute("style", "background-color: #353b41;");
-
+              card_div.classList.remove("card-hover");
+              card_body.classList.add("media-download");
+              card_body.classList.remove("media-seed");
               var progress_bar_container = document.createElement("div");
               progress_bar_container.className = "progress";
               progress_bar_container.setAttribute("style", "margin-bottom:30px;")
@@ -171,19 +258,33 @@ function Media(media_type,socket){
             progress_bar_container.setAttribute("style", "margin-bottom:30px;")
             card_body.insertBefore(progress_bar_container, card_body.children[0]);
 
-            var progress_bar = document.createElement("div");
-            progress_bar.className = "progress-bar"
-            progress_bar.setAttribute("role", "progressbar");
-            progress_bar.setAttribute("aria-valuenow", data.active[i].progress);
-            progress_bar.setAttribute("aria-valuemin", "0");
-            progress_bar.setAttribute("aria-valuemax", "100");
-            progress_bar.setAttribute("style", "height:10px;width:"+data.active[i].progress+"%;background-color:#cc7b19");
-            progress_bar_container.appendChild(progress_bar);
+            if (data.active[i].status == "none") {
+                card_body.setAttribute("style", "background-color: #353b41;");
+                card_div.classList.add("card-hover");
+                card_div.classList.add("card-active");
+            }
+            else if (data.active[i].status == t_status["SEED"] || data.active[i].status == t_status["SEED_WAIT"]) {
+                card_div.classList.remove("card-hover");
+                card_div.classList.remove("card-active");
+                card_body.setAttribute("style", "background-color: #505a62;");
+            } else if (data.active[i].status == t_status["DOWNLOAD"] || data.active[i].status == t_status["DOWNLOAD_WAIT"]) {
+                card_div.classList.remove("card-hover");
+                card_div.classList.remove("card-active");
+                card_body.setAttribute("style", "background-color: #22262a;");
+                var progress_bar = document.createElement("div");
+                progress_bar.className = "progress-bar"
+                progress_bar.setAttribute("role", "progressbar");
+                progress_bar.setAttribute("aria-valuenow", data.active[i].progress);
+                progress_bar.setAttribute("aria-valuemin", "0");
+                progress_bar.setAttribute("aria-valuemax", "100");
+                progress_bar.setAttribute("style", "height:10px;width:"+data.active[i].progress+"%;background-color:#cc7b19");
+                progress_bar_container.appendChild(progress_bar);
 
-            var progress_bar_inner = document.createElement("span");
-            progress_bar_inner.className = "sr-only";
-            progress_bar_inner.innerHTML = data.active[i].progress + "%";
-            progress_bar.appendChild(progress_bar_inner);
+                var progress_bar_inner = document.createElement("span");
+                progress_bar_inner.className = "sr-only";
+                progress_bar_inner.innerHTML = data.active[i].progress + "%";
+                progress_bar.appendChild(progress_bar_inner);
+            }            
 
 
           }

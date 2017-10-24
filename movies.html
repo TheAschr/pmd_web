@@ -11,14 +11,15 @@
   
   <script src='/socket.io/socket.io.js'></script>
   <script src='/scripts/media_data.js'></script>
+  <script src='/scripts/cookies.js'></script>
   <script>
     var socket = io();
-    var media = new Media('movies',socket);
+    var media = new MediaGrid('movies',socket);
     var search_media = media.search_media;
   </script>
 
   <script>
-    window.addEventListener("load",function(){
+    window.addEventListener("load",function(){      
       document.getElementById("search_bar")
           .addEventListener("keyup", function(event) {
           event.preventDefault();
@@ -52,6 +53,12 @@
           <li class="nav-item">
             <a class="nav-link" href="logout">Logout</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" id="user_name" href="#"></a>
+          </li>
+          <script>
+            document.getElementById("user_name").innerHTML = readCookie("user_name")+'\'s Profile';
+          </script>
         </ul>
       </div>
     </div>
