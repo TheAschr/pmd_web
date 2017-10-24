@@ -14,9 +14,9 @@ typedef struct {
 	char *type;
 	char *title;
 	char *tr_link;
-	char *mv_size;
-	char *mv_id;
-}Movie;
+	char *md_size;
+	char *md_id;
+}Media;
 
 static const char *IGNORE_TYPES[] = {
 	"Cam",

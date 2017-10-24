@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TABLE_NAME "movies"
+#define TABLE_NAME "media"
 
 int conn_db(sqlite3 **conn,char *db_file);
 

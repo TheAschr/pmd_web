@@ -10,7 +10,7 @@ typedef struct{
 }MainPageThreadData;
 
 int running_threads = 0;
-int movies_scraped = 0;
+int media_scraped = 0;
 
 unsigned __stdcall scrape_index_page(void *data){
 	MainPageThreadData *m_page_thread_data = (MainPageThreadData *)data;
@@ -36,13 +36,13 @@ unsigned __stdcall scrape_index_page(void *data){
 			int rc_rows = 0;
 			int **row_positions = html_get_pos_between_str(&main_page_html,&n_rows,&rc_rows,"<tr>","</tr>",end_of_table_pos,main_page_html.size);
 
-			for(int movie_index = 0; movie_index < n_rows;movie_index++){
-				Movie movie = {0};
+			for(int media_index = 0; media_index < n_rows;media_index++){
+				Media media = {0};
 
 				//SCRAPE TYPE///////////////////////////////////////
 				int n_types = 0;
 				int rc_types = 0;
-				int **type_positions = html_get_pos_between_str(&main_page_html,&n_types,&rc_types,"<td class=t_label>","<td",row_positions[movie_index][PRE_END],row_positions[movie_index][POST_BEGIN]);
+				int **type_positions = html_get_pos_between_str(&main_page_html,&n_types,&rc_types,"<td class=t_label>","<td",row_positions[media_index][PRE_END],row_positions[media_index][POST_BEGIN]);
 
 				ScrapeStringContainer *type = string_container_init();
 
@@ -50,7 +50,7 @@ unsigned __stdcall scrape_index_page(void *data){
 				string_container_transform(type,string_remove_to(type->string,"<img class=\""));
 				string_container_transform(type,string_remove_after(type->string,"\""));
 
-				movie.type = type->string;
+				media.type = type->string;
 				////////////////////////////////////////////////////
 
 				//MAKE SURE TYPE IS ACCEPTD
@@ -63,13 +63,13 @@ unsigned __stdcall scrape_index_page(void *data){
 					//SCRAPE TITLE//////////////////////////////////////
 					int n_title = 0;
 					int rc_title = 0;
-					int **title_positions = html_get_pos_between_str(&main_page_html,&n_title, &rc_title,"<a class=\"b\"","</a",row_positions[movie_index][PRE_END],row_positions[movie_index][POST_BEGIN]);
+					int **title_positions = html_get_pos_between_str(&main_page_html,&n_title, &rc_title,"<a class=\"b\"","</a",row_positions[media_index][PRE_END],row_positions[media_index][POST_BEGIN]);
 
 					ScrapeStringContainer *title = string_container_init();
 					string_container_transform(title,html_get_string_between_pos(&main_page_html,title_positions[0][PRE_END],title_positions[0][POST_BEGIN]));
 					string_container_transform(title, string_remove_to(title->string,">"));
 
-					movie.title = title->string;
+					media.title = title->string;
 					////////////////////////////////////////////////////
 
 					int good_title = 1;
@@ -81,7 +81,7 @@ unsigned __stdcall scrape_index_page(void *data){
 						//SCRAPE DESCRIPTION////////////////////////////////
 						int n_descr = 0;
 						int rc_descr = 0;
-						int **descr_positions = html_get_pos_between_str(&main_page_html,&n_descr,&rc_descr,"<td class=ac>","<td",row_positions[movie_index][PRE_END],row_positions[movie_index][POST_BEGIN]);
+						int **descr_positions = html_get_pos_between_str(&main_page_html,&n_descr,&rc_descr,"<td class=ac>","<td",row_positions[media_index][PRE_END],row_positions[media_index][POST_BEGIN]);
 						////////////////////////////////////////////////////
 
 						//SCRAPE TORRENT LINK///////////////////////////////
@@ -91,35 +91,35 @@ unsigned __stdcall scrape_index_page(void *data){
 						string_container_transform(tr_link,string_remove_to(tr_link->string,"\""));
 						string_container_transform(tr_link,string_remove_after(tr_link->string,"\""));
 						
-						movie.tr_link = tr_link->string;
+						media.tr_link = tr_link->string;
 						////////////////////////////////////////////////////
 
-						//SCRAPE MOVIE SIZE/////////////////////////////////
-						movie.mv_size = html_get_string_between_pos(&main_page_html,descr_positions[3][PRE_END],descr_positions[3][POST_BEGIN]);
+						//SCRAPE MEDIA SIZE/////////////////////////////////
+						media.md_size = html_get_string_between_pos(&main_page_html,descr_positions[3][PRE_END],descr_positions[3][POST_BEGIN]);
 						////////////////////////////////////////////////////
 						
-						//SCRAPE MOVIE ID///////////////////////////////////
-						ScrapeStringContainer *mv_id = string_container_init();
-						mv_id->string = realloc(mv_id->string,(strlen(tr_link->string)+1)*sizeof(char));
-						strcpy(mv_id->string,tr_link->string);
-						string_container_transform(mv_id,string_remove_to(mv_id->string,"/download.php/"));
-						string_container_transform(mv_id, string_remove_after(mv_id->string,"/"));
+						//SCRAPE MEDIA ID///////////////////////////////////
+						ScrapeStringContainer *md_id = string_container_init();
+						md_id->string = realloc(md_id->string,(strlen(tr_link->string)+1)*sizeof(char));
+						strcpy(md_id->string,tr_link->string);
+						string_container_transform(md_id,string_remove_to(md_id->string,"/download.php/"));
+						string_container_transform(md_id, string_remove_after(md_id->string,"/"));
 
-						movie.mv_id = mv_id->string;
+						media.md_id = md_id->string;
 						////////////////////////////////////////////////////
 
 
 				 		//CHECK IF IT EXISTS IN DATABASE
-						if(!db_contains(m_page_thread_data->db,"uid",mv_id->string)){
+						if(!db_contains(m_page_thread_data->db,"uid",md_id->string)){
 		
-							//SCRAPE MOVIE PICTURE PAGE/////////////////////////
+							//SCRAPE MEDIA PICTURE PAGE/////////////////////////
 							int pic_page_retry = 0;
 
 							char pic_page_url_base[] = "https://iptorrents.com/details.php?id=";
 							int pic_page_url_length = strlen(pic_page_url_base)+1;
 							char pic_page_url[MAX_URL_LENGTH];
 
-							snprintf(pic_page_url,MAX_URL_LENGTH,"%s%s",pic_page_url_base,mv_id->string);
+							snprintf(pic_page_url,MAX_URL_LENGTH,"%s%s",pic_page_url_base,md_id->string);
 							do{
 								Vector pic_page_html = {0,0};
 								curl_get_buffer(&pic_page_html,pic_page_url);
@@ -129,7 +129,7 @@ unsigned __stdcall scrape_index_page(void *data){
 								else{
 									pic_page_retry = 0;
 
-									//SCRAPE MOVIE PICTURE FILE URL//////////////////////
+									//SCRAPE MEDIA PICTURE FILE URL//////////////////////
 									int n_pics = 0;
 									int rc_pics = 0;
 									int **img_link_positions = html_get_pos_between_str(&pic_page_html,&n_pics,&rc_pics,"<img class=\'imdb-photo\' src=\'","\'",0,pic_page_html.size);
@@ -137,23 +137,23 @@ unsigned __stdcall scrape_index_page(void *data){
 										
 										char *pic_file_url = html_get_string_between_pos(&pic_page_html,img_link_positions[0][PRE_END],img_link_positions[0][POST_BEGIN]);
 										char pic_file_ext[] = ".jpeg";								
-										char pic_file[strlen(mv_id->string)+strlen(pic_file_ext)];
-										snprintf(pic_file,strlen(pics_dir)+1+strlen(mv_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",pics_dir,mv_id->string);
+										char pic_file[strlen(md_id->string)+strlen(pic_file_ext)];
+										snprintf(pic_file,strlen(pics_dir)+1+strlen(md_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",pics_dir,md_id->string);
 
-										//SCRAPE MOVIE PICTURE FILE//////////////////////////
+										//SCRAPE MEDIA PICTURE FILE//////////////////////////
 
 										FILE *pic_file_descr = fopen(pic_file,"wb");
 										curl_get_file(pic_file_descr,pic_file_url);
 										fclose(pic_file_descr);
 										////////////////////////////////////////////////////
 
-										char *insert_movie_zSQL = sqlite3_mprintf("INSERT INTO movies ( title, type, link, size, uid,status) VALUES ('%q','%q','%q','%q','%q','none');"
-											,movie.title,movie.type,movie.tr_link,movie.mv_size,movie.mv_id,movie.mv_id);				
+										char *insert_media_zSQL = sqlite3_mprintf("INSERT INTO media ( title, type, link, size, uid,status) VALUES ('%q','%q','%q','%q','%q','none');"
+											,media.title,media.type,media.tr_link,media.md_size,media.md_id,media.md_id);				
 
-										db_exec(m_page_thread_data->db,insert_movie_zSQL);
+										db_exec(m_page_thread_data->db,insert_media_zSQL);
 
-										//printf("%s%s | %s | %s | %s%s\n\n",LINE_BREAK,movie.title,movie.mv_size,movie.tr_link,movie.type,LINE_BREAK_THIN);			
-										movies_scraped++;									
+										//printf("%s%s | %s | %s | %s%s\n\n",LINE_BREAK,media.title,media.md_size,media.tr_link,media.type,LINE_BREAK_THIN);			
+										media_scraped++;									
 										free(pic_file_url);
 									}			
 									////////////////////////////////////////////////////
@@ -177,9 +177,9 @@ unsigned __stdcall scrape_index_page(void *data){
 
 						string_container_cleanup(tr_link);
 
-						free(movie.mv_size);
+						free(media.md_size);
 
-						string_container_cleanup(mv_id);
+						string_container_cleanup(md_id);
 					}
 				}
 			}
@@ -225,7 +225,7 @@ int scrape(int num_pages,sqlite3 *db){
 	while(running_threads){
 		printf("               ");
 		char *curr_time = get_time_string((float)(clock()-start_time)/CLOCKS_PER_SEC);
-		printf("\rPAGES REMAINING %d | TIME ELAPSED %s | MOVIES SCRAPED %d", running_threads,curr_time,movies_scraped);
+		printf("\rPAGES REMAINING %d | TIME ELAPSED %s | MEDIAS SCRAPED %d", running_threads,curr_time,media_scraped);
 		free(curr_time);
 		Sleep(100);
 	}
