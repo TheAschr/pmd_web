@@ -1,3 +1,14 @@
+var t_status = {};
+t_status["STOPPED"] = 0;
+t_status["CHECK_WAIT"] = 1;
+t_status["CHECK"] = 2;
+t_status["DOWNLOAD_WAIT"] = 3;
+t_status["DOWNLOAD"] = 4;
+t_status["SEED_WAIT"] = 5;
+t_status["SEED"] = 6;
+t_status["ISOLATED"] = 7;
+
+
 function Media(media_type,socket){
    var media_self = this;
    socket.on('connect',function(){
@@ -99,7 +110,10 @@ function Media(media_type,socket){
           card_body.className = "card-body";
           if (data.media[index].status == "none") {
               card_body.setAttribute("style", "background-color: #353b41;");
-          } else if (data.media[index].status == "working") {
+              card_div.classList.add("card-active");
+          else if (data.media[index].status == t_status["SEED"] || data.media[index].status == t_status["SEED_WAIT"]) {
+              card_body.setAttribute("style", "background-color: #505a62;");
+          } else if (data.media[index].status == t_status["DOWNLOAD"] || data.media[index].status == t_status["DOWNLOAD_WAIT"]) {
               card_body.setAttribute("style", "background-color: #353b41;");
 
               var progress_bar_container = document.createElement("div");

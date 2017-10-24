@@ -3778,10 +3778,10 @@ tbody.collapse.show {
   padding: 1.25rem;
 }
 
-.card:hover{
+.card .card-active:hover{
   -webkit-box-shadow: 0 0 20px 10px black;
   box-shadow: 0 0 20px 5px black;
-  border-color:#cc7b19;
+  border-color:#cc7b19; 
 }
 
 .card:active{
