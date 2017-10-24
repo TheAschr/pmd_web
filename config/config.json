@@ -13,9 +13,21 @@
 	},
 	"Web": {
 		"IPTCookie": "",
-		"allowed_types": {
-			"movies": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
-			"tv_shows": "tvWEBDL,TVX264,SDX264,TV480p,TVX265,sport,tvDocumentaries,tvpackenglish,tvxvid"
+		"media":{
+			"movies" : {
+				"allowed_types": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
+				"allowed_sizes": {
+					"min": "",
+					"max": ""
+				}
+			},
+			"tv_shows": {
+				"allowed_types": "tvWEBDL,TVX264,SDX264,TV480p,TVX265,sport,tvDocumentaries,tvpackenglish,tvxvid",
+				"allowed_sizes": {
+					"min": "",
+					"max": ""
+				}
+			}
 		},
 		"registration_code": "reg_code",
 		"ssl": {

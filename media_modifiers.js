@@ -1,6 +1,6 @@
 var data_sizes = ['KB','MB','GB','TB'];
 
-function parse_data_size(data_str){
+function normalize_data_size(data_str){
 	if(!data_str || data_str == ""){
 		return null;
 	}
@@ -19,6 +19,19 @@ function parse_data_size(data_str){
 	return size;
 }
 
-module.exports = function(){
+module.exports = {
+	size_between : function(str_min,str_max,media){
+		var min = normalize_data_size(str_min);
+		var max = normalize_data_size(str_max);
+
+		var results = [];
+		for(i = 0; i < media.length; i++){
+			var media_size = normalize_data_size(media[i].size);
+			if(media_size >= +min && media_size <= +max){
+				results.push(media[i]);
+			}	
+		}
+		return results;
+	}
 	
 }

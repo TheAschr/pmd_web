@@ -5,9 +5,17 @@ var config = require(config_file);
 
 var media_types = {};
 
-media_types["movies"] = config.Web.allowed_types.movies.split(',');
+media_types["movies"] =config.Web.media.movies.allowed_types.split(',');
 
-media_types["tv_shows"] = config.Web.allowed_types.tv_shows.split(',');
+media_types["tv_shows"] = config.Web.media.tv_shows.allowed_types.split(',');
+
+var MIN_MEDIA_SIZE = [];
+MIN_MEDIA_SIZE["movies"] = config.Web.media.movies.allowed_sizes.min;
+MIN_MEDIA_SIZE["tv_shows"] =  config.Web.media.tv_shows.allowed_sizes.min;
+
+var MAX_MEDIA_SIZE = [];
+MAX_MEDIA_SIZE["movies"] = config.Web.media.movies.allowed_sizes.max;
+MAX_MEDIA_SIZE["tv_shows"] = config.Web.media.tv_shows.allowed_sizes.max;
 
 var ssl_key_file = config.Web.ssl.key_file;
 var ssl_cert_file = config.Web.ssl.cert_file;
@@ -25,6 +33,7 @@ if(!ssl_key_file || ssl_key_file == ""){
 
 var trans_conn = require("./transmission_connector");
 var sql_conn = require("./sql_connector.js");
+var media_modifiers = require('./media_modifiers.js');
 
 var express = require('express');
 var app = express();
@@ -78,6 +87,7 @@ require('./routes.js')(sql_conn,app);
 io.on('connection', function(socket) {
   socket.on('media_req', function(data) {
     sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \""+media_types[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
+      results = media_modifiers.size_between(MIN_MEDIA_SIZE[data.type],MAX_MEDIA_SIZE[data.type],results.slice(data.offset,data.offset+data.size));
       socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size),active: trans_conn.active});
     });
   });
