@@ -22,7 +22,13 @@ function normalize_data_size(data_str){
 module.exports = {
 	size_between : function(str_min,str_max,media){
 		var min = normalize_data_size(str_min);
+		if(!min){
+			min = 0;
+		}
 		var max = normalize_data_size(str_max);
+		if(!max){
+			max = Number.MAX_SAFE_INTEGER;
+		}
 		var results = [];
 		for(i = 0; i < media.length; i++){
 			var media_size = normalize_data_size(media[i].size);
