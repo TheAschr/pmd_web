@@ -43,15 +43,15 @@ var io = require('socket.io')(server);
 
 var path = require('path');
 
-// sql_conn.all_media("UPDATE movies SET status = \"none\";",[],null);
-// sql_conn.all_media("UPDATE movies SET t_id = ?;",[false],null);
+// sql_conn.all_media("UPDATE media SET status = \"none\";",[],null);
+// sql_conn.all_media("UPDATE media SET t_id = ?;",[false],null);
 
 setInterval(function() {
   trans_conn.get_active(function(torrent){
-    sql_conn.all_media("UPDATE movies SET status = (?) WHERE t_id = (?);",[torrent.status,torrent.id],null);
-    sql_conn.all_media("UPDATE movies SET progress = (?) WHERE t_id = (?);",[(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2),torrent.id],null);
+    sql_conn.all_media("UPDATE media SET status = (?) WHERE t_id = (?);",[torrent.status,torrent.id],null);
+    sql_conn.all_media("UPDATE media SET progress = (?) WHERE t_id = (?);",[(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2),torrent.id],null);
   });
-  sql_conn.all_media("SELECT * FROM movies where status != \'none\';",[],function(results){
+  sql_conn.all_media("SELECT * FROM media where status != \'none\';",[],function(results){
     trans_conn.active = results;
   });
 }, 2000);
@@ -77,15 +77,15 @@ require('./routes.js')(sql_conn,app);
 
 io.on('connection', function(socket) {
   socket.on('media_req', function(data) {
-    sql_conn.all_media("SELECT * FROM movies WHERE title LIKE ? AND (type = \""+media_types[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
+    sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \""+media_types[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
       socket.emit('media_res',{media: results.slice(data.offset,data.offset+data.size)});
     });
   });
   socket.on('download_req', function(data) {
-    sql_conn.all_media("SELECT * FROM movies WHERE uid = (?) ",[data.uid], function(results) {
+    sql_conn.all_media("SELECT * FROM media WHERE uid = (?) ",[data.uid], function(results) {
       if(results.length==1){
         trans_conn.upload(results[0],data.type,function(torrent){
-          sql_conn.all_media("UPDATE movies SET t_id = (?) WHERE uid = (?);",[torrent.id,data.uid],null);
+          sql_conn.all_media("UPDATE media SET t_id = (?) WHERE uid = (?);",[torrent.id,data.uid],null);
         });
       }else{
         console.log("Error: multiple media entries with uid of "+data.uid);
