@@ -23,7 +23,6 @@ module.exports = {
 	size_between : function(str_min,str_max,media){
 		var min = normalize_data_size(str_min);
 		var max = normalize_data_size(str_max);
-
 		var results = [];
 		for(i = 0; i < media.length; i++){
 			var media_size = normalize_data_size(media[i].size);
