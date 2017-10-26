@@ -13,6 +13,7 @@ var twilio = require('twilio');
 module.exports = {
 	client: new twilio(ACCOUNT_SID,AUTH_TOKEN),
 	send: function(message,client_phone){
+		console.log("Sending text:\""+message+"\" to "+client_phone);
 		module.exports.client.messages.create({
 			body: message,
 			to: client_phone,

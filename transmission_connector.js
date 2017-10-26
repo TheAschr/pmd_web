@@ -38,22 +38,20 @@ var transmission = new Transmission({
 	password: TRANSMISSION_PASSWORD
 });
 
+var t_status = {};
+t_status["STOPPED"] = 0;
+t_status["CHECK_WAIT"] = 1;
+t_status["CHECK"] = 2;
+t_status["DOWNLOAD_WAIT"] = 3;
+t_status["DOWNLOAD"] = 4;
+t_status["SEED_WAIT"] = 5;
+t_status["SEED"] = 6;
+t_status["ISOLATED"] = 7;
 
 module.exports = {
 
 	active: [],
-	status: function(){
-		var t_status = {};
-		t_status["STOPPED"] = 0;
-		t_status["CHECK_WAIT"] = 1;
-		t_status["CHECK"] = 2;
-		t_status["DOWNLOAD_WAIT"] = 3;
-		t_status["DOWNLOAD"] = 4;
-		t_status["SEED_WAIT"] = 5;
-		t_status["SEED"] = 6;
-		t_status["ISOLATED"] = 7;
-		return t_status;
-	},
+	status: t_status,
 	upload: function(row,type,callback) {
 		var down_dir;
 		if(type == "movies"){

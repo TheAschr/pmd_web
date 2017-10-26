@@ -53,13 +53,31 @@ var io = require('socket.io')(server);
 
 var path = require('path');
 
-// sql_conn.all_media("UPDATE media SET status = \"none\";",[],null);
+//sql_conn.all_media("UPDATE media SET status = \"none\";",[],null);
 // sql_conn.all_media("UPDATE media SET t_id = ?;",[false],null);
 
 setInterval(function() {
   trans_conn.get_active(function(torrent){
-    sql_conn.all_media("UPDATE media SET status = (?) WHERE t_id = (?);",[torrent.status,torrent.id],null);
-    sql_conn.all_media("UPDATE media SET progress = (?) WHERE t_id = (?);",[(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2),torrent.id],null);
+    sql_conn.all_media("SELECT * FROM media WHERE t_id = (?);",[torrent.id],function(results){
+      if(results.length){
+        if(results[0].status != trans_conn.status["SEED"] && 
+          torrent.status == trans_conn.status["SEED"]){
+           sql_conn.all_media("SELECT * FROM users WHERE username = (?);",[results[0].username],function(users){
+            if(users.length){
+              if(users[0].phone && users[0].phone != ""){
+                twilio.send(results[0].title+" has finished downloading",users[0].phone);
+              }
+            }
+
+           });
+        }
+         sql_conn.all_media("UPDATE media SET status = (?) WHERE t_id = (?);",[torrent.status,torrent.id],null);
+         sql_conn.all_media("UPDATE media SET progress = (?) WHERE t_id = (?);",[(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2),torrent.id],null);
+      }
+      
+    
+    });
+
   });
   sql_conn.all_media("SELECT * FROM media where status != \'none\';",[],function(results){
     trans_conn.active = results;
@@ -96,7 +114,6 @@ io.on('connection', function(socket) {
   socket.on('download_req', function(data) {
     sql_conn.all_media("SELECT * FROM media WHERE uid = (?) ",[data.uid], function(results) {
       if(results.length==1){
-        console.log(data.username);
         trans_conn.upload(results[0],data.type,function(torrent){
           sql_conn.all_media("UPDATE media SET t_id = (?), username = (?) WHERE uid = (?);",[torrent.id,data.username,data.uid],null);
         });
