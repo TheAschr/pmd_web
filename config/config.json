@@ -34,5 +34,10 @@
 			"key_file": "",
 			"cert_file": ""
 		}
+	},
+	"Twilio": {
+		"account_sid": "",
+		"auth_token": "",
+		"server_phone": "",
 	}
 }

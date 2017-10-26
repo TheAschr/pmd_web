@@ -140,7 +140,8 @@ function MediaGrid(media_type,socket){
      socket.emit('download_req',{type:media_type,
       uid:uid,
       offset: this.offset,
-      size: this.size
+      size: this.size,
+      username: readCookie("user_name")
     });
     this.load();
    }

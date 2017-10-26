@@ -17,14 +17,14 @@ var MAX_MEDIA_SIZE = [];
 MAX_MEDIA_SIZE["movies"] = config.Web.media.movies.allowed_sizes.max;
 MAX_MEDIA_SIZE["tv_shows"] = config.Web.media.tv_shows.allowed_sizes.max;
 
-var ssl_key_file = config.Web.ssl.key_file;
-var ssl_cert_file = config.Web.ssl.cert_file;
+var SSL_KEY_FILE = config.Web.ssl.key_file;
+var SSL_CERT_FILE = config.Web.ssl.cert_file;
 
-if(!ssl_cert_file || ssl_cert_file == "" ){
+if(!SSL_KEY_FILE || SSL_KEY_FILE == "" ){
   console.log("Error: Could not find ssl_cert_file in config at " + config_file)
   process.exit();
 }
-if(!ssl_key_file || ssl_key_file == ""){
+if(!SSL_CERT_FILE || SSL_CERT_FILE == ""){
   console.log("Error: Could not find ssl_key_file in config at " + config_file)
   process.exit(); 
 }
@@ -34,6 +34,7 @@ if(!ssl_key_file || ssl_key_file == ""){
 var trans_conn = require("./transmission_connector");
 var sql_conn = require("./sql_connector.js");
 var media_modifiers = require('./media_modifiers.js');
+var twilio = require('./twilio.js')
 
 var express = require('express');
 var app = express();
@@ -43,8 +44,8 @@ var fs = require('fs');
 var server_port = 443;
 var https = require('https');
 var options = {
-  key: fs.readFileSync(ssl_key_file),
-  cert: fs.readFileSync(ssl_cert_file)
+  key: fs.readFileSync(SSL_KEY_FILE),
+  cert: fs.readFileSync(SSL_CERT_FILE)
 }
 var server = https.createServer(options,app);
 
@@ -95,8 +96,9 @@ io.on('connection', function(socket) {
   socket.on('download_req', function(data) {
     sql_conn.all_media("SELECT * FROM media WHERE uid = (?) ",[data.uid], function(results) {
       if(results.length==1){
+        console.log(data.username);
         trans_conn.upload(results[0],data.type,function(torrent){
-          sql_conn.all_media("UPDATE media SET t_id = (?) WHERE uid = (?);",[torrent.id,data.uid],null);
+          sql_conn.all_media("UPDATE media SET t_id = (?), username = (?) WHERE uid = (?);",[torrent.id,data.username,data.uid],null);
         });
       }else{
         console.log("Error: multiple media entries with uid of "+data.uid);
