@@ -23,9 +23,8 @@
 
 	int parse_err_cont = 0;
 
-	int c;
+	int c = 0;
 	while(c!=EOF){
-
 		c = getc(f);
 		index++;
 		if(c == '\n'){
@@ -72,7 +71,7 @@
 			}
 
 		}
-		else if(top_state_is(state_list,DEFINITION) && (c==',' || c=='\n')){
+		else if(top_state_is(state_list,DEFINITION) == 1 && (c==',' || c=='\n')){
 			del_top_state(state_list);
 			
 			current_element = current_element->parent;
@@ -122,9 +121,10 @@ JSON_Tree *init_json(char *file_name){
 
 	FILE *f = fopen(file_name,"r");
 	if(f==NULL){
-		printf("ERROR CODE %d WHEN OPENING CONFIG FILE AT \"%s\"",errno,file_name);
+		printf("ERROR WHEN OPENING CONFIG FILE AT \"%s\"",file_name);
 		return 0;
 	}
+
 	JSON_Tree *json_tree = (JSON_Tree *)malloc(sizeof(JSON_Tree));
 	json_tree->head = malloc(sizeof(JSON_Element));
 	json_tree->head->level = 0;
@@ -133,12 +133,10 @@ JSON_Tree *init_json(char *file_name){
 	json_tree->head->parent = NULL;
 	json_tree->head->children = NULL;
 	json_tree->head->num_children = 0;
-
 	if(!build_json(&json_tree,f)){
 		printf("JSON BUILD FAILED\n");
 		return 0;
 	}
-
 	return json_tree;
 }
 

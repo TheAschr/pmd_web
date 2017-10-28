@@ -1,7 +1,31 @@
 #include "scraper.h"
 #include "main.h"
 #include "string_time.h"
+#include <string.h>
+#include <time.h>
+
+#ifdef _WIN32
 #include <process.h> 
+#define proc_ret_type unsigned __stdcall
+#define thread_term_function _endthreadex;
+
+#define sleep_1sec Sleep(100)
+#define time_type clock_t
+#define __curr_time clock()
+#define clock_mod CLOCKS_PER_SEC
+#endif
+
+#ifdef linux
+#include <pthread.h>
+#include <unistd.h>
+#define proc_ret_type void *
+#define thread_term_function pthread_exit;
+
+#define sleep_1sec sleep(0.1)
+#define time_type time_t
+#define __curr_time time(NULL)
+#define clock_mod 1
+#endif
 
 typedef struct{
 	char *main_page_url;
@@ -12,7 +36,7 @@ typedef struct{
 int running_threads = 0;
 int media_scraped = 0;
 
-unsigned __stdcall scrape_index_page(void *data){
+proc_ret_type scrape_index_page(void *data){
 	MainPageThreadData *m_page_thread_data = (MainPageThreadData *)data;
 	
 	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
@@ -137,11 +161,10 @@ unsigned __stdcall scrape_index_page(void *data){
 										
 										char *pic_file_url = html_get_string_between_pos(&pic_page_html,img_link_positions[0][PRE_END],img_link_positions[0][POST_BEGIN]);
 										char pic_file_ext[] = ".jpeg";								
-										char pic_file[strlen(md_id->string)+strlen(pic_file_ext)];
-										snprintf(pic_file,strlen(pics_dir)+1+strlen(md_id->string)+1+strlen(pic_file_ext),"%s\\%s.jpeg",pics_dir,md_id->string);
-
+										char pic_file[strlen(pics_dir)+strlen(md_id->string)+1+strlen(pic_file_ext)];
+										snprintf(pic_file,strlen(pics_dir)+1+strlen(md_id->string)+strlen(pic_file_ext)+1,"%s/%s.jpeg",pics_dir,md_id->string);
+										
 										//SCRAPE MEDIA PICTURE FILE//////////////////////////
-
 										FILE *pic_file_descr = fopen(pic_file,"wb");
 										curl_get_file(pic_file_descr,pic_file_url);
 										fclose(pic_file_descr);
@@ -190,21 +213,20 @@ unsigned __stdcall scrape_index_page(void *data){
 
 	free(m_page_thread_data);
 	running_threads--;
-	_endthreadex(0);
+	thread_term_function(0);
 }
 
 int scrape(int num_pages,sqlite3 *db){
-
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 
 	char main_page_url_base[] = "https://iptorrents.com/t?o=seeders;p=";
 	char main_page_url_end[] = "#torrents";
 	int running = 1;
-	clock_t start_time = clock();
+	time_type start_time = __curr_time;
 	for(int main_page_index = 1; main_page_index <= num_pages;main_page_index++){
 		
 		char main_page_index_str[50];
-		itoa(main_page_index,main_page_index_str,10);
+		snprintf(main_page_index_str,50,"%d",main_page_index);
 
 		int main_page_url_length = strlen(main_page_url_base)+strlen(main_page_url_end)+strlen(main_page_index_str)+1;
 		char *main_page_url = malloc(sizeof(char)*main_page_url_length);
@@ -217,17 +239,27 @@ int scrape(int num_pages,sqlite3 *db){
 
 		running_threads++;
 
-		unsigned threadID;
-		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0,scrape_index_page ,m_page_thread_data , 0, &threadID);
+		#ifdef _WIN32
+		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0,scrape_index_page ,m_page_thread_data , 0, NULL);
+		#endif
+
+		#ifdef linux
+		pthread_t thread;
+		pthread_create(&thread,NULL,(void *) &scrape_index_page,m_page_thread_data);
+		#endif
 
 	}
 
 	while(running_threads){
-		printf("               ");
-		char *curr_time = get_time_string((float)(clock()-start_time)/CLOCKS_PER_SEC);
-		printf("\rPAGES REMAINING %d | TIME ELAPSED %s | MEDIA SCRAPED %d", running_threads,curr_time,media_scraped);
-		free(curr_time);
-		Sleep(100);
+		sleep_1sec;
+
+		char *curr_time = get_time_string((float)(__curr_time-start_time)/clock_mod);
+
+		if(curr_time){
+			printf("               ");
+			printf("\rPAGES REMAINING %d | TIME ELAPSED %s | MEDIA SCRAPED %d", running_threads,curr_time,media_scraped);
+			free(curr_time);
+		}
 	}
 	curl_global_cleanup();
 	return 1;

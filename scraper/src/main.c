@@ -19,6 +19,7 @@ int main(int argc,char *argv[]){
 	if(!CONFIG){
 		return 1;
 	}
+
 	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
 	
 	JSON_Element *db_file_el = get_json_child(local_el,"DB_File");

@@ -3,8 +3,18 @@
 
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#define make_dir_function CreateDirectory
+#define make_dir_security NULL
+#endif
+#ifdef linux
+#define make_dir_function mkdir
+#define make_dir_security 0700
+#endif
 
 int file_exists(char *file_name){
   if( access( file_name, F_OK ) != -1 ){
@@ -20,8 +30,8 @@ int make_dir(char *dir_name){
     DIR *temp_dir;
 
     if(!(temp_dir = opendir(dir_name))){
- 		    CreateDirectory(dir_name,NULL);
-    	return 1;
+        make_dir_function(dir_name,make_dir_security);
+      	return 1;
     }else{
     	printf(":: ERROR DIRECTORY %s ALREADY EXISTS\n", dir_name);
   		closedir(temp_dir);

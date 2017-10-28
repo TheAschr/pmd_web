@@ -1,4 +1,5 @@
 #include "htmlparse.h"
+#include <string.h>
 
 ScrapeStringContainer *string_container_init(){
 	ScrapeStringContainer *container = malloc(sizeof(ScrapeStringContainer));
@@ -167,6 +168,5 @@ int** html_get_pos_between_str(Vector *data,int *size,int *row_count,char *pre, 
 			p_index = 0;
 		}
 	}
-	//printf("COLUMNS %s\n", );
 	return rows;
 }

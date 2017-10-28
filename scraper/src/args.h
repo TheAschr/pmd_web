@@ -2,11 +2,11 @@
 #define ARGS_H
 
 #include "main.h"
+#include <string.h>
 
 void usage(char *argv[]){
 	printf("Usage: %s [number of pages] [--help]\n", argv[0]);
 }
-
 
 int argparse(int argc,char *argv[], int *num_pages){
 	for(int i = 0; i < argc; i++){
