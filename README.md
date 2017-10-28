@@ -33,6 +33,6 @@
 1. Download and install "make". If on windows it is available in GNU utils.
     
 # Other notes/Issues:
-  - If running on linux you may have to install bcrypt and sqlite3 packages from npm (npm install bcrypt,sqlite3) as the compiled version is different from windows implementation
+  - If running on linux, you may have to install bcrypt and sqlite3 packages from npm (npm install bcrypt,sqlite3) as the compiled version is different from windows implementation
   - If you run the scraper and no media is scraped after a significant ammount of time, it usually means you have an incorrect "IPTCookie" value in config.json
   
