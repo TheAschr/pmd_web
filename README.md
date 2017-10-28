@@ -4,8 +4,8 @@
 - ssl certification and key
 
 # Optional:
-## Twilio account and phone-number
-## make
+- Twilio account and phone-number
+- make
   
 # Setup:
 ## Transmission:
