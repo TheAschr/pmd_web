@@ -4,6 +4,7 @@
 		"port": 9091,
 		"username": "username",
 		"password": "password",
+		"Torrents_dir": "",
 		"Movies_dir": "",
 		"TV_shows_dir": ""
 	},
@@ -38,6 +39,6 @@
 	"Twilio": {
 		"account_sid": "",
 		"auth_token": "",
-		"server_phone": "",
+		"server_phone": ""
 	}
 }

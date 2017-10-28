@@ -37,7 +37,7 @@
       <a class="navbar-brand" href="home">Plex Movie Downloader</a> <button aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarResponsive" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <div class="nav-item"><span class="icon"><i class="fa fa-search"></i></span><input id="search_bar" type="text" value=""></div>
-        <div class="nav-item" style="margin-left:10px"><button aria-label="Search" id="plex_button" onClick="media.search()"><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button></div>
+        <div class="nav-item" style="margin-left:10px"><button aria-label="Search" id="plex_button" onClick='media.search()'><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button></div>
       </div>
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
@@ -45,10 +45,10 @@
             <a class="nav-link" href="home">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="movies">Movies</a>
+            <a class="nav-link" href="movies">Movies <span class="sr-only">(current)</span></a>
           </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="tv_shows">TV Shows <span class="sr-only">(current)</span></a>
+          <li class="nav-item  active">
+            <a class="nav-link" href="tv_shows">TV Shows</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="logout">Logout</a>
@@ -58,11 +58,11 @@
           </li>
           <script>
             document.getElementById("user_name").innerHTML = readCookie("user_name")+'\'s Profile';
-          </script>        
+          </script>
         </ul>
       </div>
     </div>
-  <a class="nav-link" href="https://app.plex.tv/desktop" id="plex_link">Watch PLEX</a>
+    <a class="nav-link" href="https://app.plex.tv/desktop" id="plex_link">Watch PLEX</a>
   </nav><!-- Page Content -->
   <div class="container">
     <!-- Page Heading -->
