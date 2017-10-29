@@ -44,7 +44,7 @@ int main(int argc,char *argv[]){
 	}
 
 	int num_pages;
-	sqlite3 *db;
+	sqlite3 *db = NULL;
 
 	if(argparse(argc,argv,&num_pages) && conn_db(&db,db_file))
 		scrape(num_pages,db);

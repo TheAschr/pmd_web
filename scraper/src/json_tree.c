@@ -60,7 +60,7 @@
 		else if(top_state_is(state_list,VALUE) && c=='"'){
 			del_top_state(state_list);
 			if(val_length == 0){
-				printf("\nWARNING EMPTY VALUE FOR KEY %s\n", current_element->key);
+				//printf("\nWARNING EMPTY VALUE FOR KEY %s\n", current_element->key);
 				set_json_element_value(&current_element,"");
 			}else{
 				val[val_length] = '\0';

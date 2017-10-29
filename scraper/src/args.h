@@ -5,12 +5,25 @@
 #include <string.h>
 
 void usage(char *argv[]){
-	printf("Usage: %s [number of pages] [--help]\n", argv[0]);
+	printf("Usage: %s number_of_pages [--help]\n", argv[0]);
+}
+
+int is_unsigned_number(char *num_str){
+	for(int i = 0;i < strlen(num_str);i++){
+		if(num_str[i]<(int)'0' || num_str[i]>(int)'9'){
+			printf("%c\n",num_str[i]);
+			return 0;
+		}
+	}
+	return 1;
 }
 
 int argparse(int argc,char *argv[], int *num_pages){
-	for(int i = 0; i < argc; i++){
+	for(int i = 1; i < argc; i++){
 		if(!strcmp(argv[i],"--help")||!strcmp(argv[i],"-help")){
+			usage(argv);
+			return 0;
+		}else if(!is_unsigned_number(argv[i])){
 			usage(argv);
 			return 0;
 		}

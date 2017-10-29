@@ -22,19 +22,20 @@ int conn_db(sqlite3 **conn,char *db_file){
 /*******************************************************************/
 
 int close_db(sqlite3 *conn){
+	if(conn){
+		printf(": CLOSING CONNECTION TO SQLITE DATABASE\n");
+	 	int err = sqlite3_close(conn);
 
-	printf(": CLOSING CONNECTION TO SQLITE DATABASE\n");
- 	int err = sqlite3_close(conn);
-
- 	if(err){
- 		printf(":: ERROR || CONNECTION CLOSE FAILED ||\n");
- 		return 0;
- 	}
- 	else{
- 		printf(": DONE\n\n");
- 		return 1;
- 	}
-
+	 	if(err){
+	 		printf(":: ERROR || CONNECTION CLOSE FAILED ||\n");
+	 		return 0;
+	 	}
+	 	else{
+	 		printf(": DONE\n\n");
+	 		return 1;
+	 	}		
+	 }
+	 return -1;
 }
 
 /*******************************************************************/
