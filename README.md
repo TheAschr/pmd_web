@@ -31,6 +31,13 @@
 2. "server_phone" is the phone number purchased through twilio that clients will receive texts from. It should be entered in this format: "+12223334444"
 ## Make:
 1. Download and install "make". If on windows it is available in GNU utils.
+
+# How to Use:
+## Scraper:
+1. Go to scraper and type "make windows" or "make linux" depending on operating system.
+2. Go to the bin directory and type "scraper.exe X" or "./scraper X" depending on operating system and X is the number of pages to scrape. The scraper is multithreaded so it should scale up to the number of threads your processor has as long as you aren't bottlenecked by internet speed.
+## Server: 
+Go to the root directory and simply type "node index.js"
     
 # Other notes/Issues:
   - If running on linux, you may have to install bcrypt and sqlite3 packages from npm (npm install bcrypt,sqlite3) as the compiled version is different from windows implementation
