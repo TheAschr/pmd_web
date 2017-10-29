@@ -37,7 +37,9 @@ void print_json_children(JSON_Element *json_element);
 
 void print_json_tree(JSON_Tree *json_tree);
 
-JSON_Element *get_json_child(JSON_Element *parent,char *key);
+void json_get_child_err(JSON_Element *parent,char *key);
+
+JSON_Element *get_json_child(JSON_Element *parent,char *key,void(*fail_cb)(JSON_Element *,char *));
 
 char *get_json_value(JSON_Element *json_element);
 
@@ -48,5 +50,7 @@ JSON_Element *insert_json_element(JSON_Element *parent,char *p_key);
 JSON_Tree *init_json(char *file_name);
 
 void cleanup_json_tree(JSON_Tree *json_tree);
+
+
 
 #endif

@@ -39,15 +39,21 @@ int media_scraped = 0;
 proc_ret_type scrape_index_page(void *data){
 	MainPageThreadData *m_page_thread_data = (MainPageThreadData *)data;
 	
-	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
+	JSON_Element *local_el = get_json_child(CONFIG->head,"LOCAL",&json_get_child_err);
 
-	JSON_Element *pics_dir_el = get_json_child(local_el,"Pictures_dir");
+	JSON_Element *pics_dir_el = get_json_child(local_el,"PICTURES_DIR",&json_get_child_err);
+
+	if(!local_el || !pics_dir_el){
+		running_threads--;
+		thread_term_function(1);
+	}
 
 	char *pics_file_rel = get_json_value(pics_dir_el);
 	char pics_dir[strlen(ROOT_DIR)+strlen(pics_file_rel)];
 	sprintf(pics_dir,"%s%s",ROOT_DIR,pics_file_rel);
 
 	int main_page_retry = 0;
+
 	do{
 		Vector main_page_html = {0,0};
 		curl_get_buffer(&main_page_html,m_page_thread_data->main_page_url);

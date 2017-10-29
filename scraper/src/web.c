@@ -21,8 +21,14 @@ int curl_get_buffer(Vector *vector,char *url){
 	CURL *curl = curl_easy_init();
 	
 	if(curl) {
-		JSON_Element *web_el = get_json_child(CONFIG->head,"Web");
-		JSON_Element *cookie_el = get_json_child(web_el,"IPTCookie");
+		JSON_Element *web_el = get_json_child(CONFIG->head,"WEB",&json_get_child_err);
+		JSON_Element *cookie_el = get_json_child(web_el,"IPTCOOKIE",&json_get_child_err);
+
+		if(!web_el || !cookie_el){
+			curl_easy_cleanup(curl);
+			curl_share_cleanup(share);
+			return 0;
+		}
 		char *cookie = get_json_value(cookie_el);
 		if(!cookie){
 			printf("COULD NOT FIND VALID COOKIE STRING IN CONFIG MAY NOT BE ABLE TO GET FILE\n");
@@ -65,8 +71,14 @@ int curl_get_file(FILE *f,char *url){
 	CURL *curl = curl_easy_init();
 
 	if(curl) {
-		JSON_Element *web_el = get_json_child(CONFIG->head,"Web");
-		JSON_Element *cookie_el = get_json_child(web_el,"IPTCookie");
+		JSON_Element *web_el = get_json_child(CONFIG->head,"WEB",&json_get_child_err);
+		JSON_Element *cookie_el = get_json_child(web_el,"IPTCOOKIE",&json_get_child_err);
+
+		if(!web_el || !cookie_el){
+			curl_easy_cleanup(curl);
+			return 0;
+		}
+
 		char *cookie = get_json_value(cookie_el);
 		if(!cookie){
 			printf("COULD NOT FIND VALID COOKIE STRING IN CONFIG MAY NOT BE ABLE TO GET FILE\n");

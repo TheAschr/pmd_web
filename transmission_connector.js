@@ -1,33 +1,35 @@
 var Transmission = require('transmission');
 
-//***************CONFIG*****************//
-var config = require('./config/config.json');
-var sh = require("shelljs");
-
-function check_config(config,def_value){
-	if(config && config!=""){
-		return config;
+function check_config(config_value,def_value){
+	if(config_value && config_value!=""){
+		return config_value;
 	}
 	else{
 		return def_value;
 	}
 }
 
-var IPT_COOKIE = config.Web.IPTCookie;
-var transmission_config = {};
-transmission_config["TRANSMISSION_IP"] = config.Transmission.ip;
-transmission_config["TRANSMISSION_PORT"] = config.Transmission.port;
-transmission_config["TRANSMISSION_USERNAME"] = config.Transmission.username;
-transmission_config["TRANSMISSION_PASSWORD"] = config.Transmission.password;
-transmission_config["TORRENT_DIR"] = check_config(config.Transmission.Torrents_dir,sh.pwd()+"\\torrent_files");
-transmission_config["MOVIES_DIR"] = check_config(config.Transmission.Movies_dir,sh.pwd()+"\\media_files");
-transmission_config["TV_SHOWS_DIR"] = check_config(config.Transmission.TV_shows_dir,sh.pwd()+"\\media_files");
+//***************CONFIG*****************//
+var CONFIG_LOCATION = './config/config.json';
+var CONFIG_FILE = require(CONFIG_LOCATION);
+var sh = require("shelljs");
+
+var IPT_COOKIE = CONFIG_FILE.WEB.IPTCOOKIE;
+
+var CONFIG = {};
+CONFIG["TRANSMISSION_IP"] = CONFIG_FILE.TRANSMISSION.IP;
+CONFIG["TRANSMISSION_PORT"] = CONFIG_FILE.TRANSMISSION.PORT;
+CONFIG["TRANSMISSION_USERNAME"] = CONFIG_FILE.TRANSMISSION.USERNAME;
+CONFIG["TRANSMISSION_PASSWORD"] = CONFIG_FILE.TRANSMISSION.PASSWORD;
+CONFIG["TORRENTS_DIR"] = check_config(CONFIG_FILE.TRANSMISSION.TORRENTS_DIR,sh.pwd()+"\\torrent_files");
+CONFIG["MOVIES_DIR"] = check_config(CONFIG_FILE.TRANSMISSION.MOVIES_DIR,sh.pwd()+"\\media_files");
+CONFIG["TV_SHOWS_DIR"] = check_config(CONFIG_FILE.TRANSMISSION.TV_SHOWS_DIR,sh.pwd()+"\\media_files");
 
 var transmission = null;
 
 var fail = false;
-for(key in transmission_config){
-	if(!transmission_config[key] || transmission_config[key] == ""){
+for(key in CONFIG){
+	if(!CONFIG[key] || CONFIG[key] == ""){
 		console.log("Error: could not find transmission config for "+key);
 		fail = true;
 	}
@@ -36,10 +38,10 @@ if(fail){
 	console.log("Transmission will be disabled");
 }else{
 	transmission = new Transmission({
-		port: transmission_config["TRANSMISSION_PORT"],
-		host: transmission_config["TRANSMISSION_IP"],
-		username: transmission_config["TRANSMISSION_USERNAME"],
-		password: transmission_config["TRANSMISSION_PASSWORD"]
+		port: CONFIG["TRANSMISSION_PORT"],
+		host: CONFIG["TRANSMISSION_IP"],
+		username: CONFIG["TRANSMISSION_USERNAME"],
+		password: CONFIG["TRANSMISSION_PASSWORD"]
 	});
 }
 
@@ -69,17 +71,17 @@ module.exports = {
 		}
 		var down_dir;
 		if(type == "movies"){
-			down_dir = transmission_config["MOVIES_DIR"];
+			down_dir = CONFIG["MOVIES_DIR"];
 		}
 		else if(type == "tv_shows"){
-			down_dir = transmission_config["TV_SHOWS_DIR"];
+			down_dir = CONFIG["TV_SHOWS_DIR"];
 		}
 
 		row.link = row.link.toString();
 		var url_split = row.link.split('/');
 		var f_name = url_split[url_split.length - 1];
-		if (!fs.existsSync(transmission_config["TORRENT_DIR"])) {
-			fs.mkdirSync(transmission_config["TORRENT_DIR"]);
+		if (!fs.existsSync(CONFIG["TORRENTS_DIR"])) {
+			fs.mkdirSync(CONFIG["TORRENTS_DIR"]);
 		}
 		var response_stream = request({
 			url: 'http://iptorrents.com' + row.link,
@@ -91,7 +93,7 @@ module.exports = {
 			console.log(err);
 		});
 		response_stream.on('response', function(response) {
-			var torrent_file = transmission_config["TORRENT_DIR"] + "\\" + f_name;
+			var torrent_file = CONFIG["TORRENTS_DIR"] + "\\" + f_name;
 			var write_stream = fs.createWriteStream(torrent_file);
 			response_stream.pipe(write_stream);
 			response_stream.on('end', function() {

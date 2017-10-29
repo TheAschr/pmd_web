@@ -1,31 +1,31 @@
 
 //***************CONFIG*****************//
-var config_file = './config/config.json';
-var config = require(config_file);
+var CONFIG_FILE = './config/config.json';
+var CONFIG = require(CONFIG_FILE);
 
-var media_types = {};
+var MEDIA_TYPES = {};
 
-media_types["movies"] =config.Web.media.movies.allowed_types.split(',');
+MEDIA_TYPES["movies"] = CONFIG.WEB.MEDIA.MOVIES.ALLOWED_TYPES.split(',');
 
-media_types["tv_shows"] = config.Web.media.tv_shows.allowed_types.split(',');
+MEDIA_TYPES["tv_shows"] = CONFIG.WEB.MEDIA.TV_SHOWS.ALLOWED_TYPES.split(',');
 
 var MIN_MEDIA_SIZE = [];
-MIN_MEDIA_SIZE["movies"] = config.Web.media.movies.allowed_sizes.min;
-MIN_MEDIA_SIZE["tv_shows"] =  config.Web.media.tv_shows.allowed_sizes.min;
+MIN_MEDIA_SIZE["movies"] = CONFIG.WEB.MEDIA.MOVIES.ALLOWED_SIZES.MIN;
+MIN_MEDIA_SIZE["tv_shows"] =  CONFIG.WEB.MEDIA.TV_SHOWS.ALLOWED_SIZES.MIN;
 
 var MAX_MEDIA_SIZE = [];
-MAX_MEDIA_SIZE["movies"] = config.Web.media.movies.allowed_sizes.max;
-MAX_MEDIA_SIZE["tv_shows"] = config.Web.media.tv_shows.allowed_sizes.max;
+MAX_MEDIA_SIZE["movies"] = CONFIG.WEB.MEDIA.MOVIES.ALLOWED_SIZES.MAX;
+MAX_MEDIA_SIZE["tv_shows"] = CONFIG.WEB.MEDIA.TV_SHOWS.ALLOWED_SIZES.MAX;
 
-var SSL_KEY_FILE = config.Web.ssl.key_file;
-var SSL_CERT_FILE = config.Web.ssl.cert_file;
+var SSL_KEY_FILE = CONFIG.WEB.SSL.KEY_FILE;
+var SSL_CERT_FILE = CONFIG.WEB.SSL.CERT_FILE;
 
 if(!SSL_KEY_FILE || SSL_KEY_FILE == "" ){
-  console.log("Error: Could not find ssl_cert_file in config at " + config_file)
+  console.log("Error: Could not find SSL_CERT_FILE value in config at " + CONFIG_FILE)
   process.exit();
 }
 if(!SSL_CERT_FILE || SSL_CERT_FILE == ""){
-  console.log("Error: Could not find ssl_key_file in config at " + config_file)
+  console.log("Error: Could not find SSL_KEY_FILE value in config at " + CONFIG_FILE)
   process.exit(); 
 }
 
@@ -105,7 +105,7 @@ require('./routes.js')(sql_conn,app);
 
 io.on('connection', function(socket) {
   socket.on('media_req', function(data) {
-    sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \""+media_types[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
+    sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \""+MEDIA_TYPES[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
       results = media_modifiers.size_between(MIN_MEDIA_SIZE[data.type],MAX_MEDIA_SIZE[data.type],results);
       results = results.slice(data.offset,data.offset+data.size);
       socket.emit('media_res',{media: results,active: trans_conn.active});

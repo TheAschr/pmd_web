@@ -157,7 +157,11 @@ void print_json_tree(JSON_Tree *json_tree){
 	print_json_children(json_tree->head);
 }
 
-JSON_Element *get_json_child(JSON_Element *parent,char *key){		
+void json_get_child_err(JSON_Element *parent,char *key){
+	printf("FAILED TO GET CHILD OF %s WITH A KEY OF %s\n",parent->key,key);
+}
+
+JSON_Element *get_json_child(JSON_Element *parent,char *key,void(*fail_cb)(JSON_Element *,char *)){
 	if(parent){
 		for(int i = 0; i < parent->num_children;i++){
 			if(parent->children[i]){
@@ -168,6 +172,9 @@ JSON_Element *get_json_child(JSON_Element *parent,char *key){
 			
 		}
 
+	}
+	if(fail_cb){
+		fail_cb(parent,key);
 	}
 	return 0;
 }
@@ -193,7 +200,7 @@ void set_json_element_value(JSON_Element **p_json_element,char *p_value){
 
 JSON_Element *insert_json_element(JSON_Element *parent,char *p_key){
 	if(parent){
-		if(!get_json_child(parent,p_key)){
+		if(!get_json_child(parent,p_key,NULL)){
 			parent->children = realloc(parent->children,sizeof(JSON_Element *)*(parent->num_children+1));
 
 			JSON_Element *new_child = malloc(sizeof(JSON_Element));

@@ -1,19 +1,19 @@
 
 //***************CONFIG*****************//
-var config_file = './config/config.json';
-var config = require(config_file);
+var CONFIG_LOCATION = './config/config.json';
+var CONFIG_FILE = require(CONFIG_LOCATION);
 
-var twilio_config = {};
-twilio_config["ACCOUNT_SID"] = config.Twilio.account_sid;
-twilio_config["SERVER_PHONE"] = config.Twilio.auth_token;
-twilio_config["SERVER_PHONE"] = config.Twilio.server_phone;
+var CONFIG = {};
+CONFIG["ACCOUNT_SID"] = CONFIG_FILE.TWILIO.ACCOUNT_SID;
+CONFIG["SERVER_PHONE"] = CONFIG_FILE.TWILIO.AUTH_TOKEN;
+CONFIG["SERVER_PHONE"] = CONFIG_FILE.TWILIO.SERVER_PHONE;
 //**************************************//
 
 var twilio = require('twilio');
 var client = null; 
 var fail = false;
-for(key in twilio_config){
-	if(!twilio_config[key] || twilio_config[key] == ""){
+for(key in CONFIG){
+	if(!CONFIG[key] || CONFIG[key] == ""){
 		console.log("Error: could not find config for "+key);
 		fail = true;
 	}
@@ -21,7 +21,7 @@ for(key in twilio_config){
 if(fail){
 	console.log("Twilio will be disabled");
 }else{
-	client = new twilio(twilio_config["ACCOUNT_SID"],twilio_config["AUTH_TOKEN"]);
+	client = new twilio(CONFIG["ACCOUNT_SID"],CONFIG["AUTH_TOKEN"]);
 }
 
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
 		module.exports.client.messages.create({
 			body: message,
 			to: client_phone,
-			from: twilio_config["SERVER_PHONE"]
+			from: CONFIG["SERVER_PHONE"]
 		});
 	}
 };

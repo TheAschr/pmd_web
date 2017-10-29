@@ -20,17 +20,17 @@ int main(int argc,char *argv[]){
 		return 1;
 	}
 
-	JSON_Element *web_el = get_json_child(CONFIG->head,"Web");
+	JSON_Element *web_el = get_json_child(CONFIG->head,"WEB",&json_get_child_err);
 
-	JSON_Element *cookie = get_json_child(web_el,"IPTCookie");
+	JSON_Element *cookie = get_json_child(web_el,"IPTCOOKIE",&json_get_child_err);
 	if(!strcmp(cookie->value,"")){
 		printf("\n:: ERROR COOKIE IS MISSING FROM CONFIG FILE\n");
 		return 1;
 	}
 
-	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
+	JSON_Element *local_el = get_json_child(CONFIG->head,"LOCAL",&json_get_child_err);
 	
-	JSON_Element *db_file_el = get_json_child(local_el,"DB_File");
+	JSON_Element *db_file_el = get_json_child(local_el,"DB_FILE",&json_get_child_err);
 
 	char *db_file_rel = get_json_value(db_file_el);
 	char db_file[strlen(ROOT_DIR)+strlen(db_file_rel)];
@@ -40,7 +40,7 @@ int main(int argc,char *argv[]){
 		return 1;
 	}
 	
-	JSON_Element *pics_dir_el = get_json_child(local_el,"Pictures_dir");
+	JSON_Element *pics_dir_el = get_json_child(local_el,"PICTURES_DIR",&json_get_child_err);
 
 	char *pics_file_rel = get_json_value(pics_dir_el);
 	char pics_dir[strlen(ROOT_DIR)+strlen(pics_file_rel)];

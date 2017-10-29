@@ -1,11 +1,12 @@
 
 //***************CONFIG*****************//
-var config = require('./config/config.json');
+var CONFIG_LOCATION = './config/config.json';
+var CONFIG_FILE = require(CONFIG_LOCATION);
 var sh = require('shelljs');
 
-var DB_LOCATION = config.Local.DB_File;
+var DB_LOCATION = CONFIG_FILE.LOCAL.DB_FILE;
 
-var REGISTRAION_CODE = config.Web.registration_code;
+var REGISTRATION_CODE = CONFIG_FILE.WEB.REGISTRATION_CODE;
 
 var MIN_PASS_LEN = 8;
 var MIN_PASS_NUM = 0;
@@ -48,7 +49,7 @@ module.exports = {
 		return 0;
 	},function(){
 		if(password == password_conf){
-			if(secret_code == REGISTRAION_CODE){
+			if(secret_code == REGISTRATION_CODE){
 				if(password.length >= MIN_PASS_LEN){
 					var nums_in_password = password.match(/[0-9]/g);
 					if(!nums_in_password){

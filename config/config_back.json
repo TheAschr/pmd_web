@@ -1,44 +1,44 @@
 {
-	"Transmission": {
-		"ip": "127.0.0.1",
-		"port": 9091,
-		"username": "username",
-		"password": "password",
-		"Torrents_dir": "",
-		"Movies_dir": "",
-		"TV_shows_dir": ""
+	"TRANSMISSION": {
+		"IP": "127.0.0.1",
+		"PORT": 9091,
+		"USERNAME": "username",
+		"PASSWORD": "password",
+		"TORRENTS_DIR": "",
+		"MOVIES_DIR": "",
+		"TV_SHOWS_DIR": ""
 	},
-	"Local": {
-		"DB_File": "data/pmd.db",
-		"Pictures_dir": "public/pics"
+	"LOCAL": {
+		"DB_FILE": "data/pmd.db",
+		"PICTURES_DIR": "public/pics"
 	},
-	"Web": {
-		"IPTCookie": "",
-		"media":{
-			"movies" : {
-				"allowed_types": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
-				"allowed_sizes": {
-					"min": "",
-					"max": ""
+	"WEB": {
+		"IPTCOOKIE": "",
+		"MEDIA":{
+			"MOVIES" : {
+				"ALLOWED_TYPES": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
+				"ALLOWED_SIZES": {
+					"MIN": "",
+					"MAX": ""
 				}
 			},
-			"tv_shows": {
-				"allowed_types": "tvWEBDL,TVX264,SDX264,TV480p,TVX265,sport,tvDocumentaries,tvpackenglish,tvxvid",
-				"allowed_sizes": {
-					"min": "",
-					"max": ""
+			"TV_SHOWS": {
+				"ALLOWED_TYPES": "tvWEBDL,TVX264,SDX264,TV480p,TVX265,sport,tvDocumentaries,tvpackenglish,tvxvid",
+				"ALLOWED_SIZES": {
+					"MIN": "",
+					"MAX": ""
 				}
 			}
 		},
-		"registration_code": "reg_code",
-		"ssl": {
-			"key_file": "",
-			"cert_file": ""
+		"REGISTRATION_CODE": "reg_code",
+		"SSL": {
+			"KEY_FILE": "",
+			"CERT_FILE": ""
 		}
 	},
-	"Twilio": {
-		"account_sid": "",
-		"auth_token": "",
-		"server_phone": ""
+	"TWILIO": {
+		"ACCOUNT_SID": "",
+		"AUTH_TOKEN": "",
+		"SERVER_PHONE": ""
 	}
 }
