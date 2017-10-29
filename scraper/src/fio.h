@@ -30,6 +30,7 @@ int make_dir(char *dir_name){
     DIR *temp_dir;
 
     if(!(temp_dir = opendir(dir_name))){
+        printf(": BUIDING DIRECTORY %s\n",dir_name);
         make_dir_function(dir_name,make_dir_security);
       	return 1;
     }else{

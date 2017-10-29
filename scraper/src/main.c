@@ -20,6 +20,14 @@ int main(int argc,char *argv[]){
 		return 1;
 	}
 
+	JSON_Element *web_el = get_json_child(CONFIG->head,"Web");
+
+	JSON_Element *cookie = get_json_child(web_el,"IPTCookie");
+	if(!strcmp(cookie->value,"")){
+		printf("\n:: ERROR COOKIE IS MISSING FROM CONFIG FILE\n");
+		return 1;
+	}
+
 	JSON_Element *local_el = get_json_child(CONFIG->head,"Local");
 	
 	JSON_Element *db_file_el = get_json_child(local_el,"DB_File");
