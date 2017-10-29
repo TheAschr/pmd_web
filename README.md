@@ -20,7 +20,7 @@
 1. Go to login page on chrome
 2. Hit f12 and go to "Network" tab
 3. Login as normal
-4. Go click "iptorrents.com"
+4. Click "iptorrents.com" in the sidebar
 5. Expand "Request Headers" and copy "cookie" value
 6. Set "IPTCookie" in config.json value to copied cookie
 ## SSL cert and key:
