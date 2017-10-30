@@ -33,12 +33,20 @@ if(!SSL_CERT_FILE || SSL_CERT_FILE == ""){
 
 var trans_conn = require("./transmission_connector");
 var sql_conn = require("./sql_connector.js");
-var media_modifiers = require('./media_modifiers.js');
+var helper = require('./helper_functions.js');
 var twilio = require('./twilio.js')
 
 var express = require('express');
 var app = express();
-var session = require('express-session');
+var session = require('express-session')({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true
+});
+
+var shared_session = require('express-socket.io-session');
+
+
 var fs = require('fs');
 
 var server_port = 443;
@@ -50,6 +58,7 @@ var options = {
 var server = https.createServer(options,app);
 
 var io = require('socket.io')(server);
+io.use(shared_session(session));
 
 var path = require('path');
 
@@ -84,11 +93,7 @@ setInterval(function() {
   });
 }, 2000);
 
-app.use(session({
-  secret: 'secret',
-  resave: true,
-  saveUninitialized: true
-}));
+app.use(session);
 
 app.use(express.static(path.join(__dirname, 'public')));
 var bodyParser = require('body-parser');
@@ -104,9 +109,10 @@ require('./http_redirect.js')(app);
 require('./routes.js')(sql_conn,app);
 
 io.on('connection', function(socket) {
+
   socket.on('media_req', function(data) {
     sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \""+MEDIA_TYPES[data.type].join("\" OR type = \"")+"\");",["%"+data.title+"%"],function(results){
-      results = media_modifiers.size_between(MIN_MEDIA_SIZE[data.type],MAX_MEDIA_SIZE[data.type],results);
+      results = helper.get_with_sizes_between(MIN_MEDIA_SIZE[data.type],MAX_MEDIA_SIZE[data.type],results);
       results = results.slice(data.offset,data.offset+data.size);
       socket.emit('media_res',{media: results,active: trans_conn.active});
     });
@@ -126,6 +132,32 @@ io.on('connection', function(socket) {
   socket.on('all_progress_req',function(){
     socket.emit('all_progress_res',{active: trans_conn.active});  
   });
+  socket.on('user_info_req',function(){
+    sql_conn.all_media("SELECT username,quota,quota_limit,level FROM users WHERE username = (?)",[socket.handshake.session.user_name],function(results){
+      if(results.length){
+        var type = "";
+        if(results[0].level == 1){
+          type = "Admin";
+        }
+        else if(results[0].level == 2){
+          type = "User";
+        }
+        socket.emit('user_info_res',{
+          user_name : results[0].username,
+          type: type,
+          quota_str: results[0].quota || "0GB",
+          quota_limit_str: results[0].quota_limit || "None",
+          quota_current: helper.parse_data_size(results[0].quota),
+          quota_limit: helper.parse_data_size(results[0].quota_limit)
+        });      
+      }
+     })
+  });
+  socket.on('other_users_req',function(data){
+    sql_conn.all_media("SELECT username,quota,quota_limit,level FROM users WHERE username LIKE (?)","%"+data.user_name+"%",function(results){
+        socket.emit('other_users_res',{users: results});      
+    });
+  })
   socket.on('disconnect', function() {});
 });
 

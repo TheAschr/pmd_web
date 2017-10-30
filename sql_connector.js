@@ -7,6 +7,7 @@ var sh = require('shelljs');
 var DB_LOCATION = CONFIG_FILE.LOCAL.DB_FILE;
 
 var REGISTRATION_CODE = CONFIG_FILE.WEB.REGISTRATION_CODE;
+var ADMIN_REGISTRATION_CODE = CONFIG_FILE.WEB.ADMIN_REGISTRATION_CODE;
 
 var MIN_PASS_LEN = 8;
 var MIN_PASS_NUM = 0;
@@ -19,24 +20,7 @@ const saltRounds = 10;
 
 var sqlite3 = require('sqlite3').verbose();
 
-function parse_phone_num(phone_num){
-	if(phone_num && phone_num != ""){
-		phone_num = phone_num.match(/(\+)?[0-9]/g);
-		if(phone_num.length == 0){
-			return null;
-		}
-		else if(phone_num[0].length == 2 && phone_num.length == 11){
-			return phone_num.join();
-		}
-		else if(phone_num[0].length == 1 && phone_num.length == 10){
-			return "+1"+ phone_num.join("");
-		}
-		else{
-			return null;
-		}	
-	}
-	return "";
-}
+var helper = require('./helper_functions.js');
 
 module.exports = {
 	register_user: function(secret_code,username,email,password,password_conf,phone,succ_cb,fail_cb){
@@ -49,7 +33,14 @@ module.exports = {
 		return 0;
 	},function(){
 		if(password == password_conf){
+			var level = 0;
 			if(secret_code == REGISTRATION_CODE){
+				level = 2;
+			}
+			if(secret_code == ADMIN_REGISTRATION_CODE){
+				level = 1;
+			}
+			if(level){
 				if(password.length >= MIN_PASS_LEN){
 					var nums_in_password = password.match(/[0-9]/g);
 					if(!nums_in_password){
@@ -70,15 +61,15 @@ module.exports = {
 									return console.error(err.message);
 									}
 								});
-								var insert_user = db.prepare("INSERT INTO users (username,email,password,phone) VALUES (?,?,?,?)");
-								var parsed_phone = parse_phone_num(phone);
+								var insert_user = db.prepare("INSERT INTO users (username,email,password,phone,level) VALUES (?,?,?,?,?)");
+								var parsed_phone = helper.parse_phone_num(phone);
 								if(parsed_phone == null){
 									fail_cb("Please enter phone number in correct format");
 									insert_user.finalize();
 									db.close();
 									return 0;
 								}
-								insert_user.run(username,email,hash,parsed_phone);	
+								insert_user.run(username,email,hash,parsed_phone,level);	
 								insert_user.finalize();	
 								db.close();
 								succ_cb();	
@@ -162,15 +153,15 @@ module.exports = {
 					bcrypt.compare(password,row.password,function(err,res){
 						if(res){
 							console.log(row.username+" successfully logged in ")
-							succ_cb();									
+							succ_cb(row);									
 						}
 						else{
-							fail_cb();					
+							fail_cb(row);					
 						}
 					});
 				}
 				else{
-					fail_cb();
+					fail_cb(row);
 				}
 
 			});
@@ -178,7 +169,7 @@ module.exports = {
 			db.close();
 		}
 		else{
-			fail_cb();
+			fail_cb(row);
 		}
 	}
 }

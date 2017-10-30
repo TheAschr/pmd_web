@@ -13,23 +13,12 @@
   <script src='/scripts/cookies.js'></script>
   <script src='/scripts/media_data.js'></script>
   <script>
-    function getParameterByName(name, url) {
-        if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
 
     var socket = io();
-    var media = new MediaList(socket);
-    var user_name = getParameterByName("user_name");
-    if(user_name){
-      createCookie("user_name",user_name);
-      console.log(document.cookie)
-    }
+    
+    socket.on('user_info_res',function(data){
+      document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
+    });
   </script>
 
 </head>
@@ -54,10 +43,10 @@
             <a class="nav-link" href="logout">Logout</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" id="user_name" href="#"></a>
+            <a class="nav-link" id="user_name" href="user_info"></a>
           </li>
           <script>
-            document.getElementById("user_name").innerHTML = readCookie("user_name")+'\'s Profile';
+            socket.emit('user_info_req',{});
           </script>       
         </ul>
       </div>

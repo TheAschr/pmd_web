@@ -5,11 +5,33 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 
+.info_page{
+ background-color: #212529;
+ border-radius:3px;
+ padding-bottom: 20px;
+}
+
 .media-download{
   background-color: #22262a !important;
 }
 .media-seed{
   background-color: #505a62 !important;
+}
+
+.user_list_desc{
+  color:white;
+  border: 2px solid #505a62;
+  padding:2px;
+}
+.user_list_item{
+  border: 2px solid #505a62;
+  padding:2px;
+}
+div.user_list_item{
+  color:white;
+}
+input.user_list_item{
+  color:black;
 }
 
 #page-index{
@@ -123,8 +145,36 @@ text-align: center;
     border-radius: 3px;
 
 }
-
 #plex_link:hover {
+  background: #505a62;
+  background-image: -webkit-linear-gradient(top, #505a62, #5c6770);
+  background-image: -moz-linear-gradient(top, #505a62, #5c6770);
+  background-image: -ms-linear-gradient(top, #505a62, #5c6770);
+  background-image: -o-linear-gradient(top, #505a62, #5c6770);
+  background-image: linear-gradient(to bottom, #505a62, #5c6770);
+  text-decoration: none;
+}
+
+.user_link {
+    margin:10px;
+    border-radius: 3px
+    border-color: #b56d16;
+    color: #fff;
+    background-color: #505a62;
+    -webkit-transition: background-color .1s;
+    transition: background-color .1s;
+
+    font-family: Open Sans Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+    border: 0;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 3px;
+
+}
+
+
+.user_link:hover {
   background: #505a62;
   background-image: -webkit-linear-gradient(top, #505a62, #5c6770);
   background-image: -moz-linear-gradient(top, #505a62, #5c6770);

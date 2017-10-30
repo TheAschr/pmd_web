@@ -6,6 +6,13 @@ function check_auth(req, res, next) {
     res.redirect('/');
   }
 };
+function check_admin(req, res, next) {
+  if (req.session.level == 1) {
+    next();
+  } else {
+    res.redirect('/home');
+  }
+};
 
 module.exports = function(sql_conn,app){
   app.get('/', function(req, res) {
@@ -14,9 +21,10 @@ module.exports = function(sql_conn,app){
   app.post('/login', function(req, res) {
     if(req.body.action == "Login"){
        sql_conn.validate_user(req.body.user.name,req.body.user.password,
-        function(){
-          req.session.user_name = req.body.user.name;
-          res.redirect('/home'+'?user_name='+req.session.user_name);    
+        function(user){
+          req.session.user_name = user.username;
+          req.session.level = user.level;
+          res.redirect('/home');    
         },
         function(){
           res.redirect('/?bad_login=true')
@@ -58,4 +66,10 @@ module.exports = function(sql_conn,app){
   app.get('/tv_shows', check_auth, function(req, res) {
     res.sendFile(__dirname + '/tv_shows.html');
   });
+  app.get('/user_info', check_auth, function(req, res) {
+    res.sendFile(__dirname + '/user_info.html');
+  });
+  app.get('/admin',check_auth,check_admin,function(req,res){
+    res.sendFile(__dirname + '/admin.html')
+  })
 }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" style="min-height: 100%">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+  <meta content="" name="description">
+  <meta content="" name="author">
+  <title>Plex Movie Downloader - User Info</title><!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet"><!-- Custom styles for this template -->
+  <link href="vendor/bootstrap/css/circle.css" rel="stylesheet">
+  <link href="css/4-col-portfolio.css" rel="stylesheet">
+
+  <script src='/socket.io/socket.io.js'></script>
+  <script src='/scripts/cookies.js'></script>
+  <script src='/scripts/media_data.js'></script>
+  <script>
+
+  var socket = io();
+  socket.on('user_info_res',function(data){
+    document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
+  });
+  socket.on('other_users_res',function(data){
+    var user_list = document.getElementById("user_list_placeholder");
+    while(user_list.firstChild){
+      user_list.removeChild(user_list.firstChild);
+    }
+    var list_desc = document.createElement("tr");
+    
+    var new_user_row = document.createElement("tr");
+    Object.keys(data.users[0]).forEach(function(key,index){
+          var new_user_button = document.createElement("td");
+          new_user_button.classList.add('user_list_desc');
+          new_user_button.innerHTML = key;
+          new_user_row.appendChild(new_user_button);
+    });  
+    user_list.appendChild(new_user_row);
+    for(i = 0; i < data.users.length;i++){
+      new_user_row = document.createElement("tr");
+      Object.keys(data.users[i]).forEach(function(key,index){
+          var list_item_container = document.createElement("td");
+          var list_item;
+          if(key == 'username' || key == 'quota'){
+            list_item = document.createElement("div");
+            list_item.innerHTML = data.users[i][key] || "none";
+          }
+          else if(key == 'level'){
+            list_item = document.createElement("select");
+            for(level = 0; level < 3;level++){
+              var select_item = document.createElement("option");
+              select_item.value = level;
+              select_item.innerHTML = level;
+              list_item.appendChild(select_item);
+            }
+          }
+          else{
+            list_item = document.createElement("input");
+            list_item.value = data.users[i][key] || "none";
+          }
+          list_item.classList.add('user_list_item');
+          list_item_container.appendChild(list_item);
+          new_user_row.appendChild(list_item_container);
+      });
+      user_list.appendChild(new_user_row);
+    }
+
+  });
+  window.addEventListener("load",function(){      
+    } , true);
+
+  function search_other_users(){
+    socket.emit('other_users_req',{user_name: document.getElementById("user_search_bar").value});
+  }
+
+  </script>
+
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/home">Plex Movie Downloader</a> <button aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarResponsive" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+  
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="home">Home </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="movies">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="tv_shows">TV Shows</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="logout">Logout</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" id="user_name" href="user_info"> <span class="sr-only">(current)</span></a>
+          </li>
+          <script>
+            socket.emit('user_info_req',{});
+          </script>       
+        </ul>
+      </div>
+    </div>
+    <a class="nav-link" href="https://app.plex.tv/desktop" id="plex_link">Watch PLEX</a>
+  </nav><!-- Page Content -->
+  <div class="container info_page">
+    <!-- Page Heading -->
+    <h1 class="my-4" style="text-align:center">Admin Settings</h1>
+    <h2 class="my-4">Get User</h2>
+    <span class="icon"><i class="fa fa-search"></i></span><input id="user_search_bar" type="text" value="">
+      <button aria-label="Search" id="plex_button" onClick='search_other_users()'><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button>
+  <table id="user_list_placeholder">
+  </table>
+  </div><!-- /.container -->
+
+  <!-- Footer -->
+  <script src="vendor/jquery/jquery.min.js">
+  </script> 
+  <script src="vendor/popper/popper.min.js">
+  </script> 
+  <script src="vendor/bootstrap/js/bootstrap.min.js">
+  </script>
+</body>
+</html>

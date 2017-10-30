@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" style="min-height: 100%">
+   <head>
+      <meta charset="utf-8">
+      <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+      <meta content="" name="description">
+      <meta content="" name="author">
+      <title>Plex Movie Downloader - User Info</title>
+      <!-- Bootstrap core CSS -->
+      <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+      <!-- Custom styles for this template -->
+      <link href="vendor/bootstrap/css/circle.css" rel="stylesheet">
+      <link href="css/4-col-portfolio.css" rel="stylesheet">
+      <script src='/socket.io/socket.io.js'></script>
+      <script src='/scripts/cookies.js'></script>
+      <script src='/scripts/media_data.js'></script>
+      <script>
+         function getParameterByName(name, url) {
+             if (!url) url = window.location.href;
+             name = name.replace(/[\[\]]/g, "\\$&");
+             var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                 results = regex.exec(url);
+             if (!results) return null;
+             if (!results[2]) return '';
+             return decodeURIComponent(results[2].replace(/\+/g, " "));
+         }
+         
+         var socket = io();
+         
+         socket.on('user_info_res',function(data){
+         
+         document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
+         
+         if(data.type=="Admin"){
+           var admin_button = document.createElement("a");
+           admin_button.id = "plex_button";
+           admin_button.href = "admin";
+           admin_button.innerHTML = "Admin Settings";
+           document.getElementById("admin_button_placeholder").appendChild(admin_button);
+         }
+
+         document.getElementById("quota_limit_text").innerHTML = "Data Limit: "+data.quota_limit_str;
+         document.getElementById("quota_current_text").innerHTML = "Used: "+data.quota_str;
+         var quote_circle = document.getElementById("quote_circle"); 
+         quote_circle.classList.remove('p0');
+         quote_circle.classList.add('p'+Math.round(data.quota_current/data.quota_limit*100));
+         document.getElementById('quote_inner').innerHTML = (Math.round(data.quota_current/data.quota_limit*100))+'%';
+         console.log()
+         });
+      </script>
+   </head>
+   <body>
+      <!-- Navigation -->
+      <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+         <div class="container">
+            <a class="navbar-brand" href="/home">Plex Movie Downloader</a> <button aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarResponsive" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+               <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                     <a class="nav-link" href="home">Home </a>
+                  </li>
+                  <li class="nav-item">
+                     <a class="nav-link" href="movies">Movies</a>
+                  </li>
+                  <li class="nav-item">
+                     <a class="nav-link" href="tv_shows">TV Shows</a>
+                  </li>
+                  <li class="nav-item">
+                     <a class="nav-link" href="logout">Logout</a>
+                  </li>
+                  <li class="nav-item active">
+                     <a class="nav-link" id="user_name" href="user_info"> <span class="sr-only">(current)</span></a>
+                  </li>
+                  <script>
+                     socket.emit('user_info_req',{});
+                  </script>           
+               </ul>
+            </div>
+         </div>
+         <a class="nav-link" href="https://app.plex.tv/desktop" id="plex_link">Watch PLEX</a>
+      </nav>
+      <!-- Page Content -->
+      <div class="container info_page">
+         <div class="info_page"
+         <!-- Page Heading -->
+         <h1 class="my-4" style="text-align: center;">User Info</h1>
+         <div id="admin_button_placeholder">
+         </div> 
+         <!-- 
+            for each piece of the pie chart create one div and give it
+            a data-value attribute that represents the amount (in degrees) that
+            represents its total visible portion, and a data-start attribute
+            that matches the amount rotation for the starting  (the cumulative value amount of all the previous pieces).
+            
+             
+            -->
+         <div>
+            <h2 id="quota_limit_text" class="my-4" style="text-align:center"></h2>
+            <h2 id="quota_current_text" class="my-4" style="text-align:center"></h2>
+            <div id="quote_circle" class="c100 p0 center orange dark">
+               <span id="quote_inner"></span>
+               <div class="slice">
+                  <div class="bar"></div>
+                  <div class="fill"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- /.container -->
+      <!-- Footer -->
+      <script src="vendor/jquery/jquery.min.js"></script> 
+      <script src="vendor/popper/popper.min.js"></script> 
+      <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+   </body>
+</html>

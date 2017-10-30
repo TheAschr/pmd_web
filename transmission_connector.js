@@ -49,7 +49,6 @@ if(fail){
 var request = require('request');
 var fs = require('fs');
 
-
 var t_status = {};
 t_status["STOPPED"] = 0;
 t_status["CHECK_WAIT"] = 1;

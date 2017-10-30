@@ -31,6 +31,7 @@
 			}
 		},
 		"REGISTRATION_CODE": "reg_code",
+		"ADMIN_REGISTRATION_CODE": "admin_reg_code",
 		"SSL": {
 			"KEY_FILE": "",
 			"CERT_FILE": ""
