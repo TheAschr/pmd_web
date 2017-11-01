@@ -154,9 +154,15 @@ io.on('connection', function(socket) {
      })
   });
   socket.on('other_users_req',function(data){
-    sql_conn.all_media("SELECT username,quota,quota_limit,level FROM users WHERE username LIKE (?)","%"+data.user_name+"%",function(results){
+    sql_conn.all_media("SELECT username,quota,quota_limit,phone,level FROM users WHERE username LIKE (?)","%"+data.user_name+"%",function(results){
         socket.emit('other_users_res',{users: results});      
     });
+  })
+  socket.on('config_req',function(){
+    socket.emit('config_res',{config: CONFIG});
+  })
+  socket.on('config_update',function(data){
+    fs.writeFile(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');
   })
   socket.on('disconnect', function() {});
 });

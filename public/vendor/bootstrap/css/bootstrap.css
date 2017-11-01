@@ -34,6 +34,14 @@ input.user_list_item{
   color:black;
 }
 
+.config_button{
+  color:white;
+}
+
+.config_container{
+  background-color: #505a62;
+}
+
 #page-index{
   margin-left:10px;
   margin-right:10px;
@@ -155,6 +163,9 @@ text-align: center;
   text-decoration: none;
 }
 
+button {
+  outline:none;
+}
 .user_link {
     margin:10px;
     border-radius: 3px
@@ -183,6 +194,103 @@ text-align: center;
   background-image: linear-gradient(to bottom, #505a62, #5c6770);
   text-decoration: none;
 }
+
+.config_back {
+  border-color: #b56d16;
+  outline: none;
+  margin:10px;
+    border-radius: 3px
+    border-color: black;
+    color: #fff;
+    background-color: #cc7b19;
+    -webkit-transition: background-color .1s;
+    transition: background-color .1s;
+
+    padding: 6px 16px;
+    font-family: Open Sans Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+    text-transform: uppercase;
+    border: 0;
+    font-weight: 400;
+text-align: center;
+    padding: 10px 18px;
+    font-size: 13px;
+    line-height: 1.33;
+    border-radius: 3px;
+
+}
+
+.config_back:hover {
+  background: #eb922c;
+  background-image: -webkit-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: -moz-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: -ms-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: -o-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: linear-gradient(to bottom, #eb922c, #cc7b19);
+  text-decoration: none;
+}
+
+.button{
+  outline: none !important;
+}
+
+.config_link {
+    margin:10px;
+    border-radius: 3px
+    border-color: #b56d16;
+    color: #fff;
+    background-color: #212529;
+    -webkit-transition: background-color .1s;
+    transition: background-color .1s;
+
+    font-family: Open Sans Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+    border: 0;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 3px;
+
+}
+
+.config_buttons {
+  text-align: center;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0;
+  list-style: none;
+}
+
+.config_buttons li{
+  width: 33%;
+  display: inline-block;
+}
+.config_buttons:after{
+  width:100%;
+  display: inline-block;
+}
+
+.config_link:hover {
+  color: #b3b3b3;
+  text-decoration: none;
+}
+.config_key {
+    margin:10px;
+    border-radius: 3px
+    border-color: #b56d16;
+    color: black;
+    background-color: #8f9aa3;
+    -webkit-transition: background-color .1s;
+    transition: background-color .1s;
+
+    font-family: Open Sans Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+    border: 0;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 3px;
+
+}
+
+
 
 @media print {
   *,
@@ -456,10 +564,6 @@ label {
   margin-bottom: .5rem;
 }
 
-button:focus {
-  outline: 1px dotted;
-  outline: 5px auto -webkit-focus-ring-color;
-}
 
 input,
 button,

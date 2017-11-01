@@ -41,10 +41,10 @@
 
          document.getElementById("quota_limit_text").innerHTML = "Data Limit: "+data.quota_limit_str;
          document.getElementById("quota_current_text").innerHTML = "Used: "+data.quota_str;
-         var quote_circle = document.getElementById("quote_circle"); 
+         var quote_circle = document.getElementById("quota_circle"); 
          quote_circle.classList.remove('p0');
          quote_circle.classList.add('p'+Math.round(data.quota_current/data.quota_limit*100));
-         document.getElementById('quote_inner').innerHTML = (Math.round(data.quota_current/data.quota_limit*100))+'%';
+         document.getElementById('quota_inner').innerHTML = (Math.round(data.quota_current/data.quota_limit*100)) || "0"+'%';
          console.log()
          });
       </script>
@@ -97,8 +97,8 @@
          <div>
             <h2 id="quota_limit_text" class="my-4" style="text-align:center"></h2>
             <h2 id="quota_current_text" class="my-4" style="text-align:center"></h2>
-            <div id="quote_circle" class="c100 p0 center orange dark">
-               <span id="quote_inner"></span>
+            <div id="quota_circle" class="c100 p0 center orange dark">
+               <span id="quota_inner"></span>
                <div class="slice">
                   <div class="bar"></div>
                   <div class="fill"></div>

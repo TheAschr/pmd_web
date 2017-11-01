@@ -22,9 +22,11 @@ module.exports = function(sql_conn,app){
     if(req.body.action == "Login"){
        sql_conn.validate_user(req.body.user.name,req.body.user.password,
         function(user){
-          req.session.user_name = user.username;
-          req.session.level = user.level;
-          res.redirect('/home');    
+          if(user){
+            req.session.user_name = user.username;
+            req.session.level = user.level;
+            res.redirect('/home');    
+          }
         },
         function(){
           res.redirect('/?bad_login=true')

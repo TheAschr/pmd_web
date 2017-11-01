@@ -19,6 +19,96 @@
   socket.on('user_info_res',function(data){
     document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
   });
+
+  var parent_list = [];
+  var key_list = [];
+
+  function build_from_config_input(json){
+    var config_inputs = document.getElementsByClassName("config_input");
+    for(i = 0; i < config_inputs.length;i++){
+      json[config_inputs[i].id] = config_inputs[i].value;
+    }
+  }
+
+  function get_config_from_key_list(){
+    var temp_key_list = key_list.reverse().slice();
+    var config_el = parent_list[0];
+    while(temp_key_list.length>0){
+      config_el = config_el[temp_key_list[temp_key_list.length-1]];
+      temp_key_list.length = temp_key_list.length - 1;
+    }
+    config_el = build_from_config_input(parent_list[parent_list.length-1]);
+  }
+
+  function update_config(){
+    get_config_from_key_list();
+    socket.emit('config_update',{config: parent_list[0]});
+  }
+
+  var config_link = function(json,key){
+    return function(){
+      parent_list.push(json);
+      key_list.push(key);
+      build_config_list();
+    };
+  }
+
+  function build_config_list(){
+    var config_list_placeholder = document.getElementById("config_placeholder");
+    var config_back_placeholder = document.getElementById("config_back_placeholder");
+    config_back_placeholder.onclick = function(){
+      if(parent_list.length>1){
+        parent_list.length = parent_list.length -1;
+        key_list.length = key_list.length -1;
+        build_config_list();      
+      }
+    }
+     while(config_list_placeholder.firstChild){
+      config_list_placeholder.removeChild(config_list_placeholder.firstChild);
+    }
+    var item_index = 0;;
+    for(var key in parent_list[parent_list.length-1]){
+      if(parent_list[parent_list.length-1].hasOwnProperty(key)){
+        var new_config_row = document.createElement("tr");
+
+        var new_config_key = document.createElement("td");
+        new_config_row.appendChild(new_config_key);
+
+        var new_config_key_button = document.createElement("button");
+
+
+        var new_config_value = document.createElement("td");
+
+        if(typeof(parent_list[parent_list.length-1][key])!='object'){
+          var new_config_value_input = document.createElement("input");
+          new_config_value_input.id = key;
+
+          new_config_value_input.value = parent_list[parent_list.length-1][key];
+          new_config_value_input.classList.add("config_input");
+          new_config_value.appendChild(new_config_value_input);
+          new_config_row.appendChild(new_config_value);          
+
+          new_config_key_button.classList.add("config_key");
+
+        }
+        else{
+            new_config_key_button.classList.add("config_link");
+            new_config_key_button.onclick = config_link(parent_list[parent_list.length-1][key],key);
+        }
+        new_config_key_button.innerHTML = key;
+
+        new_config_key.appendChild(new_config_key_button);
+
+        config_list_placeholder.appendChild(new_config_row);       
+      }
+
+    }
+  }
+  socket.on('config_res',function(data){
+      parent_list.push(data.config)
+      build_config_list();
+    }
+  );
   socket.on('other_users_res',function(data){
     var user_list = document.getElementById("user_list_placeholder");
     while(user_list.firstChild){
@@ -64,7 +154,8 @@
     }
 
   });
-  window.addEventListener("load",function(){      
+  window.addEventListener("load",function(){
+    socket.emit('config_req',{});
     } , true);
 
   function search_other_users(){
@@ -108,6 +199,14 @@
   <div class="container info_page">
     <!-- Page Heading -->
     <h1 class="my-4" style="text-align:center">Admin Settings</h1>
+    <div class="config_container">
+      <ul class="config_buttons">
+        <li><button id="config_back_placeholder" class="config_back">Back </button></li>
+        <li><button id="config_back_placeholder" class="config_back" onClick="update_config()">Submit </button></li>
+      </ul>
+      <table id="config_placeholder">
+      </table>
+    </div>
     <h2 class="my-4">Get User</h2>
     <span class="icon"><i class="fa fa-search"></i></span><input id="user_search_bar" type="text" value="">
       <button aria-label="Search" id="plex_button" onClick='search_other_users()'><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button>

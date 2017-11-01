@@ -169,7 +169,7 @@ module.exports = {
 			db.close();
 		}
 		else{
-			fail_cb(row);
+			fail_cb();
 		}
 	}
 }
