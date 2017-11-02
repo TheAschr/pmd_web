@@ -41,5 +41,6 @@
 		"ACCOUNT_SID": "",
 		"AUTH_TOKEN": "",
 		"SERVER_PHONE": ""
-	}
+	},
+	"INIT": "TRUE"
 }

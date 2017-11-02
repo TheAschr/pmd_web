@@ -5,10 +5,72 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 
+.plex_button {
+    border-radius: 3px
+    border-color: #b56d16;
+    color: #fff;
+    background-color: #cc7b19;
+    -webkit-transition: background-color .1s;
+    transition: background-color .1s;
+
+    padding: 6px 16px;
+    font-family: Open Sans Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+    text-transform: uppercase;
+    border: 0;
+    font-weight: 400;
+text-align: center;
+    padding: 10px 18px;
+    font-size: 13px;
+    line-height: 1.33;
+    border-radius: 3px;
+}
+
+.plex_button:hover {
+  background: #eb922c;
+  background-image: -webkit-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: -moz-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: -ms-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: -o-linear-gradient(top, #eb922c, #cc7b19);
+  background-image: linear-gradient(to bottom, #eb922c, #cc7b19);
+  text-decoration: none;
+}
+
+.plex_button a{
+  text-decoration: none !important;
+  color:white;
+}
+.plex_button a:hover{
+  text-decoration: none !important;
+  color:white;
+}
+
 .info_page{
  background-color: #212529;
+ color: white;
  border-radius:3px;
- padding-bottom: 20px;
+ padding: 20px;
+}
+
+.info_page .sub_info{
+ background-color: #505a62;
+ color: white;
+ border-radius:3px;
+ padding: 20px;
+}
+
+.info_page .sub_info .sub_sub_info{
+ background-color: #73808c;
+ color: white;
+ border-radius:3px;
+ padding: 20px;
+
+}
+
+.info_page h3{
+  margin-top: 10px;
+}
+.info_page .sub_info h5{
+  margin-top: 10px;
 }
 
 .media-download{
@@ -1969,6 +2031,27 @@ select.form-control-lg:not([size]):not([multiple]), .input-group-lg > select.for
 
 .form-group {
   margin-bottom: 1rem;
+}
+
+nav.button_row{
+  margin-top: 20px;
+  width: 100%;
+}
+nav.button_row ul{
+  overflow: hidden;
+  margin:0;
+  padding: 0;
+}
+nav.button_row li{
+  list-style: none;
+  float: left;
+  text-align: center;
+  width: calc(100%/2.1);
+  box-sizing: border-box;
+}
+
+nav.button_row ul li:first-child{
+  border-left: none;
 }
 
 .form-text {
@@ -8495,6 +8578,9 @@ a.text-dark:focus, a.text-dark:hover {
   color: #868e96 !important;
 }
 
+.sub_info .text-muted {
+  color: #bfbfbf !important;
+}
 .text-hide {
   font: 0/0 a;
   color: transparent;

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" style="min-height: 100%">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+  <meta content="" name="description">
+  <meta content="" name="author">
+  <title>Plex Movie Downloader - User Info</title><!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet"><!-- Custom styles for this template -->
+  <link href="vendor/bootstrap/css/circle.css" rel="stylesheet">
+  <link href="css/4-col-portfolio.css" rel="stylesheet">
+
+  <script src='/socket.io/socket.io.js'></script>
+  <script src='/scripts/cookies.js'></script>
+  <script src='/scripts/media_data.js'></script>
+  <script src='/scripts/settings.js'></script>
+  <script>
+
+  var socket = io();
+  socket.on('user_info_res',function(data){
+    document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
+  });
+
+   socket.on('config_res',function(data){
+    g_json = data.config;
+    inject_json_values(data.config);
+  });
+
+  socket.on('other_users_res',function(data){
+    var user_list = document.getElementById("user_list_placeholder");
+    while(user_list.firstChild){
+      user_list.removeChild(user_list.firstChild);
+    }
+    var list_desc = document.createElement("tr");
+    
+    var new_user_row = document.createElement("tr");
+    Object.keys(data.users[0]).forEach(function(key,index){
+          var new_user_button = document.createElement("td");
+          new_user_button.classList.add('user_list_desc');
+          new_user_button.innerHTML = key;
+          new_user_row.appendChild(new_user_button);
+    });  
+    user_list.appendChild(new_user_row);
+    for(i = 0; i < data.users.length;i++){
+      new_user_row = document.createElement("tr");
+      Object.keys(data.users[i]).forEach(function(key,index){
+          var list_item_container = document.createElement("td");
+          var list_item;
+          if(key == 'username' || key == 'quota'){
+            list_item = document.createElement("div");
+            list_item.innerHTML = data.users[i][key] || "none";
+          }
+          else if(key == 'level'){
+            list_item = document.createElement("select");
+            for(level = 0; level < 3;level++){
+              var select_item = document.createElement("option");
+              select_item.value = level;
+              select_item.innerHTML = level;
+              list_item.appendChild(select_item);
+            }
+          }
+          else{
+            list_item = document.createElement("input");
+            list_item.value = data.users[i][key] || "none";
+          }
+          list_item.classList.add('user_list_item');
+          list_item_container.appendChild(list_item);
+          new_user_row.appendChild(list_item_container);
+      });
+      user_list.appendChild(new_user_row);
+    }
+
+  });
+  window.addEventListener("load",function(){
+    socket.emit('config_req',{});
+    } , true);
+
+  function search_other_users(){
+    socket.emit('other_users_req',{user_name: document.getElementById("user_search_bar").value});
+  }
+
+  </script>
+
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/home">Plex Movie Downloader</a> <button aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarResponsive" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+  
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="home">Home </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="movies">Movies</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="tv_shows">TV Shows</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="logout">Logout</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" id="user_name" href="user_info"> <span class="sr-only">(current)</span></a>
+          </li>
+          <script>
+            socket.emit('user_info_req',{});
+          </script>       
+        </ul>
+      </div>
+    </div>
+    <a class="nav-link" href="https://app.plex.tv/desktop" id="plex_link">Watch PLEX</a>
+  </nav><!-- Page Content -->
+  <div class="container info_page">
+    <div>
+          <h1 style="text-align:center;">Setup</h1>
+               <h3>Transmission</h3>
+               <div class="sub_info">
+                  <div class="form-group row">
+                     <label for="transmission_username" class="col-sm-2 col-form-label">Username</label>
+                     <div class="col-sm-10">
+                        <input type="text" class="form-control" id="transmission_username">
+                     </div>
+                  </div>
+                   <div class="form-group row">
+                     <label for="transmission_password" class="col-sm-2 col-form-label">Password</label>
+                     <div class="col-sm-10">
+                        <input type="text" class="form-control" id="transmission_password">
+                     </div>
+                  </div>
+                  <div class="form-group row">
+                     <label for="transmission_port" class="col-sm-2 col-form-label">Port</label>
+                     <div class="col-sm-10">
+                        <input type="text" class="form-control" id="transmission_port" >
+                     </div>
+                  </div>
+                  <h5>Directories</h5>
+                  <div class="sub_sub_info">
+                    <div class="form-group row">
+                       <label for="transmission_torrents_dir" class="col-sm-2 col-form-label">Torrent Files</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="transmission_torrents_dir" >
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="transmission_movies_dir" class="col-sm-2 col-form-label">Movies</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="transmission_movies_dir" >
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="transmission_tv_shows_dir" class="col-sm-2 col-form-label">TV Shows</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="transmission_tv_shows_dir" >
+                       </div>
+                    </div>
+                  </div>                 
+               </div>
+               <h3>Local</h3>
+               <div class="sub_info">
+                    <div class="form-group row">
+                       <label for="local_database_file" class="col-sm-2 col-form-label">Database File Location</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="local_database_file" >
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="local_pictures_dir" class="col-sm-2 col-form-label">Pictures Cache Directory</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="local_pictures_dir" >
+                       </div>
+                    </div>
+               </div>
+               <h3>Web</h3>
+               <div class="sub_info">
+                  <div class="form-group row">
+                     <label for="web_iptcookie" class="col-sm-2 col-form-label">IPTorrents Cookie</label>
+                     <div class="col-sm-10">
+                        <input type="text" class="form-control" id="web_iptcookie">
+                     </div>
+                  </div>
+                  <h5>Movies</h5>
+                  <div class="sub_sub_info">
+                     <div class="form-group row">
+                       <label for="web_movies_types" class="col-sm-2 col-form-label">Allowed Types</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_movies_types">
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="web_movies_max" class="col-sm-2 col-form-label">Max Size</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_movies_max" >
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="web_movies_min" class="col-sm-2 col-form-label">Min Size</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_movies_min" >
+                       </div>
+                    </div>                  
+                  </div>
+                  <h5>TV Shows</h5>
+                  <div class="sub_sub_info">
+                     <div class="form-group row">
+                       <label for="web_tv_shows_types" class="col-sm-2 col-form-label">Allowed Types</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_tv_shows_types">
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="web_tv_shows_max" class="col-sm-2 col-form-label">Max Size</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_tv_shows_max" >
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="web_tv_shows_min" class="col-sm-2 col-form-label">Min Size</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_tv_shows_min" >
+                       </div>
+                    </div>                  
+                  </div>
+                  <h5>Registration Codes</h5>
+                  <div class="sub_sub_info">
+                     <div class="form-group row">
+                       <label for="web_admin_reg_code" class="col-sm-2 col-form-label">Admin</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_admin_reg_code">
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="web_user_reg_code" class="col-sm-2 col-form-label">Users</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_user_reg_code" >
+                       </div>
+                    </div>                  
+                  </div>
+     
+                  <div class="form-group">
+                      <label for="ssl_cert_file"><h5>SSL Cert File</h5></label>
+                      <input type="file" class="form-control-file plex_b" id="ssl_cert_file" aria-describedby="fileHelp">
+                      <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
+                   </div>
+                  <div class="form-group">
+                      <label for="ssl_privkey_file"><h5>SSL Private Key File</h5></label>
+                      <input type="file" class="form-control-file plex_b" id="ssl_privkey_file" aria-describedby="fileHelp">
+                      <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
+                   </div>
+            
+               </div>
+               <h3>Twilio</h3>
+               <div class="sub_info">
+                     <div class="form-group row">
+                       <label for="twilio_account_sid" class="col-sm-2 col-form-label">Account SID</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="twilio_account_sid">
+                       </div>
+                    </div>
+                     <div class="form-group row">
+                       <label for="twilio_auth_token" class="col-sm-2 col-form-label">Auth Token</label>
+                       <div class="col-sm-10">
+                          <input type="url" class="form-control" id="twilio_auth_token">
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="twilio_server_phone" class="col-sm-2 col-form-label">Server Phone Number</label>
+                       <div class="col-sm-10">
+                          <input type="tel" class="form-control" id="twilio_server_phone">
+                       </div>
+                    </div>
+               </div>
+               <nav class="button_row">
+                  <ul>                
+                    <li><button class="plex_button" onclick="upload_json()">Submit</button></li>
+                    <li><button class="plex_button" onclick="load_json()">Load</button></li>
+                  </ul>
+               </nav>
+
+            </div>
+  </table>
+  </div><!-- /.container -->
+
+  <!-- Footer -->
+  <script src="vendor/jquery/jquery.min.js">
+  </script> 
+  <script src="vendor/popper/popper.min.js">
+  </script> 
+  <script src="vendor/bootstrap/js/bootstrap.min.js">
+  </script>
+</body>
+</html>

@@ -162,7 +162,11 @@ io.on('connection', function(socket) {
     socket.emit('config_res',{config: CONFIG});
   })
   socket.on('config_update',function(data){
-    fs.writeFile(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');
+    data.config["INIT"] = "FALSE";
+    fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');
+  })
+  socket.on('restart',function(){
+    process.exit(0);
   })
   socket.on('disconnect', function() {});
 });

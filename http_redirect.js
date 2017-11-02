@@ -10,6 +10,6 @@ module.exports = function(app){
 
 	app.all('*', http_redirect); 
 
-	http.createServer(app).listen(80)
+	http.createServer(app).listen(80);
 }
 
