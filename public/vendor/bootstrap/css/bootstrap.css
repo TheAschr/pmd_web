@@ -5,6 +5,27 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 
+ .error_msg{
+  color:red;
+  text-align: center;
+  text-decoration: bold;
+  padding-left: 15px;
+  }
+ .success_container{
+  position: fixed;
+  top: 0;
+  left: 50%;
+  background-color: rgba(33, 37, 41,0.8);
+  width: 75%;
+  margin-left: -37.5%;
+  border-radius:3px;
+ }
+ .success_container .success_msg{
+  color:#00ff00;
+  opacity: 1.0;
+  padding: 10px;
+  }
+
 .plex_button {
     border-radius: 3px
     border-color: #b56d16;
@@ -43,7 +64,10 @@ text-align: center;
   text-decoration: none !important;
   color:white;
 }
-
+.plex_button.disabled{
+    opacity: 0.65; 
+  cursor: not-allowed;
+}
 .info_page{
  background-color: #212529;
  color: white;

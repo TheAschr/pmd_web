@@ -20,7 +20,44 @@
             g_json = data.config;
             inject_json_values(data.config);
           });
-
+         socket.on('config_update_status',function(data){
+          var old_errors = document.getElementsByClassName("error_msg");
+          while(old_errors[0]){
+            old_errors[0].parentNode.removeChild(old_errors[0]);
+          }
+          var old_success = document.getElementsByClassName("success_msg");
+          while(old_success[0]){
+            old_success[0].parentNode.removeChild(old_success[0]);
+          }
+          console.log(data);
+          if(data.success == true){
+            var container = document.getElementsByClassName("container")[0];
+            var success_container = document.createElement("div");
+            success_container.classList.add("success_container");
+            container.appendChild(success_container);
+            var success_el = document.createElement("div");
+            success_el.classList.add("success_msg");
+            success_el.innerHTML = "Successfully uploaded config. Press Load to restart server and apply settings";
+            success_container.appendChild(success_el);
+            window.scrollTo(0,document.body.scrollHeight);
+            var upload_button = document.getElementById("plex_upload");
+            upload_button.disabled = false;
+            upload_button.classList.remove("disabled");
+          }
+          else{
+            var upload_button = document.getElementById("plex_upload");
+            upload_button.disabled = true;
+            upload_button.classList.add("disabled");
+            for(var i = 0; i < data.error_msgs.length;i++){
+              var key = get_config_json_key(data.error_msgs[i][0]);
+              var row = document.getElementById(key).parentNode.parentNode;
+              var error_el = document.createElement("div");
+              error_el.classList.add("error_msg");
+              error_el.innerHTML = "* "+data.error_msgs[i][1];
+              row.appendChild(error_el);
+            }
+          }
+         });
         window.addEventListener("load",function(){
           socket.emit('config_req',{});
         } , true);
@@ -30,7 +67,7 @@
    <body>
       <div class="container">
          <div class="info_page">
-            <div>
+            <div id="config_form">
                <h1 style="text-align:center;">Setup</h1>
                <h3>Transmission</h3>
                <div class="sub_info">
@@ -155,16 +192,20 @@
                     </div>                  
                   </div>
      
-                  <div class="form-group">
-                      <label for="ssl_cert_file"><h5>SSL Cert File</h5></label>
-                      <input type="file" class="form-control-file plex_b" id="ssl_cert_file" aria-describedby="fileHelp">
-                      <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
-                   </div>
-                  <div class="form-group">
-                      <label for="ssl_privkey_file"><h5>SSL Private Key File</h5></label>
-                      <input type="file" class="form-control-file plex_b" id="ssl_privkey_file" aria-describedby="fileHelp">
-                      <small id="fileHelp" class="form-text text-muted">This is some placeholder block-level help text for the above input. It's a bit lighter and easily wraps to a new line.</small>
-                   </div>
+                <div class="sub_sub_info">
+                     <div class="form-group row">
+                       <label for="web_admin_reg_code" class="col-sm-2 col-form-label">SSL Cert File Location</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_ssl_cert_file">
+                       </div>
+                    </div>
+                    <div class="form-group row">
+                       <label for="web_user_reg_code" class="col-sm-2 col-form-label">SSL Private Key Location</label>
+                       <div class="col-sm-10">
+                          <input type="text" class="form-control" id="web_ssl_key_file" >
+                       </div>
+                    </div>                  
+                  </div>
             
                </div>
                <h3>Twilio</h3>
@@ -191,7 +232,7 @@
                <nav class="button_row">
                   <ul>                
                     <li><button class="plex_button" onclick="upload_json()">Submit</button></li>
-                    <li><button class="plex_button" onclick="load_json()">Load</button></li>
+                    <li><button id="plex_upload" class="plex_button disabled" onclick="load_json()">Load</button></li>
                   </ul>
                </nav>
 

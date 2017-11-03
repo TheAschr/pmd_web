@@ -15,21 +15,12 @@ function check_admin(req, res, next) {
 };
 
 var config = require('./config/config.json');
-function check_init(req,res,next){
-  if(config.INIT == "TRUE"){
-    next();
-  }else{
-    res.redirect('/home');
-  }
-}
 
 module.exports = function(sql_conn,app){
   app.get('/', function(req, res) {
-    if(config.INIT == "TRUE"){
-      res.sendFile(__dirname +'/init.html');
-    }else{
-      res.sendFile(__dirname + '/public/login.html');
-    }
+
+    res.sendFile(__dirname + '/public/login.html');
+    
   });
   app.post('/login', function(req, res) {
     if(req.body.action == "Login"){
@@ -89,8 +80,5 @@ module.exports = function(sql_conn,app){
   })
   app.get('/config',check_auth,check_admin,function(req,res){
     res.sendFile(__dirname + '/config.html');
-  })
-  app.get('/init',check_init,function(req,res){
-    res.sendFile(__dirname +'/init.html');
   })
 }

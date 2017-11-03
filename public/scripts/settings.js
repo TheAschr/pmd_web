@@ -18,17 +18,27 @@ var config_json_loc = {
 "web_tv_shows_min": ["WEB","MEDIA","TV_SHOWS","ALLOWED_SIZES","MIN"],
 "web_admin_reg_code": ["WEB","ADMIN_REGISTRATION_CODE"],
 "web_user_reg_code": ["WEB","REGISTRATION_CODE"],
+"web_ssl_key_file": ["WEB","SSL","KEY_FILE"],
+"web_ssl_cert_file": ["WEB","SSL","CERT_FILE"],
 "twilio_account_sid": ["TWILIO","ACCOUNT_SID"],
 "twilio_auth_token": ["TWILIO","AUTH_TOKEN"],
 "twilio_server_phone": ["TWILIO","SERVER_PHONE"]
 };
 
-function get_json_value(json,loc){
-var curr_json_item = json;
-for(var i = 0; i < loc.length;i++){
-  curr_json_item = curr_json_item[loc[i]];
+function get_config_json_key(value){
+  for(var key in config_json_loc){
+    if(config_json_loc[key].toString() == value.toString()){
+      return key;
+    }
+  }
 }
-return curr_json_item;
+
+function get_json_value(json,loc){
+  var curr_json_item = json;
+  for(var i = 0; i < loc.length;i++){
+    curr_json_item = curr_json_item[loc[i]];
+  }
+  return curr_json_item;
 }
 
 function set_json_value(json,loc,value){
