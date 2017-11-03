@@ -1,7 +1,7 @@
 {
 	"TRANSMISSION": {
 		"IP": "127.0.0.1",
-		"PORT": 9091,
+		"PORT": "9091",
 		"USERNAME": "username",
 		"PASSWORD": "password",
 		"TORRENTS_DIR": "",

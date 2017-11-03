@@ -3,9 +3,9 @@
 var CONFIG_FILE = './config/config.json';
 var CONFIG = require(CONFIG_FILE);
 
-var init = require('./init.js');
+var config_handler = require('./config_handler.js');
 if(CONFIG.INIT == "TRUE"){
-  init.load();
+  config_handler.load();
 }else{
   var MEDIA_TYPES = {};
 
@@ -50,8 +50,6 @@ if(CONFIG.INIT == "TRUE"){
   });
 
   var shared_session = require('express-socket.io-session');
-
-
 
   var fs = require('fs');
 
@@ -166,8 +164,16 @@ if(CONFIG.INIT == "TRUE"){
       socket.emit('config_res',{config: CONFIG});
     })
     socket.on('config_update',function(data){
+
+      var error_msgs = config_handler.validate_data(data.config);
+      if(!error_msgs.length){
       data.config["INIT"] = "FALSE";
-      fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');
+        fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');           
+        socket.emit('config_update_status',{success:true});
+      }
+      else{
+        socket.emit('config_update_status',{success:false,error_msgs:error_msgs});
+      }
     })
     socket.on('restart',function(){
       process.exit(0);

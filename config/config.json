@@ -10,12 +10,12 @@
 	},
 	"LOCAL": {
 		"DB_FILE": "data/pmd.db",
-		"PICTURES_DIR": "public/"
+		"PICTURES_DIR": "public/pics"
 	},
 	"WEB": {
-		"IPTCOOKIE": "tset",
-		"MEDIA": {
-			"MOVIES": {
+		"IPTCOOKIE": "",
+		"MEDIA":{
+			"MOVIES" : {
 				"ALLOWED_TYPES": "WEBDL,moviebluray,movieforeign,moviekids,moviepack,moviexvid",
 				"ALLOWED_SIZES": {
 					"MIN": "",
@@ -33,8 +33,8 @@
 		"REGISTRATION_CODE": "reg_code",
 		"ADMIN_REGISTRATION_CODE": "admin_reg_code",
 		"SSL": {
-			"KEY_FILE": "C:/Users/schri/Documents/github/ssl/privkey.pem",
-			"CERT_FILE": "C:/Users/schri/Documents/github/ssl/cert.pem"
+			"KEY_FILE": "",
+			"CERT_FILE": ""
 		}
 	},
 	"TWILIO": {
@@ -42,5 +42,5 @@
 		"AUTH_TOKEN": "",
 		"SERVER_PHONE": ""
 	},
-	"INIT": "FALSE"
+	"INIT": "TRUE"
 }

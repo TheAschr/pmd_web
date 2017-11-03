@@ -50,39 +50,38 @@ function file_exists(loc){
 	return 1;
 }
 
-function validate_data(json){
-	var error_msgs = [];
-	var success = true;
-	for(var i = 0; i < json_required.length;i++){
-		var value = get_json_value(json,json_required[i]);
-		value = value.replace(/^\s+/, '').replace(/\s+$/, '');
-		if(value === ''){
-			error_msgs.push([json_required[i],"Field  is required"]);
-			success = false;
-		}
-	}
-
-	if(success){
-		for(var i = 0; i < json_dirs.length;i++){
-			var dir = get_json_value(json,json_dirs[i]);
-			dir = dir.replace(/^\s+/, '').replace(/\s+$/, '');
-
-			if(!dir_exists(dir)){
-				error_msgs.push([json_dirs[i],"Could not find directory"]);
-			}
-		}
-		for(var i = 0; i < json_files.length;i++){
-			var file = get_json_value(json,json_files[i]);
-			if(!file_exists(file)){
-				error_msgs.push([json_files[i],"Could not find file"]);
-			}
-		}	
-	}
-
-	return error_msgs;
-}
-
 module.exports = {
+	validate_data: function(json){
+		var error_msgs = [];
+		var success = true;
+		for(var i = 0; i < json_required.length;i++){
+			var value = get_json_value(json,json_required[i]);
+			value = value.replace(/^\s+/, '').replace(/\s+$/, '');
+			if(value === ''){
+				error_msgs.push([json_required[i],"Field  is required"]);
+				success = false;
+			}
+		}
+
+		if(success){
+			for(var i = 0; i < json_dirs.length;i++){
+				var dir = get_json_value(json,json_dirs[i]);
+				dir = dir.replace(/^\s+/, '').replace(/\s+$/, '');
+
+				if(!dir_exists(dir)){
+					error_msgs.push([json_dirs[i],"Could not find directory"]);
+				}
+			}
+			for(var i = 0; i < json_files.length;i++){
+				var file = get_json_value(json,json_files[i]);
+				if(!file_exists(file)){
+					error_msgs.push([json_files[i],"Could not find file"]);
+				}
+			}	
+		}
+
+		return error_msgs;
+	},
 	load: function(){
 		var CONFIG_FILE = './config/config.json';
 		var CONFIG = require(CONFIG_FILE);
@@ -100,7 +99,7 @@ module.exports = {
       			socket.emit('config_res',{config: CONFIG});
     		});
 	   		 socket.on('config_update',function(data){
-	   		  var error_msgs = validate_data(data.config);
+	   		  var error_msgs = module.exports.validate_data(data.config);
 	   		  if(!error_msgs.length){
 			  	data.config["INIT"] = "FALSE";
 		      	fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');   		  	
