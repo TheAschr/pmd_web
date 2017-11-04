@@ -13,16 +13,50 @@
   }
  .success_container{
   position: fixed;
+  margin-left:auto;
+  margin-right:auto;
   bottom: 0;
-  left: 50%;
+  left: 0;
+  right: 0;
+  width:auto;
+  text-align: center;
+  
   background-color: rgba(33, 37, 41,0.8);
-  height: 5%;
-  margin-left: -37.5%;
+
   border-radius:3px;
-  animation-name: slidein;
+  animation-name: msg_slidein;
   animation-duration: 0.5s;
  }
-@keyframes slidein{
+
+ .success_container .success_slider{
+  color:#00ff00;
+  opacity: 1.0;
+  padding: 10px;
+  }
+
+ .error_container{
+  position: fixed;
+  margin-left:auto;
+  margin-right:auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width:auto;
+  text-align: center;
+
+  background-color: rgba(33, 37, 41,0.8);
+
+  border-radius:3px;
+  animation-name: msg_slidein;
+  animation-duration: 0.5s;
+ }
+
+ .error_container .error_slider{
+  color:red;
+  opacity: 1.0;
+  padding: 10px;
+  }
+@keyframes msg_slidein{
   from {
     transform: translateY(200%);
     opacity: 0;
@@ -32,12 +66,6 @@
     opacity: 1;
   }
 }
-
- .success_container .success_msg{
-  color:#00ff00;
-  opacity: 1.0;
-  padding: 10px;
-  }
 
 .plex_button {
     border-radius: 3px

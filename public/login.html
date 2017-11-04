@@ -19,6 +19,7 @@
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
     var bad_login = getParameterByName("bad_login");
+    var reg_succ = getParameterByName("succ_reg");
 
     window.onload = function(){
         if(bad_login == "true"){
@@ -27,7 +28,13 @@
             error_el.setAttribute("style","margin:10px");
             error_el.innerHTML = "Bad username or password";
             document.getElementById("login").append(error_el);
-        }        
+        }else if (reg_succ == "true"){
+            var reg_succ_el = document.createElement("div");
+            reg_succ_el.classList.add("alert","alert-success");
+            reg_succ_el.setAttribute("style","margin:10px");
+            reg_succ_el.innerHTML = "Successfully registered!";
+            document.getElementById("login").append(reg_succ_el);           
+        }       
     }
 
     </script>

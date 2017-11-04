@@ -94,7 +94,7 @@ function Config(socket) {
             success_container.classList.add("success_container");
             container.appendChild(success_container);
             var success_el = document.createElement("div");
-            success_el.classList.add("success_msg");
+            success_el.classList.add("success_slider");
             success_el.innerHTML = "Successfully uploaded config. Press Load to restart server and apply settings";
             success_container.appendChild(success_el);
             window.scrollTo(0, document.body.scrollHeight);
@@ -102,6 +102,14 @@ function Config(socket) {
             upload_button.disabled = false;
             upload_button.classList.remove("disabled");
         } else {
+            var container = document.getElementById("config_page");
+            var error_container = document.createElement("div");
+            error_container.classList.add("error_container");
+            container.appendChild(error_container);
+            var error_el = document.createElement("div");
+            error_el.classList.add("error_slider");
+            error_el.innerHTML = "Error uploading config.";
+            error_container.appendChild(error_el);
             var upload_button = document.getElementById("plex_upload");
             upload_button.disabled = true;
             upload_button.classList.add("disabled");

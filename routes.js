@@ -49,7 +49,7 @@ module.exports = function(sql_conn,app){
     if(req.body.action == "Submit"){
       sql_conn.register_user(req.body.secret_code,req.body.user.name,req.body.user.email,req.body.user.password,req.body.user.password_conf,req.body.user.phone,
         
-        function(){res.redirect('/');},
+        function(){res.redirect('/?succ_reg=true');},
         function(error){res.redirect('/registration_page?error='+error)});
     }
     else if(req.body.action == "Cancel"){

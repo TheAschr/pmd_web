@@ -161,8 +161,6 @@ if(CONFIG.INIT == "TRUE"){
       });
     })
     socket.on('config_req',function(){
-      delete require.cache[require.resolve('config')];
-      CONFIG = require(CONFIG_FILE);
       socket.emit('config_res',{config: CONFIG});
     })
     socket.on('config_update',function(data){
