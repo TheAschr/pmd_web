@@ -101,7 +101,7 @@ module.exports = {
 				} catch(e) {
 					console.log('directory already exists: ' + dst);
 				}
-				results = results.concat(copy(src, dst));
+				results = results.concat(module.exports.copy_dir(src, dst));
 			} else {
 				try {
 					fs.writeFileSync(dst, fs.readFileSync(src));
