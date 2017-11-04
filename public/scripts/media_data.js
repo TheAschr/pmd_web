@@ -11,7 +11,7 @@ t_status["ISOLATED"] = 7;
 function MediaList(socket){
     var media_self = this;
     socket.on('connect',function(){
-      window.addEventListener("load", function(){socket.emit('all_progress_req')}, true);
+      socket.emit('all_progress_req');
       setInterval(function(){socket.emit('all_progress_req')},3000);
     });
 
