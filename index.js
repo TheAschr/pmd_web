@@ -92,7 +92,7 @@ if(CONFIG.INIT == "TRUE"){
                 if(err){
                   console.log(err);
                 }
-                if(files.length){
+                if(files && files.length){
                   var rar_files = [];
                   var unrar = sh.pwd()+'\\unrar\\UnRAR.exe';
 
@@ -109,7 +109,13 @@ if(CONFIG.INIT == "TRUE"){
                     }
                   }                  
                 }else{
-                  helper.copy_dir(sh.pwd()+"\\temp\\"+d_name,out_dir+'\\'+d_name+'\\');
+                  var from_dir = sh.pwd()+"\\temp\\"+d_name;
+                  var to_dir = out_dir+'\\'+d_name+'\\';
+                  fs.lstatSync(path_string).isDirectory(){
+                    helper.copy_dir(from_dir,to_dir);
+                  }else{
+                    fs.createReadStream(from_dir).pipe(fs.createWriteStream(to_dir));
+                  }
                 }
 
                //console.log(rar_files);
