@@ -78,35 +78,40 @@ if(CONFIG.INIT == "TRUE"){
           if(results[0].status != trans_conn.status["SEED"] && 
             torrent.status == trans_conn.status["SEED"]){
              sql_conn.all_media("SELECT * FROM users WHERE username = (?);",[results[0].username],function(users){
-              
+              var out_dir = "";
+              if(MEDIA_TYPES["movies"].includes(results[0].type)){
+                out_dir = CONFIG.TRANSMISSION.MOVIES_DIR;
+              }else if(MEDIA_TYPES["tv_shows"].includes(results[0].type)){
+                out_dir = CONFIG.TRANSMISSION.TV_SHOWS_DIR;
+              }            
               var url = results[0].link.toString();
               var url_split = url.split('/');
               var ext = ".torrent";
-              var f_name = url_split[url_split.length - 1].substr(0,url_split[url_split.length -1].length - ext.length);
-              helper.search_dir(sh.pwd()+"\\temp\\"+f_name,function(err,files){
+              var d_name = url_split[url_split.length - 1].substr(0,url_split[url_split.length -1].length - ext.length);
+              helper.search_dir(sh.pwd()+"\\temp\\"+d_name,function(err,files){
                 if(err){
                   console.log(err);
                 }
-                var rar_files = [];
-                var unrar = sh.pwd()+'\\unrar\\UnRAR.exe';
-                var out_dir = "";
-                if(MEDIA_TYPES["movies"].includes(results[0].type)){
-                  out_dir = CONFIG.TRANSMISSION.MOVIES_DIR;
-                }else if(MEDIA_TYPES["tv_shows"].includes(results[0].type)){
-                  out_dir = CONFIG.TRANSMISSION.TV_SHOWS_DIR;
-                }
-                for(var i = 0; i < files.length;i++){
-                  if(files[i].substr(files[i].length - 4) == ".r00"){
-                    console.log("Extracting to "+out_dir);
-                    rar_files.push(files[i]);
-                    const child = spawn(unrar,['e',files[i].replace(/\//g,'\\'),out_dir]);
+                if(files.length){
+                  var rar_files = [];
+                  var unrar = sh.pwd()+'\\unrar\\UnRAR.exe';
 
-                    child.stderr.on('data',(data)=>{
-                      console.log(`child stderr:\n${data}`);
-                    })
+                  for(var i = 0; i < files.length;i++){
+                    if(files[i].substr(files[i].length - 4) == ".r00"){
+                      console.log("Extracting to "+out_dir);
+                      rar_files.push(files[i]);
+                      const child = spawn(unrar,['e',files[i].replace(/\//g,'\\'),out_dir]);
 
-                  }
+                      child.stderr.on('data',(data)=>{
+                        console.log(`child stderr:\n${data}`);
+                      })
+
+                    }
+                  }                  
+                }else{
+                  helper.copy_dir(sh.pwd()+"\\temp\\"+d_name,out_dir+'\\'+d_name+'\\');
                 }
+
                //console.log(rar_files);
               });
 

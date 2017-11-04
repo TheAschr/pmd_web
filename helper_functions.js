@@ -1,4 +1,6 @@
 var fs = require('fs');
+
+
 module.exports = {
 	parse_phone_num: function(phone_num){
 		if(phone_num && phone_num != ""){
@@ -77,5 +79,40 @@ module.exports = {
 	      });
 	    })();
 	  });
+	},
+	copy_dir : function(srcDir, dstDir) {
+	if(!fs.existsSync(dstDir)){
+		console.log("Could not find directory at "+dstDir+". Building a new one");
+		fs.mkdirSync(dstDir);
+		if(!fs.existsSync(dstDir)){	
+			console.log("Could not make directory at "+dstDir);
+		}	
 	}
+    var results = [];
+    var list = fs.readdirSync(srcDir);
+	var src, dst;
+    list.forEach(function(file) {
+        src = srcDir + '/' + file;
+		dst = dstDir + '/' + file;
+		//console.log(src);
+        var stat = fs.statSync(src);
+        if (stat && stat.isDirectory()) {
+			try {
+				fs.mkdirSync(dst);
+			} catch(e) {
+				console.log('directory already exists: ' + dst);
+			}
+			results = results.concat(copy(src, dst));
+		} else {
+			try {
+				fs.writeFileSync(dst, fs.readFileSync(src));
+			} catch(e) {
+				console.log('could\'t copy file: ' + dst);
+			}
+			results.push(src);
+		}
+    });
+    return results;
+}
+
 }
