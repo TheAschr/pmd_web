@@ -88,12 +88,9 @@ if (CONFIG.INIT == "TRUE") {
                             var ext = ".torrent";
                             var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ext.length);
                             var from_dir = sh.pwd() + "\\temp\\" + d_name;
-                            var to_dir = out_dir + '\\' + d_name + '\\';
-                            console .log("tset");
+                            var to_dir = out_dir + '\\' + d_name;
                             if (fs.lstatSync(from_dir).isDirectory()) {
-                              console.log("test1")
                                 helper.search_dir(sh.pwd() + "\\temp\\" + d_name, function(err, files) {
-                                  console.log("test2")
                                     if (err) {
                                         console.log(err);
                                     }
@@ -119,7 +116,6 @@ if (CONFIG.INIT == "TRUE") {
                                         console.log("Copying folder from "+from_dir+" to "+to_dir);
                                         helper.copy_dir(from_dir, to_dir);
                                     }
-                                    //console.log(rar_files);
                                 });
                             } else {
                                 console.log("Copying file from "+from_dir+" to "+to_dir);
@@ -134,7 +130,6 @@ if (CONFIG.INIT == "TRUE") {
                                     twilio.send(results[0].title + " has finished downloading", users[0].phone);
                                 }
                             }
-
                         });
                     }
                     sql_conn.all_media("UPDATE media SET status = (?) WHERE t_id = (?);", [torrent.status, torrent.id],

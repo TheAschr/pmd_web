@@ -27,7 +27,7 @@ if(fail){
 module.exports = {
 	client: client,
 	send: function(message,client_phone){
-		if(!twilio){
+		if(!client){
 			console.log("Twilio is disabled due to misconfigured settings");
 			return;
 		}
