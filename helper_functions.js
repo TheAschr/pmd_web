@@ -81,19 +81,13 @@ module.exports = {
 	  });
 	},
 	copy_dir : function(srcDir, dstDir) {
-		if(!fs.existsSync(dstDir)){
-			console.log("Could not find directory at "+dstDir+". Building a new one");
-			fs.mkdirSync(dstDir);
-			if(!fs.existsSync(dstDir)){	
-				console.log("Could not make directory at "+dstDir);
-			}	
-		}
+
 	    var results = [];
 	    var list = fs.readdirSync(srcDir);
 		var src, dst;
 	    list.forEach(function(file) {
-	        src = srcDir + '/' + file;
-			dst = dstDir + '/' + file;
+	        src = srcDir + '\\' + file;
+			dst = dstDir + '\\' + file;
 	        var stat = fs.statSync(src);
 	        if (stat && stat.isDirectory()) {
 				try {
@@ -103,11 +97,11 @@ module.exports = {
 				}
 				results = results.concat(module.exports.copy_dir(src, dst));
 			} else {
-				try {
-					fs.writeFileSync(dst, fs.readFileSync(src));
-				} catch(e) {
-					console.log('could\'t copy file: ' + dst);
-				}
+				module.exports.copy_file(src,dst,function(err){
+					if(err){
+						console.log(err);
+					}
+				})
 				results.push(src);
 			}
 	    });

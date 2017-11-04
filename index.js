@@ -94,7 +94,6 @@ if (CONFIG.INIT == "TRUE") {
                                     if (err) {
                                         console.log(err);
                                     }
-                                    console.log(files.length );
                                     if (files && files.length) {
                                         var rar_files = [];
                                         var unrar = sh.pwd() + '\\unrar\\UnRAR.exe';
@@ -114,6 +113,13 @@ if (CONFIG.INIT == "TRUE") {
                                     } 
                                     if(!rar_files.length) {
                                         console.log("Copying folder from "+from_dir+" to "+to_dir);
+                                        if(!fs.existsSync(to_dir)){
+                                          console.log("Could not find directory at "+to_dir+". Building a new one");
+                                          fs.mkdirSync(to_dir);
+                                          if(!fs.existsSync(to_dir)){ 
+                                            console.log("Could not make directory at "+to_dir);
+                                          } 
+                                        }
                                         helper.copy_dir(from_dir, to_dir);
                                     }
                                 });
