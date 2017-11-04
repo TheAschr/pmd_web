@@ -68,13 +68,7 @@ module.exports = {
 			console.log("Transmission is disabled due to misconfigured settings");
 			return;
 		}
-		var down_dir;
-		if(type == "movies"){
-			down_dir = CONFIG["MOVIES_DIR"];
-		}
-		else if(type == "tv_shows"){
-			down_dir = CONFIG["TV_SHOWS_DIR"];
-		}
+		var down_dir = sh.pwd()+"\\temp";
 
 		row.link = row.link.toString();
 		var url_split = row.link.split('/');
@@ -101,7 +95,7 @@ module.exports = {
 						fs.mkdirSync(down_dir);
 					}
 					transmission.addFile(torrent_file, {
-						"download-dir": down_dir
+						"download-dir": sh.pwd()+"\\temp"
 					}, function(err, result) {
 						if (err) {
 							return console.log(err);
@@ -122,7 +116,7 @@ module.exports = {
 		}
 		transmission.active(function(err, results) {
 			if (err) {
-				console.log(err);
+			//	console.log(err);
 			} else {
 
 				for(var i = 0; i < results.torrents.length;i++){
