@@ -97,7 +97,7 @@ if(CONFIG.INIT == "TRUE"){
                 }
                 for(var i = 0; i < files.length;i++){
                   if(files[i].substr(files[i].length - 4) == ".r00"){
-                    console.log("Extracting to "+MEDIA_TYPES["movies"]);
+                    console.log("Extracting to "+out_dir);
                     rar_files.push(files[i]);
                     const child = spawn(unrar,['e',files[i].replace(/\//g,'\\'),out_dir]);
 
