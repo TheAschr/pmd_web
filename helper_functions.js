@@ -81,38 +81,62 @@ module.exports = {
 	  });
 	},
 	copy_dir : function(srcDir, dstDir) {
-	if(!fs.existsSync(dstDir)){
-		console.log("Could not find directory at "+dstDir+". Building a new one");
-		fs.mkdirSync(dstDir);
-		if(!fs.existsSync(dstDir)){	
-			console.log("Could not make directory at "+dstDir);
-		}	
-	}
-    var results = [];
-    var list = fs.readdirSync(srcDir);
-	var src, dst;
-    list.forEach(function(file) {
-        src = srcDir + '/' + file;
-		dst = dstDir + '/' + file;
-		//console.log(src);
-        var stat = fs.statSync(src);
-        if (stat && stat.isDirectory()) {
-			try {
-				fs.mkdirSync(dst);
-			} catch(e) {
-				console.log('directory already exists: ' + dst);
-			}
-			results = results.concat(copy(src, dst));
-		} else {
-			try {
-				fs.writeFileSync(dst, fs.readFileSync(src));
-			} catch(e) {
-				console.log('could\'t copy file: ' + dst);
-			}
-			results.push(src);
+		if(!fs.existsSync(dstDir)){
+			console.log("Could not find directory at "+dstDir+". Building a new one");
+			fs.mkdirSync(dstDir);
+			if(!fs.existsSync(dstDir)){	
+				console.log("Could not make directory at "+dstDir);
+			}	
 		}
-    });
-    return results;
-}
+	    var results = [];
+	    var list = fs.readdirSync(srcDir);
+		var src, dst;
+	    list.forEach(function(file) {
+	        src = srcDir + '/' + file;
+			dst = dstDir + '/' + file;
+	        var stat = fs.statSync(src);
+	        if (stat && stat.isDirectory()) {
+				try {
+					fs.mkdirSync(dst);
+				} catch(e) {
+					console.log('directory already exists: ' + dst);
+				}
+				results = results.concat(copy(src, dst));
+			} else {
+				try {
+					fs.writeFileSync(dst, fs.readFileSync(src));
+				} catch(e) {
+					console.log('could\'t copy file: ' + dst);
+				}
+				results.push(src);
+			}
+	    });
+	    return results;
+	},
+	copy_file : function (source, target, cb) {
+	  if(!fs.existsSync(target)){
+		  var cbCalled = false;
 
+		  var rd = fs.createReadStream(source);
+		  rd.on("error", function(err) {
+		    done(err);
+		  });
+		  var wr = fs.createWriteStream(target);
+		  wr.on("error", function(err) {
+		    done(err);
+		  });
+		  wr.on("close", function(ex) {
+		    done();
+		  });
+		  rd.pipe(wr);
+
+		  function done(err) {
+		    if (!cbCalled) {
+		      cb(err);
+		      cbCalled = true;
+		    }
+		  }	  	
+	  }
+
+	}
 }

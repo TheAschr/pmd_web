@@ -88,7 +88,10 @@ if(CONFIG.INIT == "TRUE"){
               var url_split = url.split('/');
               var ext = ".torrent";
               var d_name = url_split[url_split.length - 1].substr(0,url_split[url_split.length -1].length - ext.length);
-              helper.search_dir(sh.pwd()+"\\temp\\"+d_name,function(err,files){
+              var from_dir = sh.pwd()+"\\temp\\"+d_name;
+              var to_dir = out_dir+'\\'+d_name+'\\';
+             if(fs.lstatSync(from_dir).isDirectory()){
+                  helper.search_dir(sh.pwd()+"\\temp\\"+d_name,function(err,files){
                 if(err){
                   console.log(err);
                 }
@@ -109,23 +112,22 @@ if(CONFIG.INIT == "TRUE"){
                     }
                   }                  
                 }else{
-                  var from_dir = sh.pwd()+"\\temp\\"+d_name;
-                  var to_dir = out_dir+'\\'+d_name+'\\';
-                  fs.lstatSync(path_string).isDirectory(){
-                    helper.copy_dir(from_dir,to_dir);
-                  }else{
-                    fs.createReadStream(from_dir).pipe(fs.createWriteStream(to_dir));
-                  }
+                  helper.copy_dir(from_dir,to_dir);
                 }
-
                //console.log(rar_files);
               });
-
-              if(users.length){
-                if(users[0].phone && users[0].phone != ""){
-                  twilio.send(results[0].title+" has finished downloading",users[0].phone);
+            }else{
+              helper.copy_file(from_dir,to_dir,function(err){
+               if(err){
+                  console.log(err);
                 }
+              })
+            }
+            if(users.length){
+              if(users[0].phone && users[0].phone != ""){
+                twilio.send(results[0].title+" has finished downloading",users[0].phone);
               }
+            }
 
              });
           }
