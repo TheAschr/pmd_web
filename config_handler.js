@@ -118,7 +118,7 @@ module.exports = {
 		});
 
 		http.listen(80, function(){
-		  console.log('Starting initialization Server');
+		  console.log('Started initialization Server');
 		});		
 	}
 }

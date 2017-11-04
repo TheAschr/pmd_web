@@ -68,7 +68,6 @@ function Config(socket) {
             if (config_self.config_json_loc.hasOwnProperty(key)) {
                 var config_item = document.getElementById(key);
                 config_item.value = config_self.get_json_value(json, config_self.config_json_loc[key]);
-                console.log(config_self.get_json_value(json, config_self.config_json_loc[key]));
             }
         }
     }
@@ -77,7 +76,6 @@ function Config(socket) {
 
     socket.on('config_res', function(data) {
         config_self.g_json = data.config;
-        console.log(config_self.g_json)
         config_self.inject_json_values(data.config);
     });
 
