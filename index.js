@@ -161,6 +161,8 @@ if(CONFIG.INIT == "TRUE"){
       });
     })
     socket.on('config_req',function(){
+      delete require.cache[require.resolve('config')];
+      CONFIG = require(CONFIG_FILE);
       socket.emit('config_res',{config: CONFIG});
     })
     socket.on('config_update',function(data){
@@ -168,7 +170,8 @@ if(CONFIG.INIT == "TRUE"){
       var error_msgs = config_handler.validate_data(data.config);
       if(!error_msgs.length){
       data.config["INIT"] = "FALSE";
-        fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');           
+        fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');
+        CONFIG = data.config;         
         socket.emit('config_update_status',{success:true});
       }
       else{

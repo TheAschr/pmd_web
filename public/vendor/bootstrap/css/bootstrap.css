@@ -16,7 +16,7 @@
   bottom: 0;
   left: 50%;
   background-color: rgba(33, 37, 41,0.8);
-  width: 75%;
+  height: 5%;
   margin-left: -37.5%;
   border-radius:3px;
   animation-name: slidein;
@@ -86,8 +86,8 @@ text-align: center;
  color: white;
  border-radius:3px;
  padding: 20px;
- margin-top: 50px;
- margin-bottom: 50px;
+ margin-top: 5%;
+ margin-bottom: 20%;
 }
 
 .info_page .sub_info{

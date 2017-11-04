@@ -102,6 +102,7 @@ module.exports = {
 	   		  var error_msgs = module.exports.validate_data(data.config);
 	   		  if(!error_msgs.length){
 			  	data.config["INIT"] = "FALSE";
+			  	CONFIG = data.config;
 		      	fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');   		  	
 	   		  	socket.emit('config_update_status',{success:true});
 	   		  }
@@ -117,7 +118,7 @@ module.exports = {
 		});
 
 		http.listen(80, function(){
-		  console.log('Init server');
+		  console.log('Starting initialization Server');
 		});		
 	}
 }

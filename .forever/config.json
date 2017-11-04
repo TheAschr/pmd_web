@@ -1,7 +1,7 @@
 {
-  "root": "C:\\Users\\t-als9xd\\Documents\\GitHub\\pmd_web\\.forever",
-  "pidPath": "C:\\Users\\t-als9xd\\Documents\\GitHub\\pmd_web\\.forever\\pids",
-  "sockPath": "C:\\Users\\t-als9xd\\Documents\\GitHub\\pmd_web\\.forever\\sock",
+  "root": "C:\\Users\\schri\\Documents\\github\\pmd_web\\.forever",
+  "pidPath": "C:\\Users\\schri\\Documents\\github\\pmd_web\\.forever\\pids",
+  "sockPath": "C:\\Users\\schri\\Documents\\github\\pmd_web\\.forever\\sock",
   "loglength": 100,
   "logstream": false,
   "columns": [

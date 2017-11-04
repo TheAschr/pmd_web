@@ -11,5 +11,7 @@ for %%i in (%reset_dirs%) do (
 )
 
 for %%i in (%delete_dirs%) do (
-	rd /S/Q %%i
+	del /S/Q %%i\*
 )
+
+del /S/Q .forever\sock\*
