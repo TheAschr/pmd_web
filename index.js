@@ -182,7 +182,7 @@ if (CONFIG.INIT == "TRUE") {
             sql_conn.all_media("SELECT * FROM media WHERE uid = (?) ", [data.uid], function(results) {
                 if (results.length == 1) {
                     trans_conn.upload(results[0], data.type, function(torrent) {
-                        sql_conn.all_media("UPDATE media SET t_id = (?), username = (?) WHERE uid = (?);", [torrent.id, data.username, data.uid], null);
+                        sql_conn.all_media("UPDATE media SET t_id = (?), username = (?) WHERE uid = (?);", [torrent.id, socket.handshake.session.user_name, data.uid], null);
                     });
                 } else {
                     console.log("Error: multiple media entries with uid of " + data.uid);
