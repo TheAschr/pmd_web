@@ -84,13 +84,27 @@ int db_contains(sqlite3 *conn,unsigned char *field,unsigned char *specifier){
 
 
 int db_exec(sqlite3 *conn,unsigned char *zSQL){
-	char *err = 0;
-	int cerr = sqlite3_exec(conn,zSQL,NULL,NULL,&err);
+	int err_count = 0;
+	do{
+		if(err_count){
+			printf(": RETRYING SQL WRITE %d\n",err_count);
+		}
+		char *err = 0;
+		int cerr = sqlite3_exec(conn,zSQL,NULL,NULL,&err);
+
+		if(cerr){
+			printf(":: SQL ERROR IN \"db_exec\" || %s ||\n", err);
+			if(!strcmp(err,"database is locked")){
+				err_count++;
+			}else{
+				sqlite3_free(err);
+				sqlite3_free(zSQL);
+				return 0;
+			}
+		}else{
+			err_count = 0;
+		}
+	}while(err_count);
 	sqlite3_free(zSQL);
-	if(cerr){
-		printf(":: SQL ERROR IN \"db_exec\" || %s ||\n", err);
-		sqlite3_free(err);
-		return 0;
-	}
 	return 1;
 }
