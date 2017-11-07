@@ -111,7 +111,7 @@ module.exports = {
 	  			console.log(err);
 	  		}
 			db.close();
-			if(callback){
+			if(callback && rows){
 				callback(rows);
 			}
 			return rows;
