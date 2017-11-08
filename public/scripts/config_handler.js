@@ -83,11 +83,11 @@ function Config(socket) {
     });
 
     socket.on('config_update_status', function(data) {
-       var old_errors = document.getElementsByClassName("error_msg");
+       var old_errors = document.getElementsByClassName("error_container");
         while (old_errors[0]) {
             old_errors[0].parentNode.removeChild(old_errors[0]);
         }
-        var old_success = document.getElementsByClassName("success_msg");
+        var old_success = document.getElementsByClassName("success_container");
         while (old_success[0]) {
             old_success[0].parentNode.removeChild(old_success[0]);
         }
@@ -101,6 +101,26 @@ function Config(socket) {
             success_el.innerHTML = "Successfully uploaded config. Press Load to restart server and apply settings";
             success_container.appendChild(success_el);
             window.scrollTo(0, document.body.scrollHeight);
+            var op = 1;  // initial opacity
+
+            setTimeout(
+              function(){
+                  var counter = 0;
+                 var timer = setInterval(function () {
+                    if (op <= 0.1){
+                        clearInterval(timer);
+                        success_container.style.display = 'none';
+                    }
+                    success_container.style.opacity = op;
+                    success_container.style.filter = 'alpha(opacity=' + op * 100 + ")";
+                    counter = counter+1;
+                    op -= op * 0.03+(counter/500);
+                }, 100);       
+               }
+              ,3000
+              );
+
+
             var upload_button = document.getElementById("plex_upload");
             upload_button.disabled = false;
             upload_button.classList.remove("disabled");
@@ -113,6 +133,26 @@ function Config(socket) {
             error_el.classList.add("error_slider");
             error_el.innerHTML = "Error uploading config.";
             error_container.appendChild(error_el);
+
+            window.scrollTo(0, document.body.scrollHeight);
+            var op = 1;  // initial opacity
+
+            setTimeout(
+              function(){
+                  var counter = 0;
+                 var timer = setInterval(function () {
+                    if (op <= 0.1){
+                        clearInterval(timer);
+                        error_container.style.display = 'none';
+                    }
+                    error_container.style.opacity = op;
+                    error_container.style.filter = 'alpha(opacity=' + op * 100 + ")";
+                    counter = counter+1;
+                    op -= op * 0.03+(counter/500);
+                }, 100);       
+               }
+              ,3000
+              );
             var upload_button = document.getElementById("plex_upload");
             upload_button.disabled = true;
             upload_button.classList.add("disabled");

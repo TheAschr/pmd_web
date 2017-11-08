@@ -35,25 +35,27 @@
     } , true);
   </script>
 </head>
-<body>
+<body id="media_page">
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container">
       <a class="navbar-brand" href="home">Plex Movie Downloader</a> <button aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarResponsive" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
-        <div class="nav-item"><span class="icon"><i class="fa fa-search"></i></span><input id="search_bar" type="text" value=""></div>
-        <div class="nav-item" style="margin-left:10px"><button aria-label="Search" id="plex_button" onClick='media.search()'><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button></div>
-      </div>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto">
+          <li class="nav-item" style="margin-right: 10px">
+           <div class="nav-item"><span class="icon"><i class="fa fa-search"></i></span><input id="search_bar" type="text" value=""></div>
+          </li>
+          <li class="nav-item">
+            <div class="nav-item" ><button aria-label="Search" id="plex_button" onClick='media.search()'><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button></div>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="home">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="movies">Movies <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="movies">Movies</a>
           </li>
           <li class="nav-item  active">
-            <a class="nav-link" href="tv_shows">TV Shows</a>
+            <a class="nav-link" href="tv_shows">TV Shows<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="logout">Logout</a>
