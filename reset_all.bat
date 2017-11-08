@@ -2,7 +2,7 @@ set home=%CD%
 
 set reset_dirs=config data scraper
 
-set delete_dirs=media_files torrent_files public\pics .forever\sock temp
+set delete_dirs=media_files torrent_files public\pics .forever temp
 
 for %%i in (%reset_dirs%) do (
 	cd %%i
