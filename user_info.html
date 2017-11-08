@@ -32,10 +32,12 @@
          document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
          
          if(data.type=="Admin"){
-           var admin_button = document.createElement("a");
-           admin_button.id = "plex_button";
-           admin_button.href = "admin";
-           admin_button.innerHTML = "Admin Settings";
+           var admin_button = document.createElement("button");
+           admin_button.classList.add("user_link");
+           var admin_link = document.createElement("a");
+            admin_link.innerHTML = "Admin Settings";
+           admin_link.href = "admin";
+           admin_button.appendChild(admin_link);
            document.getElementById("admin_button_placeholder").appendChild(admin_button);
          }
 
@@ -81,19 +83,12 @@
       </nav>
       <!-- Page Content -->
       <div class="container info_page">
-         <div class="info_page"
-         <!-- Page Heading -->
-         <h1 class="my-4" style="text-align: center;">User Info</h1>
-         <div id="admin_button_placeholder">
+        <div class="info_page">
+                   
+            <div id="admin_button_placeholder" ></div>
+            <div><button class="user_link" onclick="">Update Password</button></div>
+
          </div> 
-         <!-- 
-            for each piece of the pie chart create one div and give it
-            a data-value attribute that represents the amount (in degrees) that
-            represents its total visible portion, and a data-start attribute
-            that matches the amount rotation for the starting  (the cumulative value amount of all the previous pieces).
-            
-             
-            -->
          <div>
             <h2 id="quota_limit_text" class="my-4" style="text-align:center"></h2>
             <h2 id="quota_current_text" class="my-4" style="text-align:center"></h2>

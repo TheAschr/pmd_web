@@ -13,7 +13,6 @@
   <script src='/socket.io/socket.io.js'></script>
   <script src='/scripts/cookies.js'></script>
   <script src='/scripts/media_data.js'></script>
-  <script src='/scripts/settings.js'></script>
   <script>
 
   var socket = io();
@@ -66,8 +65,6 @@
     }
 
   });
-  window.addEventListener("load",function(){
-    } , true);
 
   function search_other_users(){
     socket.emit('other_users_req',{user_name: document.getElementById("user_search_bar").value});
@@ -108,7 +105,7 @@
     <a class="nav-link" href="https://app.plex.tv/desktop" id="plex_link">Watch PLEX</a>
   </nav><!-- Page Content -->
   <div class="container info_page">
-    <button class="plex_button"><a href="config">Config Settings</a></button>
+    <button class="user_link"><a href="config">Config Settings</a></button>
     <h2 class="my-4">Get User</h2>
     <span class="icon"><i class="fa fa-search"></i></span><input id="user_search_bar" type="text" value="">
       <button aria-label="Search" id="plex_button" onClick='search_other_users()'><span aria-hidden="true">Search</span><span class="sr-only">Search</span></button>

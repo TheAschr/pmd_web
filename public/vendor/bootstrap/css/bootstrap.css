@@ -313,7 +313,6 @@ button {
 
 }
 
-
 .user_link:hover {
   background: #505a62;
   background-image: -webkit-linear-gradient(top, #505a62, #5c6770);
@@ -323,7 +322,17 @@ button {
   background-image: linear-gradient(to bottom, #505a62, #5c6770);
   text-decoration: none;
 }
+.user_link a{
+    color: #fff;
 
+    font-family: Open Sans Bold,Helvetica Neue,Helvetica,Arial,sans-serif;
+    text-align: center;
+    font-size: 13px;
+}
+.user_link a:hover{
+  color:white;
+  text-decoration: none;
+}
 .config_back {
   border-color: #b56d16;
   outline: none;

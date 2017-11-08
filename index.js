@@ -132,6 +132,8 @@ if (CONFIG.INIT == "TRUE") {
                                     }
                                 })
                             }
+                            sql_conn.all_media("UPDATE media SET quota = (?) WHERE t_id = (?);", [torrent.sizeWhenDone+results.quota, torrent.id],null);
+                            console.log(torrent.sizeWhenDone)
                             if (users.length) {
                                 if (users[0].phone && users[0].phone != "") {
                                     twilio.send(results[0].title + " has finished downloading", users[0].phone);
