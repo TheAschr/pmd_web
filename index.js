@@ -54,6 +54,7 @@ if (CONFIG.INIT == "TRUE") {
 
     var server_port = 443;
     var https = require('https');
+    var http = require('http');
     var options = {
         key: fs.readFileSync(SSL_KEY_FILE),
         cert: fs.readFileSync(SSL_CERT_FILE)
@@ -136,6 +137,15 @@ if (CONFIG.INIT == "TRUE") {
                                     twilio.send(results[0].title + " has finished downloading", users[0].phone);
                                 }
                             }
+                        if(CONFIG.PLEX && 
+                            CONFIG.PLEX.IP && CONFIG.PLEX.IP.length && 
+                            CONFIG.PLEX.PORT && CONFIG.PLEX.PORT.length &&
+                            CONFIG.PLEX.AUTH_KEY && CONFIG.PLEX.AUTH_KEY.length
+                            )
+                        {
+                            http.get('http://'+CONFIG.PLEX.IP+':'+CONFIG.PLEX.PORT+'/library/sections/all/refresh?X-Plex-Token='+CONFIG.PLEX.AUTH_KEY);
+                        }
+
                         });
                     }
                     sql_conn.all_media("UPDATE media SET status = (?) WHERE t_id = (?);", [torrent.status, torrent.id],

@@ -1,4 +1,9 @@
 {
+	"PLEX": {
+		"IP": "",
+		"PORT": "",
+		"AUTH_KEY": ""
+	},
 	"TRANSMISSION": {
 		"IP": "127.0.0.1",
 		"PORT": "9091",

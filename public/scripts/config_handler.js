@@ -5,6 +5,9 @@ function Config(socket) {
     this.g_json = {};
 
     this.config_json_loc = {
+        "plex_ip": ["PLEX","IP"],
+        "plex_port": ["PLEX","PORT"],
+        "plex_authkey": ["PLEX","AUTH_KEY"],
         "transmission_username": ["TRANSMISSION", "USERNAME"],
         "transmission_password": ["TRANSMISSION", "PASSWORD"],
         "transmission_port": ["TRANSMISSION", "PORT"],
