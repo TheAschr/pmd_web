@@ -1,9 +1,7 @@
 - build media modifier middlewares
 
-- Add client notification on movie download request
-
 - Organize admin page
 
 - Rewrite all_media funciton to handle database locks
 
-- Add plex media scan functionality
+- Add user settings page
