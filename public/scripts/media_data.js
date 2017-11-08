@@ -156,7 +156,6 @@ function MediaGrid(media_type,socket){
     }
     success_el.innerHTML = "Successfully added new "+succ_type;
     success_container.appendChild(success_el);
-    window.scrollTo(0, document.body.scrollHeight);
     var op = 1;  // initial opacity
 
     setTimeout(
