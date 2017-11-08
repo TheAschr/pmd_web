@@ -1,7 +1,9 @@
 - build media modifier middlewares
 
-- Add config setting for password requirements
+- Add client notification on movie download request
 
-- Add admin page
+- Organize admin page
 
-- Add twilio functionality
+- Rewrite all_media funciton to handle database locks
+
+- Add plex media scan functionality
