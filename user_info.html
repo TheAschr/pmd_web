@@ -14,6 +14,7 @@
       <script src='/socket.io/socket.io.js'></script>
       <script src='/scripts/cookies.js'></script>
       <script src='/scripts/media_data.js'></script>
+      <script src='/scripts/helper_functions.js'></script>
       <script>
          function getParameterByName(name, url) {
              if (!url) url = window.location.href;
@@ -28,7 +29,7 @@
          var socket = io();
          
          socket.on('user_info_res',function(data){
-         
+         console.log(data);
          document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
          
          if(data.type=="Admin"){
@@ -41,12 +42,16 @@
            document.getElementById("admin_button_placeholder").appendChild(admin_button);
          }
 
-         document.getElementById("quota_limit_text").innerHTML = "Data Limit: "+data.quota_limit_str;
-         document.getElementById("quota_current_text").innerHTML = "Used: "+data.quota_str;
+         document.getElementById("quota_limit_text").innerHTML = "Data Limit: "+data.quota_limit;
+         document.getElementById("quota_current_text").innerHTML = "Used: "+data.quota;
+
+         var quota_int = bytes_string_to_int(string_to_bytes(data.quota));
+         var quota_limit_int = bytes_string_to_int(string_to_bytes(data.quota_limit));
+
          var quote_circle = document.getElementById("quota_circle"); 
          quote_circle.classList.remove('p0');
-         quote_circle.classList.add('p'+Math.round(data.quota_current/data.quota_limit*100));
-         document.getElementById('quota_inner').innerHTML = (Math.round(data.quota_current/data.quota_limit*100)) || "0"+'%';
+         quote_circle.classList.add('p'+Math.round(quota_int/quota_limit_int*100));
+         document.getElementById('quota_inner').innerHTML = ((Math.round(quota_int/quota_limit_int*100)) || "0")+'%';
          console.log()
          });
       </script>

@@ -11,7 +11,8 @@
 		"PASSWORD": "password",
 		"TORRENTS_DIR": "",
 		"MOVIES_DIR": "",
-		"TV_SHOWS_DIR": ""
+		"TV_SHOWS_DIR": "",
+		"GLOBAL_QUOTA": ""
 	},
 	"LOCAL": {
 		"DB_FILE": "data/pmd.db",

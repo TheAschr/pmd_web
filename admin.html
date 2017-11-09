@@ -28,42 +28,76 @@
     var list_desc = document.createElement("tr");
     
     var new_user_row = document.createElement("tr");
-    Object.keys(data.users[0]).forEach(function(key,index){
-          var new_user_button = document.createElement("td");
-          new_user_button.classList.add('user_list_desc');
-          new_user_button.innerHTML = key;
-          new_user_row.appendChild(new_user_button);
-    });  
-    user_list.appendChild(new_user_row);
-    for(i = 0; i < data.users.length;i++){
-      new_user_row = document.createElement("tr");
-      Object.keys(data.users[i]).forEach(function(key,index){
-          var list_item_container = document.createElement("td");
-          var list_item;
-          if(key == 'username' || key == 'quota'){
-            list_item = document.createElement("div");
-            list_item.innerHTML = data.users[i][key] || "none";
-          }
-          else if(key == 'level'){
-            list_item = document.createElement("select");
-            for(level = 0; level < 3;level++){
-              var select_item = document.createElement("option");
-              select_item.value = level;
-              select_item.innerHTML = level;
-              list_item.appendChild(select_item);
-            }
-          }
-          else{
-            list_item = document.createElement("input");
-            list_item.value = data.users[i][key] || "none";
-          }
-          list_item.classList.add('user_list_item');
-          list_item_container.appendChild(list_item);
-          new_user_row.appendChild(list_item_container);
-      });
-      user_list.appendChild(new_user_row);
-    }
 
+    if(data.users.length){
+      Object.keys(data.users[0]).forEach(function(key,index){
+            var new_user_button = document.createElement("td");
+            new_user_button.classList.add('user_list_desc');
+            new_user_button.innerHTML = key;
+            new_user_row.appendChild(new_user_button);
+      });  
+      user_list.appendChild(new_user_row);
+      for(i = 0; i < data.users.length;i++){
+        new_user_row = document.createElement("tr");
+        Object.keys(data.users[i]).forEach(function(key,index){
+            var list_item_container = document.createElement("td");
+            var list_item;
+            if(key == 'username' || key == 'quota'){
+              list_item = document.createElement("div");
+              list_item.innerHTML = data.users[i][key] || "none";
+            }
+            else if(key == 'level'){
+              list_item = document.createElement("select");
+              for(level = 0; level < 3;level++){
+                var select_item = document.createElement("option");
+                select_item.value = level;
+                select_item.innerHTML = level;
+                list_item.appendChild(select_item);
+              }
+            }
+            else{
+              list_item = document.createElement("input");
+              list_item.value = data.users[i][key] || "none";
+            }
+            list_item.classList.add('user_list_item');
+            list_item_container.appendChild(list_item);
+            new_user_row.appendChild(list_item_container);
+        });
+        user_list.appendChild(new_user_row);
+      }
+    }else{
+      var old_success = document.getElementsByClassName("error_container");
+      while (old_success[0]) {
+          old_success[0].parentNode.removeChild(old_success[0]);
+      }
+      var container = document.getElementById("user_info_page");
+      var error_container = document.createElement("div");
+      error_container.classList.add("error_container");
+      container.appendChild(error_container);
+      var error_el = document.createElement("div");
+      error_el.classList.add("error_slider");
+      error_el.innerHTML = "Could not find any users matching "+document.getElementById("user_search_bar").value;
+      error_container.appendChild(error_el);
+      var op = 1;  // initial opacity
+
+      setTimeout(
+        function(){
+            var counter = 0;
+           var timer = setInterval(function () {
+              if (op <= 0.1){
+                  clearInterval(timer);
+                  error_container.style.display = 'none';
+              }
+              error_container.style.opacity = op;
+              error_container.style.filter = 'alpha(opacity=' + op * 100 + ")";
+              counter = counter+1;
+              op -= op * 0.03+(counter/500);
+          }, 100);       
+         }
+        ,3000
+        );
+
+    }
   });
 
   function search_other_users(){
@@ -73,7 +107,7 @@
   </script>
 
 </head>
-<body>
+<body id="user_info_page">
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container">

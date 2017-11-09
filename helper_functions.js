@@ -21,41 +21,71 @@ module.exports = {
 		return "";
 	},
 	get_with_sizes_between : function(str_min,str_max,media){
-		var min = module.exports.parse_data_size(str_min);
+		var min = module.exports.bytes_string_to_int(module.exports.string_to_bytes(str_min));
 		if(!min){
 			min = 0;
 		}
-		var max = module.exports.parse_data_size(str_max);
+		var max = module.exports.bytes_string_to_int(module.exports.string_to_bytes(str_max));
 		if(!max){
 			max = Number.MAX_SAFE_INTEGER;
 		}
 		var results = [];
 		for(i = 0; i < media.length; i++){
-			var media_size = module.exports.parse_data_size(media[i].size);
+			var media_size = module.exports.bytes_string_to_int(module.exports.string_to_bytes(String(media[i].size)));
 			if(media_size >= +min && media_size <= +max){
 				results.push(media[i]);
 			}	
 		}
 		return results;
 	},
-	data_sizes : ['KB','MB','GB','TB'],
-	parse_data_size : function(data_str){
-		if(!data_str || data_str == ""){
+	data_sizes : ["B","KB","MB","GB","TB"],
+	bytes_string_to_int: function(bytes_string){
+		if(!bytes_string || typeof(bytes_string)!='string' || !bytes_string.length){
 			return null;
 		}
-		var size = data_str.replace(/[^0-9\.]+/g,"");
-		var found = false;
-		for(s = 0; s < module.exports.data_sizes.length && !found; s++){
-			if(data_str.toUpperCase().search(module.exports.data_sizes[s])!=-1){
-				found = true;
-				var multiplier = Math.pow(1000,s+1);
-				size*=multiplier;
+		bytes_string = bytes_string.toUpperCase();
+		bytes_string = bytes_string.replace(/\s/g, '');
+		if(bytes_string[bytes_string.length-1]!='B' || /[^\.\d]/.test(bytes_string.substring(0,bytes_string.length-1))){
+			console.log("Not bytes string");
+			return null;
+		}
+		bytes_string.length = bytes_string.length - 1;
+		return parseInt(bytes_string);
+	},
+	bytes_to_string : function(size) {
+		if(!size || typeof(size)=='string'){
+			return null;
+		}
+		var multiplier;
+		for(multiplier = 0; multiplier < module.exports.data_sizes.length && Math.pow(1000,multiplier) <= size;multiplier++){}
+		return ""+size/Math.pow(1000,multiplier-1)+module.exports.data_sizes[multiplier-1];
+	},
+	string_to_bytes : function(size_str){
+		if(!size_str ||typeof(size_str)!='string' || !size_str.length){
+			return null;
+		}
+		size_str = size_str.toUpperCase();
+		size_str = size_str.replace(/\s/g, '');
+		var multiplier;
+		var possible_mults = []
+		for(multiplier = 0; multiplier < module.exports.data_sizes.length;multiplier++){
+			if(size_str.substring(size_str.length-module.exports.data_sizes[multiplier].length,size_str.length) == module.exports.data_sizes[multiplier]){
+				possible_mults.push(multiplier);
 			}
 		}
-		if(!found){
+		if(!possible_mults.length){
 			return null;
 		}
-		return size;
+		if(/[^$,\.\d]/.test(size_str.substring(0,size_str.length-module.exports.data_sizes[possible_mults.length-1].length))){
+			console.log("Not an int");
+			return null;
+		}
+		var size_int = parseInt(size_str.substring(0,size_str.length-module.exports.data_sizes[possible_mults.length-1].length));
+		if(!size_int){
+			return null;
+		}
+		return ""+size_int*Math.pow(1000,possible_mults[possible_mults.length-1])+"B";
+		
 	},
 	search_dir : function(dir, done) {
 	  var results = [];

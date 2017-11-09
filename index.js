@@ -132,8 +132,7 @@ if (CONFIG.INIT == "TRUE") {
                                     }
                                 })
                             }
-                            sql_conn.all_media("UPDATE media SET quota = (?) WHERE t_id = (?);", [torrent.sizeWhenDone+results.quota, torrent.id],null);
-                            console.log(torrent.sizeWhenDone)
+                            sql_conn.all_media("UPDATE users SET quota = (?) WHERE id = (?);", [helper.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
                             if (users.length) {
                                 if (users[0].phone && users[0].phone != "") {
                                     twilio.send(results[0].title + " has finished downloading", users[0].phone);
@@ -184,7 +183,7 @@ if (CONFIG.INIT == "TRUE") {
             sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \"" + MEDIA_TYPES[data.type].join("\" OR type = \"") + "\");", ["%" + data.title + "%"], function(results) {
                 results = helper.get_with_sizes_between(MIN_MEDIA_SIZE[data.type], MAX_MEDIA_SIZE[data.type], results);
                 results = results.slice(data.offset, data.offset + data.size);
-                socket.emit('media_res', {
+               socket.emit('media_res', {
                     media: results,
                     active: trans_conn.active
                 });
@@ -219,10 +218,8 @@ if (CONFIG.INIT == "TRUE") {
                     socket.emit('user_info_res', {
                         user_name: results[0].username,
                         type: type,
-                        quota_str: results[0].quota || "0GB",
-                        quota_limit_str: results[0].quota_limit || "None",
-                        quota_current: helper.parse_data_size(results[0].quota),
-                        quota_limit: helper.parse_data_size(results[0].quota_limit)
+                        quota: results[0].quota || "0GB",
+                        quota_limit: results[0].quota_limit || CONFIG.TRANSMISSION.GLOBAL_QUOTA || "None",
                     });
                 }
             })
