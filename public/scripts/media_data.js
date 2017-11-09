@@ -8,12 +8,10 @@ t_status["SEED_WAIT"] = 5;
 t_status["SEED"] = 6;
 t_status["ISOLATED"] = 7;
 
-function MediaList(socket){
+function MediaList(username,socket){
     var media_self = this;
-    socket.on('connect',function(){
-      socket.emit('all_progress_req');
-      setInterval(function(){socket.emit('all_progress_req')},3000);
-    });
+    socket.emit('all_progress_req');
+    setInterval(function(){socket.emit('all_progress_req')},3000);
 
     socket.on('all_progress_res',function(data){
       media_self.reload_list(data);
@@ -78,7 +76,12 @@ function MediaList(socket){
         for(i = 0; i < data.active.length;i++){
           var list_item = document.getElementById(data.active[i].uid);
           if(!list_item){
-            media_self.add_list_item(document.getElementById("progress_list"),data.active[i]);
+            if(data.active[i].username == username){
+              media_self.add_list_item(document.getElementById("my_progress_list"),data.active[i]);
+            }
+            
+            media_self.add_list_item(document.getElementById("all_progress_list"),data.active[i]);              
+            
           }
           else{
             media_self.update_list_item(list_item,data.active[i]);

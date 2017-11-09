@@ -13,12 +13,33 @@
   <script src='/scripts/cookies.js'></script>
   <script src='/scripts/media_data.js'></script>
   <script>
+      function open_tab(evt, tab_name) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tab_name).style.display = "block";
+        evt.currentTarget.className += " active";
+  }
 
     var socket = io();
-    var media_list = new MediaList(socket);
+    var user_name = "";
+    var my_media_list = null;
     
     socket.on('user_info_res',function(data){
       document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
+      my_media_list = new MediaList(data.user_name,socket);
     });
   </script>
 
@@ -41,14 +62,14 @@
             <a class="nav-link" href="tv_shows">TV Shows</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="logout">Logout</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" id="user_name" href="user_info"></a>
           </li>
           <script>
             socket.emit('user_info_req',{});
-          </script>       
+          </script>  
+          <li class="nav-item">
+            <a class="nav-link" href="logout">Logout</a>
+          </li>     
         </ul>
       </div>
     </div>
@@ -56,10 +77,20 @@
   </nav><!-- Page Content -->
   <div class="container">
     <!-- Page Heading -->
-    <h1 class="my-4">Home <small>My Downloads</small></h1>
+    <h1 class="my-4">Home</h1>
+    <div class="tab">
+      <button class="tablinks active" onclick="open_tab(event, 'All Downloads')">All Downloads</button>
+      <button class="tablinks" onclick="open_tab(event, 'My Downloads')">My Downloads</button>
+    </div>
 
+    <div id="All Downloads" class="tabcontent">
+       <div class="list-group" id="all_progress_list">
+      </div>
+    </div>
 
-    <div class="list-group" id="progress_list">
+    <div id="My Downloads" class="tabcontent">
+      <div class="list-group" id="my_progress_list">
+      </div>
     </div>
   </div><!-- /.container -->
   <!-- Footer -->

@@ -58,14 +58,14 @@
             <a class="nav-link" href="tv_shows">TV Shows<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="logout">Logout</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" id="user_name" href="user_info"></a>
           </li>
           <script>
             socket.emit('user_info_req',{});
-          </script>     
+          </script>  
+          <li class="nav-item">
+            <a class="nav-link" href="logout">Logout</a>
+          </li>      
         </ul>
       </div>
     </div>

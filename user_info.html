@@ -29,7 +29,6 @@
          var socket = io();
          
          socket.on('user_info_res',function(data){
-         console.log(data);
          document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
          
          if(data.type=="Admin"){
@@ -72,15 +71,15 @@
                   <li class="nav-item">
                      <a class="nav-link" href="tv_shows">TV Shows</a>
                   </li>
-                  <li class="nav-item">
-                     <a class="nav-link" href="logout">Logout</a>
-                  </li>
-                  <li class="nav-item active">
-                     <a class="nav-link" id="user_name" href="user_info"> <span class="sr-only">(current)</span></a>
-                  </li>
-                  <script>
-                     socket.emit('user_info_req',{});
-                  </script>           
+                <li class="nav-item active">
+                  <a class="nav-link" id="user_name" href="user_info"></a>
+                </li>
+                <script>
+                  socket.emit('user_info_req',{});
+                </script>  
+                <li class="nav-item">
+                  <a class="nav-link" href="logout">Logout</a>
+                </li>             
                </ul>
             </div>
          </div>
