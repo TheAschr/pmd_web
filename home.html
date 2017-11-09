@@ -40,6 +40,8 @@
     socket.on('user_info_res',function(data){
       document.getElementById('user_name').innerHTML = data.user_name+'\'s Profile';
       my_media_list = new MediaList(data.user_name,socket);
+      open_tab(event, 'My Downloads');
+      document.getElementById('default_progress_button').classList.add("active")
     });
   </script>
 
@@ -79,8 +81,13 @@
     <!-- Page Heading -->
     <h1 class="my-4">Home</h1>
     <div class="tab">
-      <button class="tablinks active" onclick="open_tab(event, 'All Downloads')">All Downloads</button>
-      <button class="tablinks" onclick="open_tab(event, 'My Downloads')">My Downloads</button>
+      <button class="tablinks" id="default_progress_button" onclick="open_tab(event, 'My Downloads')">My Downloads</button>
+      <button class="tablinks" onclick="open_tab(event, 'All Downloads')">All Downloads</button>
+    </div>
+
+    <div id="My Downloads" class="tabcontent">
+      <div class="list-group" id="my_progress_list">
+      </div>
     </div>
 
     <div id="All Downloads" class="tabcontent">
@@ -88,10 +95,7 @@
       </div>
     </div>
 
-    <div id="My Downloads" class="tabcontent">
-      <div class="list-group" id="my_progress_list">
-      </div>
-    </div>
+
   </div><!-- /.container -->
   <!-- Footer -->
   <script src="vendor/jquery/jquery.min.js">

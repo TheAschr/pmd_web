@@ -76,6 +76,7 @@ function MediaList(username,socket){
         for(i = 0; i < data.active.length;i++){
           var list_item = document.getElementById(data.active[i].uid);
           if(!list_item){
+            console.log(i);
             if(data.active[i].username == username){
               media_self.add_list_item(document.getElementById("my_progress_list"),data.active[i]);
             }
