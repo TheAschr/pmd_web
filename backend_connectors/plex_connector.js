@@ -1,3 +1,4 @@
+var http = require('http');
 module.exports = function(CONFIG){
 	var module = {};
 

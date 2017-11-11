@@ -67,8 +67,6 @@ module.exports = function(CONFIG){
 							return console.log(err);
 						}
 						console.log(': DOWLOADING TORRENT WITH ID \"' + result.id + '\" at \"' + torrent_file + '\" to \"' + down_dir + '\"');
-
-						module.exports.active.push(result);
 						callback(result);
 					});
 				});

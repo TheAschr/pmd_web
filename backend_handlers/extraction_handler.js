@@ -46,15 +46,14 @@ module.exports = function(CONFIG){
             		results.push(files[i]);
             	}
             }
-            console.log(results);
-            if(callback){
+            if(callback && typeof(callback)=='function'){
 	            callback(results);
             }
         });
 	}
 
 	module.extract = function(file,to_dir){
-		console.log(file.replace(/\//g, '\\'),to_dir)
+		console.log("Extracting "+file.replace(/\//g, '\\')+" to "+to_dir);
 		const child = spawn(unrar, ['e','-o+', file.replace(/\//g, '\\'), to_dir+'\\']);
 		child.stderr.on('data', (data) => {
             console.log(`child stderr:\n${data}`);
@@ -70,8 +69,9 @@ module.exports = function(CONFIG){
 	}
 
 	module.load = function(from_dir,to_dir){
+		console.log(from_dir,to_dir);
 		if (fs.lstatSync(from_dir).isDirectory()) {
-			module.find_files_with_ext(from_dir,'.rar',function(files){
+			module.find_files_with_ext(from_dir,'.r00',function(files){
 				for(var i = 0; i < files.length;i++){
 					module.extract(files[i],to_dir);
 				}

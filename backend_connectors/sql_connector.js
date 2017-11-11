@@ -110,7 +110,7 @@ module.exports = function(CONFIG){
 		});
 	}
 
-	module.all_media = function(statement,values,callback){
+	module.all = function(statement,values,callback){
 		var db = new sqlite3.Database(CONFIG.LOCAL.DB_FILE,(err)=>{
 			if (err){
 				return console.error(err.message);

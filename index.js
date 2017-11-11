@@ -34,7 +34,7 @@ if (CONFIG.INIT == "TRUE") {
     var trans_conn = require(HOME+"/backend_connectors/transmission_connector")(CONFIG);
     var sql_conn = require(HOME+"/backend_connectors/sql_connector.js")(CONFIG);
     var plex_conn = require(HOME+"/backend_connectors/plex_connector.js")(CONFIG);
-    var twilio = require(HOME+'/backend_connectors/twilio_connector.js')(CONFIG);
+    var twilio_conn = require(HOME+'/backend_connectors/twilio_connector.js')(CONFIG);
 
     var extraction_handler = require(HOME+"/backend_handlers/extraction_handler.js")(CONFIG);
 
@@ -68,46 +68,50 @@ if (CONFIG.INIT == "TRUE") {
 
     setInterval(function() {
         trans_conn.get_active(function(torrent) {
-            sql_conn.all_media("SELECT * FROM media WHERE t_id = (?);", [torrent.id], function(results) {
+            sql_conn.all("SELECT * FROM media WHERE t_id = (?);", [torrent.id], function(results) {
                 if (results.length) {
                     if (results[0].status != trans_conn.status["SEED"] &&
                         torrent.status == trans_conn.status["SEED"]) {
-                        sql_conn.all_media("SELECT * FROM users WHERE username = (?);", [results[0].username], function(users) {
+                        sql_conn.all("SELECT * FROM users WHERE username = (?);", [results[0].username], function(users) {
+
+                            var url = results[0].link.toString();
+                            var url_split = url.split('/');
+                            var ext = ".torrent";
+                            var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ext.length);
+
+                            var from_dir = sh.pwd() + "\\temp\\" + d_name;
+
                             var out_dir = "";
                             if (MEDIA_TYPES["movies"].includes(results[0].type)) {
                                 out_dir = CONFIG.TRANSMISSION.MOVIES_DIR;
                             } else if (MEDIA_TYPES["tv_shows"].includes(results[0].type)) {
                                 out_dir = CONFIG.TRANSMISSION.TV_SHOWS_DIR;
                             }
-                            var url = results[0].link.toString();
-                            var url_split = url.split('/');
-                            var ext = ".torrent";
-                            var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ext.length);
-                            var from_dir = sh.pwd() + "\\temp\\" + d_name;
                             var to_dir = out_dir + '\\' + d_name;
 
                             extraction_handler.load(from_dir,to_dir);
 
-                            sql_conn.all_media("UPDATE users SET quota = (?) WHERE id = (?);", [helper.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
+                            sql_conn.all("UPDATE users SET quota = (?) WHERE id = (?);", [helper.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
                             if (users.length) {
                                 if (users[0].phone && users[0].phone != "") {
-                                    twilio.send(results[0].title + " has finished downloading", users[0].phone);
+                                    twilio_conn.send(results[0].title + " has finished downloading", users[0].phone);
                                 }
                             }
                         
-                        plex_conn.scan_library();
+                            plex_conn.scan_library();
 
                         });
                     }
-                    sql_conn.all_media("UPDATE media SET status = (?) WHERE t_id = (?);", [torrent.status, torrent.id],
+                    sql_conn.all("UPDATE media SET status = (?) WHERE t_id = (?);", [torrent.status, torrent.id],
                         function() {
-                            sql_conn.all_media("UPDATE media SET progress = (?) WHERE t_id = (?);", [(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2), torrent.id], null);
-                        });
+                            sql_conn.all("UPDATE media SET progress = (?) WHERE t_id = (?);", [(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2), torrent.id], null);
+                        }
+                    );
                 }
             });
 
         });
-        sql_conn.all_media("SELECT * FROM media where status != \'none\';", [], function(results) {
+        sql_conn.all("SELECT * FROM media where status != \'none\';", [], function(results) {
             trans_conn.active = results;
         });
     }, 2000);
@@ -130,7 +134,7 @@ if (CONFIG.INIT == "TRUE") {
     io.on('connection', function(socket) {
 
         socket.on('media_req', function(data) {
-            sql_conn.all_media("SELECT * FROM media WHERE title LIKE ? AND (type = \"" + MEDIA_TYPES[data.type].join("\" OR type = \"") + "\");", ["%" + data.title + "%"], function(results) {
+            sql_conn.all("SELECT * FROM media WHERE title LIKE ? AND (type = \"" + MEDIA_TYPES[data.type].join("\" OR type = \"") + "\");", ["%" + data.title + "%"], function(results) {
                 results = helper.get_with_sizes_between(MIN_MEDIA_SIZE[data.type], MAX_MEDIA_SIZE[data.type], results);
                 results = results.slice(data.offset, data.offset + data.size);
                socket.emit('media_res', {
@@ -140,10 +144,10 @@ if (CONFIG.INIT == "TRUE") {
             });
         });
         socket.on('download_req', function(data) {
-            sql_conn.all_media("SELECT * FROM media WHERE uid = (?) ", [data.uid], function(results) {
+            sql_conn.all("SELECT * FROM media WHERE uid = (?) ", [data.uid], function(results) {
                 if (results.length == 1) {
                     trans_conn.upload(results[0], data.type, function(torrent) {
-                        sql_conn.all_media("UPDATE media SET t_id = (?), username = (?) WHERE uid = (?);", [torrent.id, socket.handshake.session.user_name, data.uid], null);
+                        sql_conn.all("UPDATE media SET t_id = (?), username = (?) WHERE uid = (?);", [torrent.id, socket.handshake.session.user_name, data.uid], null);
                     });
                 } else {
                     console.log("Error: multiple media entries with uid of " + data.uid);
@@ -157,7 +161,7 @@ if (CONFIG.INIT == "TRUE") {
             });
         });
         socket.on('user_info_req', function() {
-            sql_conn.all_media("SELECT username,quota,quota_limit,level FROM users WHERE username = (?)", [socket.handshake.session.user_name], function(results) {
+            sql_conn.all("SELECT username,quota,quota_limit,level FROM users WHERE username = (?)", [socket.handshake.session.user_name], function(results) {
                 if (results.length) {
                     var type = "";
                     if (results[0].level == 1) {
@@ -175,7 +179,7 @@ if (CONFIG.INIT == "TRUE") {
             })
         });
         socket.on('other_users_req', function(data) {
-            sql_conn.all_media("SELECT username,quota,quota_limit,phone,level FROM users WHERE username LIKE (?)", "%" + data.user_name + "%", function(results) {
+            sql_conn.all("SELECT username,quota,quota_limit,phone,level FROM users WHERE username LIKE (?)", "%" + data.user_name + "%", function(results) {
                 socket.emit('other_users_res', {
                     users: results
                 });

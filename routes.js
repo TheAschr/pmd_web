@@ -59,6 +59,7 @@ module.exports = function(sql_conn,app){
 
   app.get('/logout', function(req, res) {
     if(req.session.user_name){
+      console.log(req.session.user_name+" logged out");
       delete req.session.user_name;
     }
     res.redirect('/')
