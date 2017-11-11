@@ -41,6 +41,11 @@
 		"SSL": {
 			"KEY_FILE": "",
 			"CERT_FILE": ""
+		},
+		"PASSWORD_REQS": {
+			"MIN_LEN" : 8,
+			"MIN_NUMBERS": 0,
+			"MIN_SPECIAL_CHARS": 0
 		}
 	},
 	"TWILIO": {

@@ -2,6 +2,14 @@ var fs = require('fs');
 
 
 module.exports = {
+	check_config: function(config_value,def_value){
+		if(config_value && config_value!=""){
+			return config_value;
+		}
+		else{
+			return def_value;
+		}
+	},
 	parse_phone_num: function(phone_num){
 		if(phone_num && phone_num != ""){
 			phone_num = phone_num.match(/(\+)?[0-9]/g);
@@ -161,6 +169,17 @@ module.exports = {
 		    }
 		  }	  	
 	  }
-
+	},
+	dir_exists : function(loc){
+		if(!fs.existsSync(loc) && loc !== ''){
+			return 0;
+		}
+		return 1;
+	},
+ 	file_exists : function(loc){
+		if(!fs.existsSync(loc)){
+			return 0;
+		}
+		return 1;
 	}
 }

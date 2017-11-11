@@ -1,12 +1,14 @@
-//***************CONFIG*****************//
-var CONFIG_FILE = './config/config.json';
-var CONFIG = require(CONFIG_FILE);
+var sh = require("shelljs");
+var HOME = sh.pwd();
 
-var config_handler = require('./config_handler.js');
+const CONFIG_FILE = HOME+'/config/config.json';
+const CONFIG = require(CONFIG_FILE);
+
+var config_handler = require(HOME+'/backend_handlers/config_handler.js');
 if (CONFIG.INIT == "TRUE") {
-    config_handler.load();
+    config_handler.load(CONFIG_FILE);
 } else {
-    var MEDIA_TYPES = {};
+    const MEDIA_TYPES = {};
 
     MEDIA_TYPES["movies"] = CONFIG.WEB.MEDIA.MOVIES.ALLOWED_TYPES.split(',');
 
@@ -20,25 +22,23 @@ if (CONFIG.INIT == "TRUE") {
     MAX_MEDIA_SIZE["movies"] = CONFIG.WEB.MEDIA.MOVIES.ALLOWED_SIZES.MAX;
     MAX_MEDIA_SIZE["tv_shows"] = CONFIG.WEB.MEDIA.TV_SHOWS.ALLOWED_SIZES.MAX;
 
-    var SSL_KEY_FILE = CONFIG.WEB.SSL.KEY_FILE;
-    var SSL_CERT_FILE = CONFIG.WEB.SSL.CERT_FILE;
-
-    if (!SSL_KEY_FILE || SSL_KEY_FILE == "") {
+    if (!CONFIG.WEB.SSL.KEY_FILE || CONFIG.WEB.SSL.KEY_FILE == "") {
         console.log("Error: Could not find SSL_CERT_FILE value in config at " + CONFIG_FILE)
         process.exit();
     }
-    if (!SSL_CERT_FILE || SSL_CERT_FILE == "") {
+    if (!CONFIG.WEB.SSL.CERT_FILE || CONFIG.WEB.SSL.CERT_FILE == "") {
         console.log("Error: Could not find SSL_KEY_FILE value in config at " + CONFIG_FILE)
         process.exit();
     }
 
-    //**************************************//
+    var trans_conn = require(HOME+"/backend_connectors/transmission_connector")(CONFIG);
+    var sql_conn = require(HOME+"/backend_connectors/sql_connector.js")(CONFIG);
+    var plex_conn = require(HOME+"/backend_connectors/plex_connector.js")(CONFIG);
+    var twilio = require(HOME+'/backend_connectors/twilio_connector.js')(CONFIG);
 
+    var extraction_handler = require(HOME+"/backend_handlers/extraction_handler.js")(CONFIG);
 
-    var trans_conn = require("./transmission_connector");
-    var sql_conn = require("./sql_connector.js");
-    var helper = require('./helper_functions.js');
-    var twilio = require('./twilio.js')
+    var helper = require(HOME+'/helper_functions.js');
 
     var express = require('express');
     var app = express();
@@ -56,8 +56,8 @@ if (CONFIG.INIT == "TRUE") {
     var https = require('https');
     var http = require('http');
     var options = {
-        key: fs.readFileSync(SSL_KEY_FILE),
-        cert: fs.readFileSync(SSL_CERT_FILE)
+        key: fs.readFileSync(CONFIG.WEB.SSL.KEY_FILE),
+        cert: fs.readFileSync(CONFIG.WEB.SSL.CERT_FILE)
     }
     var server = https.createServer(options, app);
 
@@ -65,11 +65,6 @@ if (CONFIG.INIT == "TRUE") {
     io.use(shared_session(session));
 
     var path = require('path');
-    var sh = require("shelljs");
-    var spawn = require('child_process').spawn;
-
-    //sql_conn.all_media("UPDATE media SET status = \"none\";",[],null);
-    // sql_conn.all_media("UPDATE media SET t_id = ?;",[false],null);
 
     setInterval(function() {
         trans_conn.get_active(function(torrent) {
@@ -90,62 +85,17 @@ if (CONFIG.INIT == "TRUE") {
                             var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ext.length);
                             var from_dir = sh.pwd() + "\\temp\\" + d_name;
                             var to_dir = out_dir + '\\' + d_name;
-                            if (fs.lstatSync(from_dir).isDirectory()) {
-                                helper.search_dir(sh.pwd() + "\\temp\\" + d_name, function(err, files) {
-                                    if (err) {
-                                        console.log(err);
-                                    }
-                                    if (files && files.length) {
-                                        var rar_files = [];
-                                        var unrar = sh.pwd() + '\\unrar\\UnRAR.exe';
 
-                                        for (var i = 0; i < files.length; i++) {
-                                            if (files[i].substr(files[i].length - 4) == ".r00") {
-                                                console.log("Extracting to " + out_dir);
-                                                rar_files.push(files[i]);
-                                                const child = spawn(unrar, ['e', files[i].replace(/\//g, '\\'), out_dir]);
+                            extraction_handler.load(from_dir,to_dir);
 
-                                                child.stderr.on('data', (data) => {
-                                                    console.log(`child stderr:\n${data}`);
-                                                })
-
-                                            }
-                                        }
-                                    } 
-                                    if(!rar_files.length) {
-                                        console.log("Copying folder from "+from_dir+" to "+to_dir);
-                                        if(!fs.existsSync(to_dir)){
-                                          console.log("Could not find directory at "+to_dir+". Building a new one");
-                                          fs.mkdirSync(to_dir);
-                                          if(!fs.existsSync(to_dir)){ 
-                                            console.log("Could not make directory at "+to_dir);
-                                          } 
-                                        }
-                                        helper.copy_dir(from_dir, to_dir);
-                                    }
-                                });
-                            } else {
-                                console.log("Copying file from "+from_dir+" to "+to_dir);
-                                helper.copy_file(from_dir, to_dir, function(err) {
-                                    if (err) {
-                                        console.log(err);
-                                    }
-                                })
-                            }
                             sql_conn.all_media("UPDATE users SET quota = (?) WHERE id = (?);", [helper.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
                             if (users.length) {
                                 if (users[0].phone && users[0].phone != "") {
                                     twilio.send(results[0].title + " has finished downloading", users[0].phone);
                                 }
                             }
-                        if(CONFIG.PLEX && 
-                            CONFIG.PLEX.IP && CONFIG.PLEX.IP.length && 
-                            CONFIG.PLEX.PORT && CONFIG.PLEX.PORT.length &&
-                            CONFIG.PLEX.AUTH_KEY && CONFIG.PLEX.AUTH_KEY.length
-                            )
-                        {
-                            http.get('http://'+CONFIG.PLEX.IP+':'+CONFIG.PLEX.PORT+'/library/sections/all/refresh?X-Plex-Token='+CONFIG.PLEX.AUTH_KEY);
-                        }
+                        
+                        plex_conn.scan_library();
 
                         });
                     }
@@ -173,9 +123,9 @@ if (CONFIG.INIT == "TRUE") {
     app.use(urlencodedParser);
     app.use(bodyParser.json());
 
-    require('./http_redirect.js')(app);
+    require(HOME+'/http_redirect.js')(app);
 
-    require('./routes.js')(sql_conn, app);
+    require(HOME+'/routes.js')(sql_conn, app);
 
     io.on('connection', function(socket) {
 

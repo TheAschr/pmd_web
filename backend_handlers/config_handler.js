@@ -34,22 +34,6 @@ function get_json_value(json,loc){
 	return curr_json_item;
 }
 
-function dir_exists(loc){
-	if(!fs.existsSync(loc) && loc !== ''){
-		return 0;
-	}
-	return 1;
-}
-
-
-
-function file_exists(loc){
-	if(!fs.existsSync(loc)){
-		return 0;
-	}
-	return 1;
-}
-
 module.exports = {
 	validate_data: function(json){
 		var error_msgs = [];
@@ -82,8 +66,8 @@ module.exports = {
 
 		return error_msgs;
 	},
-	load: function(){
-		var CONFIG_FILE = './config/config.json';
+	load: function(file){
+		var CONFIG_FILE = file;
 		var CONFIG = require(CONFIG_FILE);
 		var express = require('express');
   		var app = express();
