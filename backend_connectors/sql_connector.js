@@ -116,17 +116,30 @@ module.exports = function(CONFIG){
 				return console.error(err.message);
 			}
 		});
-
-	  	db.all(statement,values,function(err,rows){
-	  		if(err){
-	  			console.log(err);
-	  		}
-			db.close();
-			if(callback && rows){
-				callback(rows);
+		try{
+		  	db.all(statement,values,function(err,rows){
+		  		if(err){
+		  			if(err.code == 'SQLITE_BUSY'){
+		  				console.log(":: BUSY RETRYING")
+		  				module.all(statement,module.all(statement,values,callback));
+		  			}else{
+			  			console.log(err);
+		  			}
+		  		}
+				db.close();
+				if(callback && rows){
+					callback(rows);
+				}
+				return rows;
+			});			
+		}
+		catch(err){
+			if(err == 'SQLITE_BUSY'){
+  				console.log(":: BUSY RETRYING")
+  				module.all(statement,module.all(statement,values,callback));				
 			}
-			return rows;
-		});
+		}
+
 	}
 
 	module.validate_user = function(username,password,succ_cb,fail_cb){
