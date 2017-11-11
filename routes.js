@@ -65,21 +65,21 @@ module.exports = function(sql_conn,app){
     res.redirect('/')
   });
   app.get('/home', check_auth, function(req, res) {
-    res.sendFile(__dirname + '/home.html');
+    res.sendFile(__dirname + '/views/home.html');
   });
   app.get('/movies', check_auth, function(req, res) {
-    res.sendFile(__dirname + '/movies.html');
+    res.sendFile(__dirname + '/views/movies.html');
   });
   app.get('/tv_shows', check_auth, function(req, res) {
-    res.sendFile(__dirname + '/tv_shows.html');
+    res.sendFile(__dirname + '/views/tv_shows.html');
   });
   app.get('/user_info', check_auth, function(req, res) {
-    res.sendFile(__dirname + '/user_info.html');
+    res.sendFile(__dirname + '/views/user_info.html');
   });
   app.get('/admin',check_auth,check_admin,function(req,res){
-    res.sendFile(__dirname + '/admin.html')
+    res.sendFile(__dirname + '/views/admin.html')
   })
   app.get('/config',check_auth,check_admin,function(req,res){
-    res.sendFile(__dirname + '/config.html');
+    res.sendFile(__dirname + '/views/config.html');
   })
 }

@@ -1,4 +1,8 @@
-var helper = require('../helper_functions.js');
+var path = require('path');
+var HOME = path.resolve(__dirname+'\\..\\');
+
+var cfg_hndlr = require(HOME+'\\backend_handlers\\config_handler.js');
+var twilio_hndlr = require(HOME+'\\backend_handlers\\twilio_handler.js');
 
 var bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -72,7 +76,7 @@ module.exports = function(CONFIG){
 										}
 									});
 									var insert_user = db.prepare("INSERT INTO users (username,email,password,phone,level) VALUES (?,?,?,?,?)");
-									var parsed_phone = helper.parse_phone_num(phone);
+									var parsed_phone = twilio_hndlr.parse_phone_num(phone);
 									if(parsed_phone == null){
 										fail_cb("Please enter phone number in correct format");
 										insert_user.finalize();
@@ -116,29 +120,24 @@ module.exports = function(CONFIG){
 				return console.error(err.message);
 			}
 		});
-		try{
-		  	db.all(statement,values,function(err,rows){
-		  		if(err){
-		  			if(err.code == 'SQLITE_BUSY'){
-		  				console.log(":: BUSY RETRYING")
-		  				module.all(statement,module.all(statement,values,callback));
-		  			}else{
-			  			console.log(err);
-		  			}
-		  		}
-				db.close();
-				if(callback && rows){
-					callback(rows);
-				}
-				return rows;
-			});			
-		}
-		catch(err){
-			if(err == 'SQLITE_BUSY'){
-  				console.log(":: BUSY RETRYING")
-  				module.all(statement,module.all(statement,values,callback));				
+
+	  	db.all(statement,values,function(err,rows){
+	  		if(err){
+	  			if(err.code == 'SQLITE_BUSY'){
+	  				console.log(":: BUSY RETRYING")
+	  				module.all(statement,module.all(statement,values,callback));
+	  			}else{
+		  			console.log(err);
+	  			}
+	  		}
+			db.close();
+			if(callback && rows){
+				callback(rows);
 			}
-		}
+			return rows;
+		});			
+		
+
 
 	}
 

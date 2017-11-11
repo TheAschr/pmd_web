@@ -226,7 +226,7 @@ function MediaGrid(media_type,socket){
 
           var card_img = document.createElement("img");
           card_img.className = "card-img-top";
-          card_img.src = "/pics/" + data.media[index].uid + ".jpeg";
+          card_img.src =  data.media[index].uid + ".jpeg";
           card_img.alt = "";
           card_div.appendChild(card_img);
 

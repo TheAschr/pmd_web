@@ -1,4 +1,8 @@
 var path = require('path');
+var HOME = path.resolve(__dirname+'\\..\\');
+
+var fio_hndlr = require(HOME+'\\backend_handlers\\fio_handler.js');
+
 var fs = require('fs');
 
 var json_dirs = [
@@ -35,6 +39,14 @@ function get_json_value(json,loc){
 }
 
 module.exports = {
+	check_config: function(config_value,def_value){
+		if(config_value && config_value!=""){
+			return config_value;
+		}
+		else{
+			return def_value;
+		}
+	},
 	validate_data: function(json){
 		var error_msgs = [];
 		var success = true;
@@ -52,13 +64,13 @@ module.exports = {
 				var dir = get_json_value(json,json_dirs[i]);
 				dir = dir.replace(/^\s+/, '').replace(/\s+$/, '');
 
-				if(!dir_exists(dir)){
+				if(!fio_hndlr.dir_exists(dir)){
 					error_msgs.push([json_dirs[i],"Could not find directory"]);
 				}
 			}
 			for(var i = 0; i < json_files.length;i++){
 				var file = get_json_value(json,json_files[i]);
-				if(!file_exists(file)){
+				if(!fio_hndlr.file_exists(file)){
 					error_msgs.push([json_files[i],"Could not find file"]);
 				}
 			}	
@@ -72,9 +84,9 @@ module.exports = {
 		var express = require('express');
   		var app = express();
 		var http = require('http').Server(app);
-  		app.use(express.static(path.join(__dirname, 'public')));
+  		app.use(express.static(path.join(HOME,'public')));
 		app.get('/', function(req, res){
-		  res.sendFile(__dirname + '/init.html');
+		  res.sendFile(HOME + '\\views\\init.html');
 		});
 
 		var io = require('socket.io')(http);

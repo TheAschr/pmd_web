@@ -1,4 +1,7 @@
-var helper = require('../helper_functions.js');
+var path = require('path');
+var HOME = path.resolve(__dirname+'\\..\\');
+
+var fio_hndlr = require(HOME+'\\backend_handlers\\fio_handler.js');
 
 var sh = require("shelljs");
 var fs = require("fs");
@@ -27,7 +30,7 @@ module.exports = function(CONFIG){
 		module.check_dir(to_dir);
 		var to_file = to_dir+'\\'+from_file.replace(/^.*[\\\/]/, '');
         console.log("Copying file from "+from_file+" to "+to_file);
-        helper.copy_file(from_file, to_file, function(err) {
+        fio_hndlr.copy_file(from_file, to_file, function(err) {
             if (err) {
                 console.log(err);
             }
@@ -35,7 +38,7 @@ module.exports = function(CONFIG){
 	}
 
 	module.find_files_with_ext = function(dir,ext,callback){
-        helper.search_dir(dir, function(err, files) {
+        fio_hndlr.search_dir(dir, function(err, files) {
             if (err) {
                 console.log(err);
                 return;
@@ -65,7 +68,7 @@ module.exports = function(CONFIG){
 	module.copy_dir = function(from_dir,to_dir){
         console.log("Copying folder from "+from_dir+" to "+to_dir);
         module.check_dir(to_dir);
-        helper.copy_dir(from_dir, to_dir);
+        fio_hndlr.copy_dir(from_dir, to_dir);
 	}
 
 	module.load = function(from_dir,to_dir){

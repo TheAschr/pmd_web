@@ -16,7 +16,7 @@
 	},
 	"LOCAL": {
 		"DB_FILE": "data/pmd.db",
-		"PICTURES_DIR": "public/pics"
+		"PICTURES_DIR": "data/pics"
 	},
 	"WEB": {
 		"IPTCOOKIE": "",

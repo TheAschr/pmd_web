@@ -2,6 +2,6 @@
 
 - Organize admin page
 
-- Rewrite all_media funciton to handle database locks
+- Rewrite sqllite write funciton to handle database locks
 
 - Add user settings page

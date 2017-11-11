@@ -1,12 +1,13 @@
-var sh = require("shelljs");
-var HOME = sh.pwd();
+var path = require('path');
+var HOME = path.resolve(__dirname);
 
-const CONFIG_FILE = HOME+'/config/config.json';
+var cfg_hndlr = require(HOME+'\\backend_handlers\\config_handler.js');
+
+const CONFIG_FILE = HOME+'\\config\\config.json';
 const CONFIG = require(CONFIG_FILE);
 
-var config_handler = require(HOME+'/backend_handlers/config_handler.js');
 if (CONFIG.INIT == "TRUE") {
-    config_handler.load(CONFIG_FILE);
+    config_hndlr.load(CONFIG_FILE);
 } else {
     const MEDIA_TYPES = {};
 
@@ -31,14 +32,13 @@ if (CONFIG.INIT == "TRUE") {
         process.exit();
     }
 
-    var trans_conn = require(HOME+"/backend_connectors/transmission_connector")(CONFIG);
-    var sql_conn = require(HOME+"/backend_connectors/sql_connector.js")(CONFIG);
-    var plex_conn = require(HOME+"/backend_connectors/plex_connector.js")(CONFIG);
-    var twilio_conn = require(HOME+'/backend_connectors/twilio_connector.js')(CONFIG);
+    var trans_conn = require(HOME+"\\backend_connectors\\transmission_connector")(CONFIG);
+    var sql_conn = require(HOME+"\\backend_connectors\\sql_connector.js")(CONFIG);
+    var plex_conn = require(HOME+"\\backend_connectors\\plex_connector.js")(CONFIG);
+    var twilio_conn = require(HOME+'\\backend_connectors\\twilio_connector.js')(CONFIG);
 
-    var extraction_handler = require(HOME+"/backend_handlers/extraction_handler.js")(CONFIG);
-
-    var helper = require(HOME+'/helper_functions.js');
+    var extraction_hndlr = require(HOME+"\\backend_handlers\\extraction_handler.js")(CONFIG);
+    var data_hndlr = require(HOME+'\\backend_handlers\\data_size_handler.js');
 
     var express = require('express');
     var app = express();
@@ -74,10 +74,8 @@ if (CONFIG.INIT == "TRUE") {
                         torrent.status == trans_conn.status["SEED"]) {
                         sql_conn.all("SELECT * FROM users WHERE username = (?);", [results[0].username], function(users) {
 
-                            var url = results[0].link.toString();
-                            var url_split = url.split('/');
-                            var ext = ".torrent";
-                            var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ext.length);
+                            var url_split = results[0].link.toString().split('/');
+                            var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ".torrent".length);
 
                             var from_dir = sh.pwd() + "\\temp\\" + d_name;
 
@@ -89,13 +87,11 @@ if (CONFIG.INIT == "TRUE") {
                             }
                             var to_dir = out_dir + '\\' + d_name;
 
-                            extraction_handler.load(from_dir,to_dir);
+                            extraction_hndlr.load(from_dir,to_dir);
 
-                            sql_conn.all("UPDATE users SET quota = (?) WHERE id = (?);", [helper.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
-                            if (users.length) {
-                                if (users[0].phone && users[0].phone != "") {
-                                    twilio_conn.send(results[0].title + " has finished downloading", users[0].phone);
-                                }
+                            sql_conn.all("UPDATE users SET quota = (?) WHERE id = (?);", [data_hndlr.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
+                            if (users[0] && users[0].phone && users[0].phone != "") {
+                                twilio_conn.send(results[0].title + " has finished downloading", users[0].phone);
                             }
                         
                             plex_conn.scan_library();
@@ -119,6 +115,8 @@ if (CONFIG.INIT == "TRUE") {
     app.use(session);
 
     app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, 'data\\pics')));
+
     var bodyParser = require('body-parser');
     var urlencodedParser = bodyParser.urlencoded({
         extended: true
@@ -135,7 +133,7 @@ if (CONFIG.INIT == "TRUE") {
 
         socket.on('media_req', function(data) {
             sql_conn.all("SELECT * FROM media WHERE title LIKE ? AND (type = \"" + MEDIA_TYPES[data.type].join("\" OR type = \"") + "\");", ["%" + data.title + "%"], function(results) {
-                results = helper.get_with_sizes_between(MIN_MEDIA_SIZE[data.type], MAX_MEDIA_SIZE[data.type], results);
+                results = data_hndlr.get_with_sizes_between(MIN_MEDIA_SIZE[data.type], MAX_MEDIA_SIZE[data.type], results);
                 results = results.slice(data.offset, data.offset + data.size);
                socket.emit('media_res', {
                     media: results,
@@ -192,7 +190,7 @@ if (CONFIG.INIT == "TRUE") {
         })
         socket.on('config_update', function(data) {
 
-            var error_msgs = config_handler.validate_data(data.config);
+            var error_msgs = config_hndlr.validate_data(data.config);
             if (!error_msgs.length) {
                 data.config["INIT"] = "FALSE";
                 fs.writeFileSync(CONFIG_FILE, JSON.stringify(data.config, null, "\t"), 'utf8');

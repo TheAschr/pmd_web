@@ -1,7 +1,7 @@
 var http = require('http');
 module.exports = function(CONFIG){
 	var module = {};
-
+	
 	module.scan_library = function(){
 		if(CONFIG.PLEX && 
 	        CONFIG.PLEX.IP && CONFIG.PLEX.IP.length && 
@@ -12,6 +12,7 @@ module.exports = function(CONFIG){
 	        http.get('http://'+CONFIG.PLEX.IP+':'+CONFIG.PLEX.PORT+'/library/sections/all/refresh?X-Plex-Token='+CONFIG.PLEX.AUTH_KEY);
 	    }
 	}
+
 
 	return module;
 }
