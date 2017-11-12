@@ -36,8 +36,8 @@ if (CONFIG.INIT == "TRUE") {
     var sql_conn = require(HOME+"\\backend_connectors\\sql_connector.js")(CONFIG);
     var plex_conn = require(HOME+"\\backend_connectors\\plex_connector.js")(CONFIG);
     var twilio_conn = require(HOME+'\\backend_connectors\\twilio_connector.js')(CONFIG);
+    var unrar_conn = require(HOME+"\\backend_connectors\\unrar_connector.js")(CONFIG);
 
-    var extraction_hndlr = require(HOME+"\\backend_handlers\\extraction_handler.js")(CONFIG);
     var data_hndlr = require(HOME+'\\backend_handlers\\data_size_handler.js');
 
     var express = require('express');
@@ -72,7 +72,6 @@ if (CONFIG.INIT == "TRUE") {
                 if (media[0] && media[0].status != trans_conn.status["SEED"] && torrent.status == trans_conn.status["SEED"]) {
                     sql_conn.all("SELECT * FROM users WHERE username = (?) LIMIT 1;", [media[0].username], function(users) {
 
-
                         /////////////////////////////////////////////////////////
                         //Copy and\or extract finished media to correct directory
                         /////////////////////////////////////////////////////////
@@ -80,9 +79,9 @@ if (CONFIG.INIT == "TRUE") {
                         var url_split = media[0].link.toString().split('/');
                         var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ".torrent".length);
                         if (MEDIA_TYPES["movies"].includes(media[0].type)) {
-                            extraction_hndlr.load(HOME + "\\temp\\" + d_name,CONFIG.TRANSMISSION.MOVIES_DIR + '\\' + d_name);
+                            unrar_conn.extract_or_copy(HOME + "\\temp\\" + d_name,CONFIG.TRANSMISSION.MOVIES_DIR + '\\' + d_name);
                         } else if (MEDIA_TYPES["tv_shows"].includes(media[0].type)) {
-                            extraction_hndlr.load(HOME + "\\temp\\" + d_name,CONFIG.TRANSMISSION.TV_SHOWS_DIR + '\\' + d_name);
+                            unrar_conn.extract_or_copy(HOME + "\\temp\\" + d_name,CONFIG.TRANSMISSION.TV_SHOWS_DIR + '\\' + d_name);
                         }else{
                             console.log(":: ERROR DOWNLOADED MEDIA IS NOT OF AN ACCEPTED TYPE");
                         }
@@ -115,7 +114,7 @@ if (CONFIG.INIT == "TRUE") {
                 );              
             });
         });
-        sql_conn.all("SELECT * FROM media where status != \'none\';", [], function(active_media) {
+        sql_conn.all("SELECT * FROM media where status == (?) OR status == (?);", [trans_conn.t_status["DOWNLOAD"],trans_conn.t_status["SEED"]], function(active_media) {
             trans_conn.active = active_media;
         });       
     }

@@ -1,6 +1,39 @@
 var fs = require('fs');
 
 module.exports = {
+	find_files_with_ext : function(dir,ext,callback){
+        module.exports.search_dir(dir, function(err, files) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            var results = [];
+            for(i = 0;i < files.length;i++){
+            	if(files[i].substr(files[i].length - 4) == ext){
+            		results.push(files[i]);
+            	}
+            }
+            if(callback && typeof(callback)=='function'){
+	            callback(results);
+            }
+        });
+	},
+	build_dir : function(dir){
+		if(fs.existsSync(dir)){
+			if(!fs.lstatSync(dir).isDirectory()){
+	   			fs.unlink(dir);				
+			}
+	   	}else{
+          console.log("Could not find directory at "+dir+". Building a new one");
+          fs.mkdirSync(dir);
+          if(!fs.existsSync(dir)){ 
+            console.log("Could not make directory at "+dir);
+            return 0;
+          } 
+        }
+        return 1;		
+	},
+
 	search_dir : function(dir, done) {
 	  var results = [];
 	  fs.readdir(dir, function(err, list) {

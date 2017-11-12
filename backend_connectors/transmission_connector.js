@@ -20,7 +20,7 @@ t_status["ISOLATED"] = 7;
 
 module.exports = function(CONFIG){
 	var module = {};
-
+	module.t_status = t_status;
 	if(CONFIG){
 		var transmission =  new Transmission({
 			port: CONFIG.TRANSMISSION.PORT,
