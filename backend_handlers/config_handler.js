@@ -47,14 +47,14 @@ module.exports = {
 			return def_value;
 		}
 	},
-	validate_data: function(json){
-		var error_msgs = [];
+	validate_data: function(json,succ_cb,fail_cb){
+		var err = [];
 		var success = true;
 		for(var i = 0; i < json_required.length;i++){
 			var value = get_json_value(json,json_required[i]);
 			value = value.replace(/^\s+/, '').replace(/\s+$/, '');
 			if(value === ''){
-				error_msgs.push([json_required[i],"Field  is required"]);
+				err.push([json_required[i],"Field  is required"]);
 				success = false;
 			}
 		}
@@ -65,18 +65,21 @@ module.exports = {
 				dir = dir.replace(/^\s+/, '').replace(/\s+$/, '');
 
 				if(!fio_hndlr.dir_exists(dir)){
-					error_msgs.push([json_dirs[i],"Could not find directory"]);
+					err.push([json_dirs[i],"Could not find directory"]);
 				}
 			}
 			for(var i = 0; i < json_files.length;i++){
 				var file = get_json_value(json,json_files[i]);
 				if(!fio_hndlr.file_exists(file)){
-					error_msgs.push([json_files[i],"Could not find file"]);
+					err.push([json_files[i],"Could not find file"]);
 				}
 			}	
 		}
-
-		return error_msgs;
+		if(!err.length){
+			succ_cb();
+		}else{
+			fail_cb(err);
+		}
 	},
 	load: function(file){
 		var CONFIG_FILE = file;

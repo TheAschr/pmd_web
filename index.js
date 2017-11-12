@@ -7,7 +7,7 @@ const CONFIG_FILE = HOME+'\\config\\config.json';
 const CONFIG = require(CONFIG_FILE);
 
 if (CONFIG.INIT == "TRUE") {
-    config_hndlr.load(CONFIG_FILE);
+    cfg_hndlr.load(CONFIG_FILE);
 } else {
     const MEDIA_TYPES = {};
 
@@ -66,51 +66,61 @@ if (CONFIG.INIT == "TRUE") {
 
     var path = require('path');
 
-    setInterval(function() {
+    var download_complete_cb = function(){
         trans_conn.get_active(function(torrent) {
-            sql_conn.all("SELECT * FROM media WHERE t_id = (?);", [torrent.id], function(results) {
-                if (results.length) {
-                    if (results[0].status != trans_conn.status["SEED"] &&
-                        torrent.status == trans_conn.status["SEED"]) {
-                        sql_conn.all("SELECT * FROM users WHERE username = (?);", [results[0].username], function(users) {
+            sql_conn.all("SELECT * FROM media WHERE t_id = (?) LIMIT 1;", [torrent.id], function(media) {
+                if (media[0] && media[0].status != trans_conn.status["SEED"] && torrent.status == trans_conn.status["SEED"]) {
+                    sql_conn.all("SELECT * FROM users WHERE username = (?) LIMIT 1;", [media[0].username], function(users) {
 
-                            var url_split = results[0].link.toString().split('/');
-                            var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ".torrent".length);
 
-                            var from_dir = sh.pwd() + "\\temp\\" + d_name;
+                        /////////////////////////////////////////////////////////
+                        //Copy and\or extract finished media to correct directory
+                        /////////////////////////////////////////////////////////
 
-                            var out_dir = "";
-                            if (MEDIA_TYPES["movies"].includes(results[0].type)) {
-                                out_dir = CONFIG.TRANSMISSION.MOVIES_DIR;
-                            } else if (MEDIA_TYPES["tv_shows"].includes(results[0].type)) {
-                                out_dir = CONFIG.TRANSMISSION.TV_SHOWS_DIR;
-                            }
-                            var to_dir = out_dir + '\\' + d_name;
-
-                            extraction_hndlr.load(from_dir,to_dir);
-
-                            sql_conn.all("UPDATE users SET quota = (?) WHERE id = (?);", [data_hndlr.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);
-                            if (users[0] && users[0].phone && users[0].phone != "") {
-                                twilio_conn.send(results[0].title + " has finished downloading", users[0].phone);
-                            }
-                        
-                            plex_conn.scan_library();
-
-                        });
-                    }
-                    sql_conn.all("UPDATE media SET status = (?) WHERE t_id = (?);", [torrent.status, torrent.id],
-                        function() {
-                            sql_conn.all("UPDATE media SET progress = (?) WHERE t_id = (?);", [(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2), torrent.id], null);
+                        var url_split = media[0].link.toString().split('/');
+                        var d_name = url_split[url_split.length - 1].substr(0, url_split[url_split.length - 1].length - ".torrent".length);
+                        if (MEDIA_TYPES["movies"].includes(media[0].type)) {
+                            extraction_hndlr.load(HOME + "\\temp\\" + d_name,CONFIG.TRANSMISSION.MOVIES_DIR + '\\' + d_name);
+                        } else if (MEDIA_TYPES["tv_shows"].includes(media[0].type)) {
+                            extraction_hndlr.load(HOME + "\\temp\\" + d_name,CONFIG.TRANSMISSION.TV_SHOWS_DIR + '\\' + d_name);
+                        }else{
+                            console.log(":: ERROR DOWNLOADED MEDIA IS NOT OF AN ACCEPTED TYPE");
                         }
-                    );
-                }
-            });
 
+                        /////////////////////////////////////////////////////////
+                        //Update users quota
+                        /////////////////////////////////////////////////////////
+
+                        sql_conn.all("UPDATE users SET quota = (?) WHERE id = (?);", [data_hndlr.bytes_to_string(torrent.sizeWhenDone+users[0].quota), users[0].id],null);    
+
+                        /////////////////////////////////////////////////////////
+                        //Rescan plex library
+                        /////////////////////////////////////////////////////////
+
+                        plex_conn.scan_library();
+
+                        /////////////////////////////////////////////////////////
+                        //Send completion text if user has phone number
+                        /////////////////////////////////////////////////////////
+
+                        if (users[0] && users[0].phone && users[0].phone != "") {
+                            twilio_conn.send(media[0].title + " has finished downloading", users[0].phone);
+                        }        
+                    });
+                }
+                sql_conn.all("UPDATE media SET status = (?) WHERE t_id = (?);", [torrent.status, torrent.id],
+                    function() {
+                        sql_conn.all("UPDATE media SET progress = (?) WHERE t_id = (?);", [(torrent.downloadedEver / torrent.sizeWhenDone * 100).toFixed(2), torrent.id], null);
+                    }
+                );              
+            });
         });
-        sql_conn.all("SELECT * FROM media where status != \'none\';", [], function(results) {
-            trans_conn.active = results;
-        });
-    }, 2000);
+        sql_conn.all("SELECT * FROM media where status != \'none\';", [], function(active_media) {
+            trans_conn.active = active_media;
+        });       
+    }
+
+    setInterval(download_complete_cb, 2000);
 
     app.use(session);
 
@@ -189,21 +199,21 @@ if (CONFIG.INIT == "TRUE") {
             });
         })
         socket.on('config_update', function(data) {
-
-            var error_msgs = config_hndlr.validate_data(data.config);
-            if (!error_msgs.length) {
+            config_hndlr.validate_data(data.config,function(){
                 data.config["INIT"] = "FALSE";
                 fs.writeFileSync(CONFIG_FILE, JSON.stringify(data.config, null, "\t"), 'utf8');
                 CONFIG = data.config;
                 socket.emit('config_update_status', {
                     success: true
                 });
-            } else {
-                socket.emit('config_update_status', {
+            },
+            function(err){
+                  socket.emit('config_update_status', {
                     success: false,
-                    error_msgs: error_msgs
-                });
-            }
+                    error_msgs: err
+                });              
+            });
+
         })
         socket.on('restart', function() {
             process.exit(0);

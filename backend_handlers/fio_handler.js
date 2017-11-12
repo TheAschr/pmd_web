@@ -44,12 +44,14 @@ module.exports = {
 				module.exports.copy_file(src,dst,function(err){
 					if(err){
 						console.log(err);
+						return 0;
 					}
 				})
 				results.push(src);
 			}
 	    });
-	    return results;
+
+	    return 1;
 	},
 	copy_file : function (source, target, cb) {
 	  if(!fs.existsSync(target)){
@@ -73,7 +75,9 @@ module.exports = {
 		      cb(err);
 		      cbCalled = true;
 		    }
-		  }	  	
+		  }
+		  //need to fix this to return errors
+		  return 1;
 	  }
 	},
 	dir_exists : function(loc){

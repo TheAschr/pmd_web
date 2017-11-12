@@ -22,8 +22,10 @@ module.exports = function(CONFIG){
           fs.mkdirSync(dir);
           if(!fs.existsSync(dir)){ 
             console.log("Could not make directory at "+dir);
+            return 0;
           } 
-        }		
+        }
+        return 1;		
 	}
 
 	module.copy_file = function(from_file,to_dir){
@@ -34,7 +36,8 @@ module.exports = function(CONFIG){
             if (err) {
                 console.log(err);
             }
-        })
+        });
+        return fs.existsSync(to_file) && !fs.lstatSync(to_file).isDirectory()
 	}
 
 	module.find_files_with_ext = function(dir,ext,callback){
@@ -60,30 +63,32 @@ module.exports = function(CONFIG){
 		const child = spawn(unrar, ['e','-o+', file.replace(/\//g, '\\'), to_dir+'\\']);
 		child.stderr.on('data', (data) => {
             console.log(`child stderr:\n${data}`);
-        })
+            
+            //this needs to be fixed as it 0 isn't returned to extract function
+            return 0;
+        });
+        return 1;
 	}
 
 
 
 	module.copy_dir = function(from_dir,to_dir){
         console.log("Copying folder from "+from_dir+" to "+to_dir);
-        module.check_dir(to_dir);
-        fio_hndlr.copy_dir(from_dir, to_dir);
+        return module.check_dir(to_dir) && fio_hndlr.copy_dir(from_dir, to_dir);
 	}
 
 	module.load = function(from_dir,to_dir){
-		console.log(from_dir,to_dir);
 		if (fs.lstatSync(from_dir).isDirectory()) {
 			module.find_files_with_ext(from_dir,'.r00',function(files){
 				for(var i = 0; i < files.length;i++){
-					module.extract(files[i],to_dir);
+					return module.extract(files[i],to_dir);
 				}
 				if(!files.length){
-					module.copy_dir(from_dir,to_dir);
+					return module.copy_dir(from_dir,to_dir);
 				}
 			});
 		}else {
-        	module.copy_file(from_dir,to_dir);
+        	return module.copy_file(from_dir,to_dir);
         }
 	}
 
