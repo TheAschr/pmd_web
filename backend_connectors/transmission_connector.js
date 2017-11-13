@@ -2,25 +2,25 @@ var path = require('path');
 var HOME = path.resolve(__dirname+'\\..\\');
 
 var cfg_hndlr = require(HOME+'\\backend_handlers\\config_handler.js');
+var fio_hndlr = require(HOME+'\\backend_handlers\\fio_handler.js');
 
-var sh = require("shelljs");
 var Transmission = require('transmission');
 var request = require('request');
 var fs = require('fs');
 
-var t_status = {};
-t_status["STOPPED"] = 0;
-t_status["CHECK_WAIT"] = 1;
-t_status["CHECK"] = 2;
-t_status["DOWNLOAD_WAIT"] = 3;
-t_status["DOWNLOAD"] = 4;
-t_status["SEED_WAIT"] = 5;
-t_status["SEED"] = 6;
-t_status["ISOLATED"] = 7;
-
 module.exports = function(CONFIG){
 	var module = {};
-	module.t_status = t_status;
+
+	module.t_status = {};
+	module.t_status["STOPPED"] = 0;
+	module.t_status["CHECK_WAIT"] = 1;
+	module.t_status["CHECK"] = 2;
+	module.t_status["DOWNLOAD_WAIT"] = 3;
+	module.t_status["DOWNLOAD"] = 4;
+	module.t_status["SEED_WAIT"] = 5;
+	module.t_status["SEED"] = 6;
+	module.t_status["ISOLATED"] = 7;
+
 	if(CONFIG){
 		var transmission =  new Transmission({
 			port: CONFIG.TRANSMISSION.PORT,
@@ -30,21 +30,17 @@ module.exports = function(CONFIG){
 		});
 
 		module.active = [];
-		module.status = t_status;
 
 		module.upload = function(row,type,callback) {
-			if(!transmission){
-				console.log("Transmission is disabled due to misconfigured settings");
-				return;
-			}
-			var down_dir = sh.pwd()+"\\temp";
+
+			var down_dir = HOME+"\\temp";
 
 			row.link = row.link.toString();
 			var url_split = row.link.split('/');
 			var f_name = url_split[url_split.length - 1];
-			if (!fs.existsSync(cfg_hndlr.check_config(CONFIG.TRANSMISSION.TORRENTS_DIR,sh.pwd()+"\\torrent_files"))) {
-				fs.mkdirSync(cfg_hndlr.check_config(CONFIG.TRANSMISSION.TORRENTS_DIR,sh.pwd()+"\\torrent_files"));
-			}
+			var torrent_files_dir = cfg_hndlr.check_config(CONFIG.TRANSMISSION.TORRENTS_DIR,HOME+"\\torrent_files");
+			fio_hndlr.build_dir(torrent_files_dir);
+
 			var response_stream = request({
 				url: 'http://iptorrents.com' + row.link,
 				headers: {
@@ -55,7 +51,7 @@ module.exports = function(CONFIG){
 				console.log(err);
 			});
 			response_stream.on('response', function(response) {
-				var torrent_file = cfg_hndlr.check_config(CONFIG.TRANSMISSION.TORRENTS_DIR,sh.pwd()+"\\torrent_files") + "\\" + f_name;
+				var torrent_file = cfg_hndlr.check_config(CONFIG.TRANSMISSION.TORRENTS_DIR,HOME+"\\torrent_files") + "\\" + f_name;
 				var write_stream = fs.createWriteStream(torrent_file);
 				response_stream.pipe(write_stream);
 				response_stream.on('end', function() {
@@ -64,7 +60,7 @@ module.exports = function(CONFIG){
 							fs.mkdirSync(down_dir);
 						}
 						transmission.addFile(torrent_file, {
-							"download-dir": sh.pwd()+"\\temp"
+							"download-dir": HOME+"\\temp"
 						}, function(err, result) {
 							if (err) {
 								return console.log(err);
@@ -78,10 +74,7 @@ module.exports = function(CONFIG){
 		}
 
 		module.get_active = function(callback) {
-			if(!transmission){
-				console.log("Transmission is disabled due to misconfigured settings");
-				return;
-			}
+			
 			transmission.active(function(err, results) {
 				if (err) {
 				//	console.log(err);

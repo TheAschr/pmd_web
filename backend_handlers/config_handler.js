@@ -76,8 +76,10 @@ module.exports = {
 			}	
 		}
 		if(!err.length){
+			if(succ_cb && typeof(succ_cb) == 'function')
 			succ_cb();
 		}else{
+			if(fail_cb && typeof(fail_cb) == 'function')
 			fail_cb(err);
 		}
 	},
@@ -98,16 +100,15 @@ module.exports = {
       			socket.emit('config_res',{config: CONFIG});
     		});
 	   		 socket.on('config_update',function(data){
-	   		  var error_msgs = module.exports.validate_data(data.config);
-	   		  if(!error_msgs.length){
+	   		  var error_msgs = module.exports.validate_data(data.config,function(){
 			  	data.config["INIT"] = "FALSE";
 			  	CONFIG = data.config;
 		      	fs.writeFileSync(CONFIG_FILE,JSON.stringify(data.config,null,"\t"),'utf8');   		  	
 	   		  	socket.emit('config_update_status',{success:true});
-	   		  }
-	   		  else{
+	   		  },function(error_msgs){
 	   		  	socket.emit('config_update_status',{success:false,error_msgs:error_msgs});
-	   		  }
+
+	   		  });
 
 		    });
 		    socket.on('restart',function(){

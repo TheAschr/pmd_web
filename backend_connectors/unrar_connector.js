@@ -3,7 +3,6 @@ var HOME = path.resolve(__dirname+'\\..\\');
 
 var fio_hndlr = require(HOME+'\\backend_handlers\\fio_handler.js');
 
-var sh = require("shelljs");
 var fs = require("fs");
 var spawn = require('child_process').spawn;
 
