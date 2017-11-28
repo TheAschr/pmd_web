@@ -69,7 +69,7 @@ if (CONFIG.INIT == "TRUE") {
     var download_complete_cb = function(){
         trans_conn.get_active(function(torrent) {
             sql_conn.all("SELECT * FROM media WHERE t_id = (?) LIMIT 1;", [torrent.id], function(media) {
-                if (media[0] && media[0].status != trans_conn.status["SEED"] && torrent.status == trans_conn.status["SEED"]) {
+                if (media[0] && media[0].status != trans_conn.t_status["SEED"] && torrent.status == trans_conn.t_status["SEED"]) {
                     sql_conn.all("SELECT * FROM users WHERE username = (?) LIMIT 1;", [media[0].username], function(users) {
 
                         /////////////////////////////////////////////////////////
