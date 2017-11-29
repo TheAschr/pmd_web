@@ -128,6 +128,10 @@ proc_ret_type scrape_index_page(void *data){
 						media.md_size = html_get_string_between_pos(&main_page_html,descr_positions[3][PRE_END],descr_positions[3][POST_BEGIN]);
 						////////////////////////////////////////////////////
 						
+						//SCRAPE MEDIA SEEDERS//////////////////////////////
+						media.seeders = html_get_string_between_pos(&main_page_html,descr_positions[4][PRE_END],descr_positions[4][POST_BEGIN]);
+						////////////////////////////////////////////////////
+
 						//SCRAPE MEDIA ID///////////////////////////////////
 						ScrapeStringContainer *md_id = string_container_init();
 						md_id->string = realloc(md_id->string,(strlen(tr_link->string)+1)*sizeof(char));
@@ -176,8 +180,8 @@ proc_ret_type scrape_index_page(void *data){
 										fclose(pic_file_descr);
 										////////////////////////////////////////////////////
 
-										char *insert_media_zSQL = sqlite3_mprintf("INSERT INTO media ( title, type, link, size, uid,status) VALUES ('%q','%q','%q','%q','%q','none');"
-											,media.title,media.type,media.tr_link,media.md_size,media.md_id,media.md_id);				
+										char *insert_media_zSQL = sqlite3_mprintf("INSERT INTO media ( title, type, seeders, link, size, uid) VALUES ('%q','%q','%q','%q','%q','%q');"
+											,media.title,media.type,media.seeders,media.tr_link,media.md_size,media.md_id,media.md_id);				
 
 										db_exec(m_page_thread_data->db,insert_media_zSQL);
 

@@ -141,7 +141,7 @@ if (CONFIG.INIT == "TRUE") {
     io.on('connection', function(socket) {
 
         socket.on('media_req', function(data) {
-            sql_conn.all("SELECT * FROM media WHERE title LIKE ? AND (type = \"" + MEDIA_TYPES[data.type].join("\" OR type = \"") + "\");", ["%" + data.title + "%"], function(results) {
+            sql_conn.all("SELECT * FROM media WHERE title LIKE ? AND (type = \"" + MEDIA_TYPES[data.type].join("\" OR type = \"") + "\") ORDER BY seeders DESC;", ["%" + data.title + "%"], function(results) {
                 results = data_hndlr.get_with_sizes_between(MIN_MEDIA_SIZE[data.type], MAX_MEDIA_SIZE[data.type], results);
                 results = results.slice(data.offset, data.offset + data.size);
                socket.emit('media_res', {

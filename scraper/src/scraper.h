@@ -13,6 +13,7 @@ int scrape(int num_pages,sqlite3 *db);
 typedef struct {
 	char *type;
 	char *title;
+	char *seeders;
 	char *tr_link;
 	char *md_size;
 	char *md_id;
