@@ -15,8 +15,8 @@ typedef struct {
 	char *title;
 	char *seeders;
 	char *tr_link;
-	char *md_size;
-	char *md_id;
+	char *size;
+	char *uid;
 }Media;
 
 static const char *IGNORE_TYPES[] = {

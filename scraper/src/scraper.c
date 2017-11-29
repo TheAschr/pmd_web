@@ -125,7 +125,7 @@ proc_ret_type scrape_index_page(void *data){
 						////////////////////////////////////////////////////
 
 						//SCRAPE MEDIA SIZE/////////////////////////////////
-						media.md_size = html_get_string_between_pos(&main_page_html,descr_positions[3][PRE_END],descr_positions[3][POST_BEGIN]);
+						media.size = html_get_string_between_pos(&main_page_html,descr_positions[3][PRE_END],descr_positions[3][POST_BEGIN]);
 						////////////////////////////////////////////////////
 						
 						//SCRAPE MEDIA SEEDERS//////////////////////////////
@@ -133,18 +133,18 @@ proc_ret_type scrape_index_page(void *data){
 						////////////////////////////////////////////////////
 
 						//SCRAPE MEDIA ID///////////////////////////////////
-						ScrapeStringContainer *md_id = string_container_init();
-						md_id->string = realloc(md_id->string,(strlen(tr_link->string)+1)*sizeof(char));
-						strcpy(md_id->string,tr_link->string);
-						string_container_transform(md_id,string_remove_to(md_id->string,"/download.php/"));
-						string_container_transform(md_id, string_remove_after(md_id->string,"/"));
+						ScrapeStringContainer *uid = string_container_init();
+						uid->string = realloc(uid->string,(strlen(tr_link->string)+1)*sizeof(char));
+						strcpy(uid->string,tr_link->string);
+						string_container_transform(uid,string_remove_to(uid->string,"/download.php/"));
+						string_container_transform(uid, string_remove_after(uid->string,"/"));
 
-						media.md_id = md_id->string;
+						media.uid = uid->string;
 						////////////////////////////////////////////////////
 
 
 				 		//CHECK IF IT EXISTS IN DATABASE
-						if(!db_contains(m_page_thread_data->db,"uid",md_id->string)){
+						if(!db_contains(m_page_thread_data->db,"uid",uid->string)){
 		
 							//SCRAPE MEDIA PICTURE PAGE/////////////////////////
 							int pic_page_retry = 0;
@@ -153,7 +153,7 @@ proc_ret_type scrape_index_page(void *data){
 							int pic_page_url_length = strlen(pic_page_url_base)+1;
 							char pic_page_url[MAX_URL_LENGTH];
 
-							snprintf(pic_page_url,MAX_URL_LENGTH,"%s%s",pic_page_url_base,md_id->string);
+							snprintf(pic_page_url,MAX_URL_LENGTH,"%s%s",pic_page_url_base,uid->string);
 							do{
 								Vector pic_page_html = {0,0};
 								curl_get_buffer(&pic_page_html,pic_page_url);
@@ -171,8 +171,8 @@ proc_ret_type scrape_index_page(void *data){
 										
 										char *pic_file_url = html_get_string_between_pos(&pic_page_html,img_link_positions[0][PRE_END],img_link_positions[0][POST_BEGIN]);
 										char pic_file_ext[] = ".jpeg";								
-										char pic_file[strlen(pics_dir)+strlen(md_id->string)+1+strlen(pic_file_ext)];
-										snprintf(pic_file,strlen(pics_dir)+1+strlen(md_id->string)+strlen(pic_file_ext)+1,"%s/%s.jpeg",pics_dir,md_id->string);
+										char pic_file[strlen(pics_dir)+strlen(uid->string)+1+strlen(pic_file_ext)];
+										snprintf(pic_file,strlen(pics_dir)+1+strlen(uid->string)+strlen(pic_file_ext)+1,"%s/%s.jpeg",pics_dir,uid->string);
 										
 										//SCRAPE MEDIA PICTURE FILE//////////////////////////
 										FILE *pic_file_descr = fopen(pic_file,"wb");
@@ -181,11 +181,11 @@ proc_ret_type scrape_index_page(void *data){
 										////////////////////////////////////////////////////
 
 										char *insert_media_zSQL = sqlite3_mprintf("INSERT INTO media ( title, type, seeders, link, size, uid) VALUES ('%q','%q','%q','%q','%q','%q');"
-											,media.title,media.type,media.seeders,media.tr_link,media.md_size,media.md_id,media.md_id);				
+											,media.title,media.type,media.seeders,media.tr_link,media.size,media.uid);				
 
 										db_exec(m_page_thread_data->db,insert_media_zSQL);
 
-										//printf("%s%s | %s | %s | %s%s\n\n",LINE_BREAK,media.title,media.md_size,media.tr_link,media.type,LINE_BREAK_THIN);			
+										//printf("%s%s | %s | %s | %s%s\n\n",LINE_BREAK,media.title,media.size,media.tr_link,media.type,LINE_BREAK_THIN);			
 										media_scraped++;									
 										free(pic_file_url);
 									}			
@@ -197,6 +197,11 @@ proc_ret_type scrape_index_page(void *data){
 								
 							}while(pic_page_retry);
 							////////////////////////////////////////////////////
+				 		}else{
+							char *insert_media_zSQL = sqlite3_mprintf("UPDATE media SET seeders = '%q' WHERE uid = '%q';"
+								,media.seeders,media.uid);				
+
+							db_exec(m_page_thread_data->db,insert_media_zSQL);				 			
 				 		}
 
 				 		html_pos_cleanup(title_positions,rc_title);
@@ -210,9 +215,9 @@ proc_ret_type scrape_index_page(void *data){
 
 						string_container_cleanup(tr_link);
 
-						free(media.md_size);
+						free(media.size);
 
-						string_container_cleanup(md_id);
+						string_container_cleanup(uid);
 					}
 				}
 			}
