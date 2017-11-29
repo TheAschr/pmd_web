@@ -232,7 +232,7 @@ function MediaGrid(media_type,socket){
 
           var card_body = document.createElement("div");
           card_body.className = "card-body";
-          if (data.media[index].status == "none") {
+          if (!data.media[index].status) {
               card_body.setAttribute("style", "background-color: #353b41;");
               card_div.classList.add("card-hover");
           }
